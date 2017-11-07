@@ -22,8 +22,9 @@
     <string name="cart_title">Your Cart</string>
     <string name="quantity_label_hint">Quantity</string>
     <string-array name="regular_label">
-        <item>Every Week</item>
-        <item>Every Month</item>
+        <item>None</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
     </string-array>
     <string name="total_payment">Total Payment: </string>
     <string name="next_button">Next</string>
