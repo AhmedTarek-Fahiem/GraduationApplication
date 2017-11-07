@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="10dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginTop="10dp"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/username_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/username_label_hint"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/password_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/password_label_hint"
+        android:inputType="textPassword"/>
+
+    <EditText
+        android:id="@+id/email_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/email_label_hint"
+        android:inputType="textEmailAddress"/>
+
+    <EditText
+        android:id="@+id/date_of_birth_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/date_of_birth_label_hint"
+        android:inputType="date"/>
+
+    <Spinner
+        android:id="@+id/gender_spinner_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/gender_label">
+    </Spinner>
+
+    <Button
+        android:id="@+id/registration_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/registration_button" />
+
+
+</LinearLayout>

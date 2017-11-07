@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">GraduationApplication</string>
+    <string name="login_button">Login</string>
+    <string name="registration_button">Registration</string>
+    <string name="username_label_hint">Username</string>
+    <string name="password_label_hint">Password</string>
+    <string name="email_label_hint">Email</string>
+    <string name="date_of_birth_label_hint">Date Of Birth</string>
+    <string-array name="gender_label">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+    <string name="search_label_hint">Medicine Name.....</string>
+    <string name="submit_button">Submit</string>
+    <string name="details_button">Details</string>
+    <string name="details_medicine_name_label">Name :</string>
+    <string name="details_medicine_concentration_label">Concentration :</string>
+    <string name="details_medicine_form_label">Form :</string>
+    <string name="details_medicine_price_label">Price :</string>
+    <string name="details_medicine_category_label">Category :</string>
+    <string name="details_medicine_active_ingredients_label">Active Ingredients :</string>
+    <string name="cart_title">Your Cart</string>
+    <string name="quantity_label_hint">Quantity</string>
+    <string-array name="regular_label">
+        <item>Every Week</item>
+        <item>Every Month</item>
+    </string-array>
+    <string name="total_payment">Total Payment: </string>
+    <string name="next_button">Next</string>
+    <string name="share_button">Share</string>
+    <string name="save_button">Save</string>
+
+
+    <string name="details_medicine_name">Medicine Name</string>
+    <string name="details_medicine_concentration">Medicine Concentration</string>
+    <string name="details_medicine_form">Medicine Form</string>
+    <string name="details_medicine_price">Medicine Price</string>
+    <string name="details_medicine_category">Medicine Category</string>
+    <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
+
+</resources>
