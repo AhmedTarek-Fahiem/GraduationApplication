@@ -1,5 +1,6 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,8 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +23,7 @@ public class CartListFragment extends Fragment {
 
     private RecyclerView mCartListRecyclerView;
     private CartMedicineAdapter mCartMedicineAdapter;
+    private Button mGenerateButton;
 
 
     @Nullable
@@ -31,7 +35,7 @@ public class CartListFragment extends Fragment {
         mCartListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         CartLab cartLab = CartLab.get();
-        List<Medicine> medicines = cartLab.getCartMedicines();
+        final List<Medicine> medicines = cartLab.getCartMedicines();
 
         if (mCartMedicineAdapter == null) {
             mCartMedicineAdapter = new CartMedicineAdapter(medicines);
@@ -39,6 +43,24 @@ public class CartListFragment extends Fragment {
         } else {
             mCartMedicineAdapter.notifyDataSetChanged();
         }
+
+        mGenerateButton = (Button) view.findViewById(R.id.generate_qr);
+        mGenerateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String cartMedicines = "";
+                for(int i = 0; i < medicines.size();i++){
+                    cartMedicines += medicines.get(i).getName();
+                    cartMedicines += ',';
+                    cartMedicines += String.valueOf(medicines.get(i).getQuantity());
+                    if(i != medicines.size() - 1)
+                        cartMedicines += '&';
+                }
+                Intent intent = new Intent(getActivity(), QRActivity.class);
+                intent.putExtra("1", cartMedicines);
+                startActivity(intent);
+            }
+        });
 
         return view;
     }

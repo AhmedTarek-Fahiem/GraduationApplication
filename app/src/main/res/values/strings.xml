@@ -31,7 +31,7 @@
         <item>Monthly</item>
     </string-array>
     <string name="total_payment">Total Payment: </string>
-    <string name="next_button">Next</string>
+    <string name="next_button">Generate QR</string>
     <string name="share_button">Share</string>
     <string name="save_button">Save</string>
 
@@ -42,5 +42,6 @@
     <string name="details_medicine_price">Medicine Price</string>
     <string name="details_medicine_category">Medicine Category</string>
     <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
+    <string name="title_activity_qr_generation">QrGeneration</string>
 
 </resources>
