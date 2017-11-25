@@ -29,7 +29,10 @@ public class MedicineListFragment extends Fragment {
     private RecyclerView mMedicineListRecyclerView;
     private MedicineAdapter mMedicineAdapter;
 
+    private MedicineLab medicineLab;
     private CartLab mCartLab;
+
+    List<Medicine> mSearchMedicines;
 
     private EditText mSearchText;
     private Button mSearchSubmitButton;
@@ -39,34 +42,34 @@ public class MedicineListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
 
+        medicineLab = MedicineLab.get();
         mCartLab = CartLab.get();
 
         mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
         mMedicineListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+
         mSearchText = (EditText) view.findViewById(R.id.search_label);
         mSearchText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 ;;;;;;; ///////////alot of code here :D LOL...
+
+                if (count == 0) {
+                    mSearchMedicines = null;
+                } else {
+                    mSearchMedicines = medicineLab.getMedicines(charSequence);
+                }
+
+                updateUI();
             }
 
             @Override
             public void afterTextChanged(Editable editable) {}
         });
-
-        MedicineLab medicineLab = MedicineLab.get();
-        List<Medicine> medicines = medicineLab.getMedicines();
-
-        if (mMedicineAdapter == null) {
-            mMedicineAdapter = new MedicineAdapter(medicines);
-            mMedicineListRecyclerView.setAdapter(mMedicineAdapter);
-        } else {
-            mMedicineAdapter.notifyDataSetChanged();
-        }
 
         mSearchSubmitButton = (Button) view.findViewById(R.id.search_submit);
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -80,9 +83,18 @@ public class MedicineListFragment extends Fragment {
         return view;
     }
 
+    private void updateUI() {
+        if (mMedicineAdapter == null) {
+            mMedicineAdapter = new MedicineAdapter(mSearchMedicines);
+            mMedicineListRecyclerView.setAdapter(mMedicineAdapter);
+        } else {
+            mMedicineAdapter.notifyDataSetChanged();
+        }
+    }
+
     private class MedicineHolder extends RecyclerView.ViewHolder {
 
-        private Medicine mMedicine;
+        private Medicine mMedicineHold;
 
         private CheckBox mSelectedCheckBox;
         private TextView mMedicineNameTextView;
@@ -98,17 +110,18 @@ public class MedicineListFragment extends Fragment {
         }
 
         public void bindMedicine(Medicine medicine) {
-            mMedicine = medicine;
+            mMedicineHold = medicine;
 
-            mMedicineNameTextView.setText(mMedicine.getName());
+            mMedicineNameTextView.setText(mMedicineHold.getName());
+            mSelectedCheckBox.setChecked(false);
 
             mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if (compoundButton.isChecked()) {
-                        mCartLab.addMedicine(mMedicine);
+                        mCartLab.addMedicine(mMedicineHold);
                     } else {
-                        mCartLab.removeMedicine(mMedicine);
+                        mCartLab.removeMedicine(mMedicineHold);
                     }
                 }
             });
@@ -117,10 +130,10 @@ public class MedicineListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     FragmentManager fragmentManager = getFragmentManager();
-                    MedicineDetailsFragment medicineDetailsFragment = MedicineDetailsFragment.newInstance(mMedicine.getID());
+                    MedicineDetailsFragment medicineDetailsFragment = MedicineDetailsFragment.newInstance(mMedicineHold.getID());
 
                     fragmentManager.beginTransaction()
-                            .add(R.id.main_fragment_container, medicineDetailsFragment)
+                            .replace(R.id.main_fragment_container, medicineDetailsFragment)
                             .addToBackStack(null)
                             .commit();
                 }
@@ -155,7 +168,11 @@ public class MedicineListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return mMedicines.size();
+            if (mMedicines == null) {
+                return 0;
+            } else {
+                return mMedicines.size();
+            }
         }
 
 

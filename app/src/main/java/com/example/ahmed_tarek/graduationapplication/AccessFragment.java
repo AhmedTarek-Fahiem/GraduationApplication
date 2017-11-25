@@ -36,7 +36,7 @@ public class AccessFragment extends Fragment {
             public void onClick(View view) {
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
-                        .add(R.id.access_fragment_container, new LoginFragment())
+                        .replace(R.id.access_fragment_container, new LoginFragment())
                         .addToBackStack(null)
                         .commit();
             }
@@ -48,7 +48,7 @@ public class AccessFragment extends Fragment {
             public void onClick(View view) {
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
-                        .add(R.id.access_fragment_container, new RegistrationFragment())
+                        .replace(R.id.access_fragment_container, new RegistrationFragment())
                         .addToBackStack(null)
                         .commit();
             }

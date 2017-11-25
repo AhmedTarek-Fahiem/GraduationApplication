@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public class MedicineLab {
 
+    private char[] letters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+
     private static MedicineLab sMedicineLab;
 
     private List<Medicine> mMedicines;
@@ -25,7 +27,7 @@ public class MedicineLab {
         mMedicines = new ArrayList<>();
         for (int i = 0 ; i < 100 ; i++) {
             Medicine medicine = new Medicine();
-            medicine.setName("Medicine #" + i);
+            medicine.setName(letters[i % 26] + "Medicine #" + i);
             medicine.setForm("tab");
             medicine.setCategory("anti-pyretic");
             medicine.setConcentration(500);
@@ -35,8 +37,21 @@ public class MedicineLab {
         }
     }
 
-    public List<Medicine> getMedicines() {
-        return mMedicines;
+
+    public List<Medicine> getMedicines(CharSequence charSequence) {
+
+        if (charSequence == null) {
+            return null;
+        } else {
+
+            List<Medicine> medicineList = new ArrayList<>();
+            for (Medicine medicine : mMedicines) {
+                if (medicine.getName().startsWith(charSequence.toString())) {    // || medicine.getName().contains(charSequence)
+                    medicineList.add(medicine);
+                }
+            }
+            return medicineList;
+        }
     }
 
     public Medicine getMedicine(UUID id) {
