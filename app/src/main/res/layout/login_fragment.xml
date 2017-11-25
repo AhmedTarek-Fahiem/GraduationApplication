@@ -8,17 +8,18 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="10dp"
     android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#FFFFFF">
 
     <EditText
-        android:id="@+id/username_label"
+        android:id="@+id/login_username_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/username_label_hint"
         android:inputType="text"/>
 
     <EditText
-        android:id="@+id/password_label"
+        android:id="@+id/login_password_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/password_label_hint"

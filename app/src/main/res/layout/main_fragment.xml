@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:weightSum="22"
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:layout_marginRight="16dp"
@@ -17,41 +18,24 @@
         android:id="@+id/search_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
+        android:layout_weight="1"
         android:hint="@string/search_label_hint"
         android:inputType="text" />
 
-    <LinearLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/medicine_list_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:layout_weight="20">
 
-        <CheckBox
-            android:id="@+id/medicine_check_box"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
-        <TextView
-            android:id="@+id/medicine_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:text="Medicine name 1" />
-
-        <Button
-            android:id="@+id/medicine_details"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:text="@string/details_button" />
-    </LinearLayout>
+    </android.support.v7.widget.RecyclerView>
 
     <Button
         android:id="@+id/search_submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="bottom"
         android:text="@string/submit_button" />
 
 </LinearLayout>

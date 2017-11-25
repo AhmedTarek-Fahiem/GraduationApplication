@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="24">
+
+    <TextView
+        android:id="@+id/cart_medicine_name"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="12"
+        android:text="@string/details_medicine_name" />
+
+    <EditText
+        android:id="@+id/cart_medicine_quantity"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="5"
+        android:textAlignment="center"
+        android:hint="@string/quantity_label_hint"
+        android:inputType="number"/>
+
+    <Spinner
+        android:id="@+id/cart_medicine_regular_spinner"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="7"
+        android:entries="@array/regular_label">
+    </Spinner>
+
+</LinearLayout>
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content">-->
+
+    <!--<Spinner-->
+        <!--android:id="@+id/medicine_regular_spinner"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:entries="@array/regular_label">-->
+    <!--</Spinner>-->
+
+    <!--<EditText-->
+        <!--android:id="@+id/medicine_quantity"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_toStartOf="@id/medicine_regular_spinner"-->
+        <!--android:hint="@string/quantity_label_hint"-->
+        <!--android:inputType="number"/>-->
+
+    <!--<TextView-->
+        <!--android:id="@+id/medicine_name"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_marginTop="12dp"-->
+        <!--android:layout_toStartOf="@id/medicine_quantity"-->
+        <!--android:text="@string/details_medicine_name" />-->
+
+
+<!--</RelativeLayout>-->

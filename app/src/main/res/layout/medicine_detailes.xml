@@ -7,14 +7,16 @@
     android:layout_marginRight="16dp"
     android:layout_marginLeft="16dp"
     android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="10dp"
+    android:background="#FFFFFF">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
             android:id="@+id/details_medicine_name_label"
@@ -40,7 +42,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
             android:id="@+id/details_medicine_category_label"
@@ -66,7 +69,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
             android:id="@+id/details_medicine_form_label"
@@ -92,7 +96,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
             android:id="@+id/details_medicine_concentration_label"
@@ -118,7 +123,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
             android:id="@+id/details_medicine_active_ingredients_label"
@@ -144,7 +150,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="5">
+        android:weightSum="5"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
             android:id="@+id/details_medicine_price_label"

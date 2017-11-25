@@ -15,49 +15,60 @@
         android:id="@+id/cart_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:gravity="center"
         android:text="@string/cart_title"
         style="?android:listSeparatorTextViewStyle"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="20"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:weightSum="24">
+        android:weightSum="24"
+        style="?android:listSeparatorTextViewStyle">
 
         <TextView
-            android:id="@+id/medicine_name"
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:layout_weight="14"
-            android:text="@string/details_medicine_name" />
+            android:layout_height="wrap_content"
+            android:layout_weight="12"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:textAlignment="center"
+            android:text="@string/medicine_name_label_title"/>
 
-        <EditText
-            android:id="@+id/medicine_quantity"
-            android:layout_height="wrap_content"
+        <TextView
             android:layout_width="0dp"
-            android:layout_weight="6"
-            android:hint="@string/quantity_label_hint"
-            android:inputType="number"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:textAlignment="center"
+            android:text="@string/medicine_quantity_label_title"/>
 
-        <Spinner
-            android:id="@+id/medicine_regular_spinner"
-            android:layout_height="wrap_content"
+        <TextView
             android:layout_width="0dp"
-            android:layout_weight="4"
-            android:entries="@array/regular_label">
-        </Spinner>
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:textAlignment="center"
+            android:text="@string/medicine_repeatly_label_title"/>
 
     </LinearLayout>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/cart_list_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="22">
+
+    </android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:weightSum="9"
         android:gravity="bottom"
         android:layout_gravity="bottom">

@@ -6,6 +6,7 @@
     <string name="password_label_hint">Password</string>
     <string name="email_label_hint">Email</string>
     <string name="date_of_birth_label_hint">Date Of Birth</string>
+    <string name="date_picker_title">Date of Birth:</string>
     <string-array name="gender_label">
         <item>Male</item>
         <item>Female</item>
@@ -20,7 +21,10 @@
     <string name="details_medicine_category_label">Category :</string>
     <string name="details_medicine_active_ingredients_label">Active Ingredients :</string>
     <string name="cart_title">Your Cart</string>
-    <string name="quantity_label_hint">Quantity</string>
+    <string name="medicine_name_label_title">Medicine Name</string>
+    <string name="medicine_quantity_label_title">Quantity</string>
+    <string name="medicine_repeatly_label_title">Repeat</string>
+    <string name="quantity_label_hint">1</string>
     <string-array name="regular_label">
         <item>None</item>
         <item>Weekly</item>

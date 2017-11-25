@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".StartActivity">
+        <activity android:name=".AccessActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,15 +18,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity"> </activity>
-
-        <activity android:name=".RegistrationActivity"> </activity>
-
         <activity android:name=".MainActivity"> </activity>
 
-        <activity android:name=".MedicineDetails"> </activity>
+        <activity android:name=".CartActivity"> </activity>
 
-        <activity android:name=".Cart"> </activity>
+        <activity android:name=".QRActivity"> </activity>
 
     </application>
 
