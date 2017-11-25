@@ -20,6 +20,7 @@ public class Medicine {
 
     public Medicine() {
         mID = UUID.randomUUID();
+        quantity = 1;
     }
 
     public UUID getID() {

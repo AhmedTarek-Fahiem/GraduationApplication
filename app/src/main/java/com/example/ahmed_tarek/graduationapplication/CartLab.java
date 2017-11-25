@@ -37,6 +37,10 @@ public class CartLab {
         mCartMedicines.remove(medicine);
     }
 
+    public void clearMedicines() {
+        mCartMedicines.clear();
+    }
+
     public void setMedicineQuatity(UUID id, int quantity) {
         for (Medicine medicine : mCartMedicines) {
             if (medicine.getID().equals(id)) {

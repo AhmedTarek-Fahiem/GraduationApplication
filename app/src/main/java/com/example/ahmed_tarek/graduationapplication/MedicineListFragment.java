@@ -17,7 +17,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import java.util.List;
 
 /**
@@ -44,6 +43,8 @@ public class MedicineListFragment extends Fragment {
 
         medicineLab = MedicineLab.get();
         mCartLab = CartLab.get();
+
+        mCartLab.clearMedicines();
 
         mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
         mMedicineListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -113,7 +114,6 @@ public class MedicineListFragment extends Fragment {
             mMedicineHold = medicine;
 
             mMedicineNameTextView.setText(mMedicineHold.getName());
-            mSelectedCheckBox.setChecked(false);
 
             mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
