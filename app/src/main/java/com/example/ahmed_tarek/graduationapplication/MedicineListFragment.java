@@ -1,6 +1,5 @@
 package com.example.ahmed_tarek.graduationapplication;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -88,8 +87,11 @@ public class MedicineListFragment extends Fragment {
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), CartActivity.class);
-                startActivity(intent);
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.main_fragment_container, new CartListFragment())
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 

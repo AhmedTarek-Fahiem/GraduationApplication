@@ -20,8 +20,6 @@
 
         <activity android:name=".MainActivity"> </activity>
 
-        <activity android:name=".CartActivity"> </activity>
-
         <activity android:name=".QRActivity"> </activity>
 
     </application>
