@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,9 +29,12 @@ public class CartListFragment extends Fragment {
     private CartMedicineAdapter mCartMedicineAdapter;
 
     private CartLab cartLab;
-    List<Medicine> medicines;
+    private List<Medicine> medicines = new ArrayList<>();
 
     private Button mGenerateButton;
+    private TextView mTotalPrice;
+
+    private double totalPrice;
 
 
     @Nullable
@@ -46,33 +49,37 @@ public class CartListFragment extends Fragment {
         medicines = cartLab.getCartMedicines();
 
         if (mCartMedicineAdapter == null) {
-            mCartMedicineAdapter = new CartMedicineAdapter(medicines);
+            mCartMedicineAdapter = new CartMedicineAdapter(cartLab.getCartMedicines());
             mCartListRecyclerView.setAdapter(mCartMedicineAdapter);
         } else {
             mCartMedicineAdapter.notifyDataSetChanged();
         }
 
+        mTotalPrice = (TextView) view.findViewById(R.id.total_payment_number);
+
         mGenerateButton = (Button) view.findViewById(R.id.generate_qr);
         mGenerateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                medicines.clear();
-                medicines = cartLab.getCartMedicines();
+                List<Medicine> qrMedicines;
+                qrMedicines = cartLab.getCartMedicines();
+
                 String cartMedicines = "";
-                for(int i = 0 ; i < medicines.size() ; i++){
-                    cartMedicines += medicines.get(i).getName();
+
+                for(int i = 0 ; i < qrMedicines.size() ; i++){
+                    cartMedicines += qrMedicines.get(i).getName();
                     cartMedicines += ',';
-                    cartMedicines += String.valueOf(medicines.get(i).getQuantity());
-                    if(i != (medicines.size() - 1))
+                    cartMedicines += String.valueOf(qrMedicines.get(i).getQuantity());
+                    if(i != (qrMedicines.size() - 1))
                         cartMedicines += '&';
                 }
-                Log.d("QRSTRING", cartMedicines);
-                Intent intent = new Intent(getActivity(), QRActivity.class);
-                intent.putExtra("1", cartMedicines);
+
+                Intent intent = QRActivity.newIntent(getActivity(), cartMedicines);
                 startActivity(intent);
-                getActivity().finish();
             }
         });
+
+        updatePrice();
 
         return view;
     }
@@ -110,6 +117,7 @@ public class CartListFragment extends Fragment {
                     } else {
                         cartLab.setMedicineQuatity(mMedicine.getID(), 1);
                     }
+                    updatePrice();
                 }
 
                 @Override
@@ -164,6 +172,18 @@ public class CartListFragment extends Fragment {
         public int getItemCount() {
             return mMedicines.size();
         }
+    }
+
+    private void updatePrice() {
+        List<Medicine> medicines;
+        medicines = cartLab.getCartMedicines();
+        totalPrice = 0;
+
+        for (Medicine medicine : medicines) {
+            totalPrice += medicine.getPrice() * medicine.getQuantity();
+        }
+
+        mTotalPrice.setText(String.valueOf(totalPrice));
     }
 
 }

@@ -9,7 +9,8 @@
     android:layout_marginLeft="16dp"
     android:layout_marginTop="10dp"
     android:layout_marginBottom="10dp"
-    android:weightSum="24">
+    android:weightSum="24"
+    android:focusableInTouchMode="true">
 
     <TextView
         android:id="@+id/cart_title"
@@ -30,16 +31,16 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="12"
+            android:layout_weight="11"
             android:textStyle="bold"
             android:textAllCaps="true"
-            android:textAlignment="center"
+            android:textAlignment="textStart"
             android:text="@string/medicine_name_label_title"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="5"
+            android:layout_weight="6"
             android:textStyle="bold"
             android:textAllCaps="true"
             android:textAlignment="center"
@@ -69,12 +70,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_weight="1"
-        android:weightSum="9"
+        android:weightSum="15"
         android:gravity="bottom"
         android:layout_gravity="bottom">
         <TextView
             android:id="@+id/total_payment"
-            android:layout_weight="4"
+            android:layout_weight="7"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/total_payment"
@@ -86,13 +87,12 @@
             android:layout_weight="3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="10.55"
             android:gravity="start"
             style="?android:listSeparatorTextViewStyle"/>
 
         <Button
             android:id="@+id/generate_qr"
-            android:layout_weight="2"
+            android:layout_weight="5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/next_button"/>

@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,7 +33,7 @@ public class MedicineListFragment extends Fragment {
     private MedicineLab medicineLab;
     private CartLab mCartLab;
 
-    List<Medicine> mSearchMedicines;
+    private List<Medicine> mSearchMedicines = new ArrayList<>();
 
     private EditText mSearchText;
     private Button mSearchSubmitButton;
@@ -59,11 +61,20 @@ public class MedicineListFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 ;;;;;;; ///////////alot of code here :D LOL...
 
+
                 if (count == 0) {
-                    mSearchMedicines = null;
+                    mSearchMedicines.clear();
                 } else {
+                    Log.e("Search Text", count + " / " + charSequence.toString() + " / " + mSearchMedicines.size());
+//                    if (mSearchMedicines != null) {
+//                        mSearchMedicines.clear();
+//                    }
+//                    mSearchMedicines = null;
                     mSearchMedicines = medicineLab.getMedicines(charSequence);
+                    Log.e("Search Text --- ", count + " / " + charSequence.toString() + " / " + mSearchMedicines.size() + "--");
                 }
+
+                Log.e("Search Text _ onchanged", charSequence.toString());
 
                 updateUI();
             }
@@ -73,6 +84,7 @@ public class MedicineListFragment extends Fragment {
         });
 
         mSearchSubmitButton = (Button) view.findViewById(R.id.search_submit);
+        mSearchSubmitButton.setVisibility(View.GONE);
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,8 +132,12 @@ public class MedicineListFragment extends Fragment {
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if (compoundButton.isChecked()) {
                         mCartLab.addMedicine(mMedicineHold);
+                        mSearchSubmitButton.setVisibility(View.VISIBLE);
                     } else {
                         mCartLab.removeMedicine(mMedicineHold);
+                        if (mCartLab.getCartMedicines().size() == 0) {
+                            mSearchSubmitButton.setVisibility(View.GONE);
+                        }
                     }
                 }
             });
@@ -168,11 +184,11 @@ public class MedicineListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            if (mMedicines == null) {
-                return 0;
-            } else {
+//            if (mMedicines == null) {
+//                return 0;
+//            } else {
                 return mMedicines.size();
-            }
+//            }
         }
 
 
