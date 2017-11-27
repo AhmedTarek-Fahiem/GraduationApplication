@@ -38,20 +38,15 @@ public class MedicineLab {
     }
 
 
-    public List<Medicine> getMedicines(CharSequence charSequence) {
+    public List<Medicine> getMedicines(String charSequence) {
 
-        if (charSequence == null) {
-            return null;
-        } else {
-
-            List<Medicine> medicineList = new ArrayList<>();
-            for (Medicine medicine : mMedicines) {
-                if (medicine.getName().startsWith(charSequence.toString())) {    // || medicine.getName().contains(charSequence)
-                    medicineList.add(medicine);
-                }
+        List<Medicine> medicineList = new ArrayList<>();
+        for (Medicine medicine : mMedicines) {
+            if (medicine.getName().startsWith(charSequence)) {    // || medicine.getName().contains(charSequence)
+                medicineList.add(medicine);
             }
-            return medicineList;
         }
+        return medicineList;
     }
 
     public Medicine getMedicine(UUID id) {

@@ -1,7 +1,6 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,10 +24,6 @@ import java.util.List;
 
 public class MedicineListFragment extends Fragment {
 
-    private static final String KEY_MEDICINE_SEARCH_TEXT = "search_text";
-
-    private static Parcelable listState;
-
     private RecyclerView mMedicineListRecyclerView;
     private MedicineAdapter mMedicineAdapter;
 
@@ -37,8 +32,6 @@ public class MedicineListFragment extends Fragment {
 
     private EditText mSearchTextEditText;
     private Button mSearchSubmitButton;
-
-    private CharSequence searchText;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +54,10 @@ public class MedicineListFragment extends Fragment {
         mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
         mMedicineListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        if (mMedicineListRecyclerView.getAdapter() == null) {
+            mMedicineAdapter = new MedicineAdapter(null);
+            mMedicineListRecyclerView.setAdapter(mMedicineAdapter);
+        }
 
         mSearchTextEditText = (EditText) view.findViewById(R.id.search_label);
         mSearchTextEditText.addTextChangedListener(new TextWatcher() {
@@ -68,15 +65,17 @@ public class MedicineListFragment extends Fragment {
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-
-                searchText = charSequence;
-
-                updateUI();
-            }
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {}
 
             @Override
-            public void afterTextChanged(Editable editable) {}
+            public void afterTextChanged(Editable editable) {
+
+                if (mSearchTextEditText.getText().length() == 0) {
+                    mMedicineAdapter.updateList(null);
+                } else {
+                    mMedicineAdapter.updateList(medicineLab.getMedicines(mSearchTextEditText.getText().toString()));
+                }
+            }
         });
 
         mSearchSubmitButton = (Button) view.findViewById(R.id.search_submit);
@@ -93,44 +92,6 @@ public class MedicineListFragment extends Fragment {
         });
 
         return view;
-    }
-
-    private void updateUI() {
-
-        List<Medicine> medicineList;
-        medicineList = medicineLab.getMedicines(searchText);
-
-        if (mMedicineListRecyclerView.getAdapter() == null) {
-            mMedicineAdapter = new MedicineAdapter(medicineList);
-            mMedicineListRecyclerView.setAdapter(mMedicineAdapter);
-        } else {
-            mMedicineAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putCharSequence(KEY_MEDICINE_SEARCH_TEXT, searchText);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            searchText = savedInstanceState.getCharSequence(KEY_MEDICINE_SEARCH_TEXT);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (searchText != null) {
-            updateUI();
-        }
     }
 
     private class MedicineHolder extends RecyclerView.ViewHolder {
@@ -213,7 +174,17 @@ public class MedicineListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-                return mMedicines.size();
+
+            if (mMedicines == null) {
+                return 0;
+            }
+            return mMedicines.size();
+        }
+
+        public void updateList(List<Medicine> medicines) {
+
+            this.mMedicines = medicines;
+            notifyDataSetChanged();
         }
 
     }
