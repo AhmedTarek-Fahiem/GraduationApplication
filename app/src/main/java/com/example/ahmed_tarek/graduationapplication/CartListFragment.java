@@ -104,6 +104,20 @@ public class CartListFragment extends Fragment {
             mMedicine = medicine;
 
             mMedicineNameTextView.setText(mMedicine.getName());
+            mMedicineQuantity.setText(String.valueOf(mMedicine.getQuantity()));
+            switch (mMedicine.getRepeat()) {
+                case 0:
+                    mMedicineRepeat.setSelection(0);
+                    break;
+                case 7:
+                    mMedicineRepeat.setSelection(1);
+                    break;
+                case 30:
+                    mMedicineRepeat.setSelection(2);
+                    break;
+                default:
+                        mMedicineRepeat.setSelection(0);
+            }
 
             mMedicineQuantity.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -113,9 +127,9 @@ public class CartListFragment extends Fragment {
                 public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
 
                     if (count != 0) {
-                        cartLab.setMedicineQuatity(mMedicine.getID(), Integer.parseInt(charSequence.toString()));
+                        cartLab.setMedicineQuantity(mMedicine.getID(), Integer.parseInt(charSequence.toString()));
                     } else {
-                        cartLab.setMedicineQuatity(mMedicine.getID(), 1);
+                        cartLab.setMedicineQuantity(mMedicine.getID(), 1);
                     }
                     updatePrice();
                 }
