@@ -56,7 +56,5 @@ public class AccessFragment extends Fragment {
 
 
         return view;
-
     }
-
 }
