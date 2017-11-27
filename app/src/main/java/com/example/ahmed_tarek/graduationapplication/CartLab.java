@@ -29,8 +29,19 @@ public class CartLab {
         return mCartMedicines;
     }
 
+    public boolean isExist(UUID id) {
+        for (Medicine medicine : mCartMedicines) {
+            if (medicine.getID().equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addMedicine(Medicine medicine) {
-        mCartMedicines.add(medicine);
+        if (!isExist(medicine.getID())) {
+            mCartMedicines.add(medicine);
+        }
     }
 
     public void removeMedicine(Medicine medicine) {

@@ -1,6 +1,7 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,54 +25,52 @@ import java.util.List;
 
 public class MedicineListFragment extends Fragment {
 
+    private static final String KEY_MEDICINE_SEARCH_TEXT = "search_text";
+
+    private static Parcelable listState;
+
     private RecyclerView mMedicineListRecyclerView;
     private MedicineAdapter mMedicineAdapter;
 
     private MedicineLab medicineLab;
     private CartLab mCartLab;
 
-    private List<Medicine> mSearchMedicines = new ArrayList<>();
-
-    private EditText mSearchText;
+    private EditText mSearchTextEditText;
     private Button mSearchSubmitButton;
+
+    private CharSequence searchText;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        medicineLab = MedicineLab.get();
+        mCartLab = CartLab.get();
+
+        if (savedInstanceState == null) {
+            mCartLab.clearMedicines();
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
 
-        medicineLab = MedicineLab.get();
-        mCartLab = CartLab.get();
-
-        mCartLab.clearMedicines();
 
         mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
         mMedicineListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
-        mSearchText = (EditText) view.findViewById(R.id.search_label);
-        mSearchText.addTextChangedListener(new TextWatcher() {
+        mSearchTextEditText = (EditText) view.findViewById(R.id.search_label);
+        mSearchTextEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                ;;;;;;; ///////////alot of code here :D LOL...
 
-
-                if (count == 0) {
-                    mSearchMedicines.clear();
-                } else {
-                    Log.e("Search Text", count + " / " + charSequence.toString() + " / " + mSearchMedicines.size());
-//                    if (mSearchMedicines != null) {
-//                        mSearchMedicines.clear();
-//                    }
-//                    mSearchMedicines = null;
-                    mSearchMedicines = medicineLab.getMedicines(charSequence);
-                    Log.e("Search Text --- ", count + " / " + charSequence.toString() + " / " + mSearchMedicines.size() + "--");
-                }
-
-                Log.e("Search Text _ onchanged", charSequence.toString());
+                searchText = charSequence;
 
                 updateUI();
             }
@@ -99,11 +96,40 @@ public class MedicineListFragment extends Fragment {
     }
 
     private void updateUI() {
-        if (mMedicineAdapter == null) {
-            mMedicineAdapter = new MedicineAdapter(mSearchMedicines);
+
+        List<Medicine> medicineList;
+        medicineList = medicineLab.getMedicines(searchText);
+
+        if (mMedicineListRecyclerView.getAdapter() == null) {
+            mMedicineAdapter = new MedicineAdapter(medicineList);
             mMedicineListRecyclerView.setAdapter(mMedicineAdapter);
         } else {
             mMedicineAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putCharSequence(KEY_MEDICINE_SEARCH_TEXT, searchText);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            searchText = savedInstanceState.getCharSequence(KEY_MEDICINE_SEARCH_TEXT);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (searchText != null) {
+            updateUI();
         }
     }
 
@@ -128,6 +154,7 @@ public class MedicineListFragment extends Fragment {
             mMedicineHold = medicine;
 
             mMedicineNameTextView.setText(mMedicineHold.getName());
+            mSelectedCheckBox.setChecked(mCartLab.isExist(mMedicineHold.getID()));
 
             mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -186,13 +213,8 @@ public class MedicineListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-//            if (mMedicines == null) {
-//                return 0;
-//            } else {
                 return mMedicines.size();
-//            }
         }
-
 
     }
 }

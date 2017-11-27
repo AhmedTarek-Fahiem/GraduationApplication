@@ -25,7 +25,7 @@ public class MedicineLab {
 
     private MedicineLab() {
         mMedicines = new ArrayList<>();
-        for (int i = 0 ; i < 100 ; i++) {
+        for (int i = 0 ; i < 1000 ; i++) {
             Medicine medicine = new Medicine();
             medicine.setName(letters[i % 26] + "Medicine #" + i);
             medicine.setForm("tab");

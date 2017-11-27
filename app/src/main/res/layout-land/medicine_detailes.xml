@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="2"
+    android:gravity="center_vertical"
+    android:layout_marginRight="16dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:background="#FFFFFF">
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:id="@+id/details_medicine_name_label"
+            android:text="@string/details_medicine_name_label"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/details_medicine_name"
+            android:text="@string/details_medicine_name"
+            style="?android:listSeparatorTextViewStyle"/>
+
+    </TableRow>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:id="@+id/details_medicine_category_label"
+            android:text="@string/details_medicine_category_label"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/details_medicine_category"
+            android:text="@string/details_medicine_category"
+            style="?android:listSeparatorTextViewStyle"/>
+
+    </TableRow>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:id="@+id/details_medicine_form_label"
+            android:text="@string/details_medicine_form_label"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/details_medicine_form"
+            android:text="@string/details_medicine_form"
+            style="?android:listSeparatorTextViewStyle"/>
+
+    </TableRow>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:id="@+id/details_medicine_concentration_label"
+            android:text="@string/details_medicine_concentration_label"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/details_medicine_concentration"
+            android:text="@string/details_medicine_concentration"
+            style="?android:listSeparatorTextViewStyle"/>
+
+    </TableRow>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:id="@+id/details_medicine_active_ingredients_label"
+            android:text="@string/details_medicine_active_ingredients_label"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/details_medicine_active_ingredients"
+            android:text="@string/details_medicine_active_ingredients"
+            style="?android:listSeparatorTextViewStyle"/>
+
+    </TableRow>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+    <TableRow>
+
+        <TextView
+            android:layout_column="1"
+            android:id="@+id/details_medicine_price_label"
+            android:text="@string/details_medicine_price_label"
+            style="?android:listSeparatorTextViewStyle"/>
+
+        <TextView
+            android:id="@+id/details_medicine_price"
+            android:text="@string/details_medicine_price"
+            style="?android:listSeparatorTextViewStyle"/>
+
+    </TableRow>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090" />
+
+</TableLayout>
