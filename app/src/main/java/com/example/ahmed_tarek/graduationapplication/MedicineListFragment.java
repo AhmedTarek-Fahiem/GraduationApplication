@@ -2,6 +2,7 @@ package com.example.ahmed_tarek.graduationapplication;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +12,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -31,7 +31,9 @@ public class MedicineListFragment extends Fragment {
     private CartLab mCartLab;
 
     private EditText mSearchTextEditText;
-    private Button mSearchSubmitButton;
+    private FloatingActionButton mSearchSubmitButton;
+
+    private static Boolean flag = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,7 +80,7 @@ public class MedicineListFragment extends Fragment {
             }
         });
 
-        mSearchSubmitButton = (Button) view.findViewById(R.id.search_submit);
+        mSearchSubmitButton = (FloatingActionButton) view.findViewById(R.id.search_submit);
         mSearchSubmitButton.setVisibility(View.GONE);
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,14 +102,14 @@ public class MedicineListFragment extends Fragment {
 
         private CheckBox mSelectedCheckBox;
         private TextView mMedicineNameTextView;
-        private Button mDetailsButton;
+        private FloatingActionButton mDetailsButton;
 
         public MedicineHolder(View itemView) {
             super(itemView);
 
             mSelectedCheckBox = (CheckBox) itemView.findViewById(R.id.medicine_selected_check_box);
             mMedicineNameTextView = (TextView) itemView.findViewById(R.id.medicine_name);
-            mDetailsButton = (Button) itemView.findViewById(R.id.medicine_details_button);
+            mDetailsButton = (FloatingActionButton) itemView.findViewById(R.id.medicine_details_button);
 
         }
 
@@ -116,16 +118,21 @@ public class MedicineListFragment extends Fragment {
 
             mMedicineNameTextView.setText(mMedicineHold.getName());
             mSelectedCheckBox.setChecked(mCartLab.isExist(mMedicineHold.getID()));
+            if (flag) {
+                mSearchSubmitButton.setVisibility(View.VISIBLE);
+            }
 
             mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if (compoundButton.isChecked()) {
                         mCartLab.addMedicine(mMedicineHold);
+                        flag = true;
                         mSearchSubmitButton.setVisibility(View.VISIBLE);
                     } else {
                         mCartLab.removeMedicine(mMedicineHold);
                         if (mCartLab.getCartMedicines().size() == 0) {
+                            flag = false;
                             mSearchSubmitButton.setVisibility(View.GONE);
                         }
                     }
