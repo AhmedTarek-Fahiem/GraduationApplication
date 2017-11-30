@@ -70,17 +70,29 @@ public class LoginFragment extends Fragment {
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isLogin", true);
-                editor.apply();
 
-                Intent i = new Intent(view.getContext(), MainActivity.class);
-                startActivity(i);
-                getActivity().finish();
+                if (check(mUsername.getText().toString(), mPassword.getText().toString())) {
+
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("isLogin", true);
+                    editor.apply();
+
+                    Intent i = new Intent(view.getContext(), MainActivity.class);
+                    startActivity(i);
+                    getActivity().finish();
+                }
+
             }
         });
 
         return view;
+    }
+
+    private boolean check(String username, String password){
+
+        //check with the database...
+
+        return true;
     }
 }

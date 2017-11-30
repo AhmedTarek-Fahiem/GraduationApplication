@@ -4,6 +4,7 @@
     <string name="registration_button">Registration</string>
     <string name="username_label_hint">Username</string>
     <string name="password_label_hint">Password</string>
+    <string name="confirm_password_label_hint">Confirm Password</string>
     <string name="email_label_hint">Email</string>
     <string name="date_of_birth_label_hint">Date Of Birth</string>
     <string name="date_picker_title">Date of Birth:</string>
@@ -34,8 +35,8 @@
     <string name="next_button">Generate QR</string>
     <string name="share_button">Share</string>
     <string name="save_button">Save</string>
-    <string name="success">Successfully Saved</string>
-    <string name="fail">Failed to save QR</string>
+    <string name="save_success">Successfully Saved</string>
+    <string name="save_fail">Failed to save QR</string>
 
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>

@@ -15,12 +15,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,7 +32,7 @@ public class QRActivity extends AppCompatActivity {
 
     private static final String EXTRA_QR_TEXT = "qr_text";
 
-    private ImageView mQRImage;
+    private ImageView mQRImageView;
     private Button mShare;
     private Button mSave;
     private Bitmap QR;
@@ -45,7 +43,7 @@ public class QRActivity extends AppCompatActivity {
         return intent;
     }
 
-    private boolean saveInternalQR(Bitmap QR, File path) {
+     private boolean saveInternalQR(Bitmap QR, File path) {
         FileOutputStream stream;
         path.mkdirs();
         Log.d("STRING", path.getAbsolutePath());
@@ -57,19 +55,15 @@ public class QRActivity extends AppCompatActivity {
             return true;
         }
         catch (Exception e) {
-            Toast.makeText(this, R.string.fail, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.save_fail, Toast.LENGTH_LONG).show();
             e.printStackTrace();
             return false;
         }
     }
 
-    private void saveExternalQR(Bitmap QR, File path) {
-
-    }
-
     private void loadQR() {
         try {
-            mQRImage.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(new File(new ContextWrapper(getApplicationContext()).getDir("QR",Context.MODE_PRIVATE).getAbsolutePath(), "QR.png"))));
+            mQRImageView.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(new File(new ContextWrapper(getApplicationContext()).getDir("QR",Context.MODE_PRIVATE).getAbsolutePath(), "QR.png"))));
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -80,14 +74,14 @@ public class QRActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_activity);
-        mQRImage = (ImageView) findViewById(R.id.qrImage);
+        mQRImageView = (ImageView) findViewById(R.id.qrImage);
         mSave = (Button) findViewById(R.id.save_qr_button);
         mShare = (Button) findViewById(R.id.share_qr_button);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (!sharedPreferences.getBoolean("Saved",false)) {
             try {
                 QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
-                mQRImage.setImageBitmap(QR);
+                mQRImageView.setImageBitmap(QR);
                 if (saveInternalQR(QR, new File(new ContextWrapper(getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString())))
                     sharedPreferences.edit().putBoolean("Saved", true)
                             .apply();
@@ -103,7 +97,7 @@ public class QRActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(saveInternalQR(QR, new File(Environment.getExternalStorageDirectory().toString() + "/QR")))
-                    Toast.makeText(QRActivity.super.getApplicationContext(), R.string.success, Toast.LENGTH_LONG).show();
+                    Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_success, Toast.LENGTH_LONG).show();
             }
         });
 

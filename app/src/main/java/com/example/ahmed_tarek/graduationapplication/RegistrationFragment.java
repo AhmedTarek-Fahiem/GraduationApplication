@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -35,6 +34,7 @@ public class RegistrationFragment extends Fragment {
 
     private EditText mUsername;
     private EditText mPassword;
+    private EditText mConfirmPassword;
     private EditText mEMail;
     private Button mDateOfBirth;
     private Spinner mGender;
@@ -59,7 +59,7 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                customer.setUsername(charSequence.toString());
+                customer.setUsername(charSequence.toString());//////////////////////////////////////////////// delete when connecting to database
             }
 
             @Override
@@ -73,8 +73,20 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                customer.setPassword(charSequence.toString());
+                customer.setPassword(charSequence.toString());//////////////////////////////////////////////// delete when connecting to database
             }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        mConfirmPassword = (EditText) view.findViewById(R.id.register_confirm_password_label);
+        mConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
             public void afterTextChanged(Editable editable) {}
@@ -87,7 +99,7 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                customer.setEMail(charSequence.toString());
+                customer.setEMail(charSequence.toString());//////////////////////////////////////////////// delete when connecting to database
             }
 
             @Override
@@ -111,14 +123,18 @@ public class RegistrationFragment extends Fragment {
         mRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isLogin", true);
-                editor.apply();
 
-                Intent i = new Intent(view.getContext(), MainActivity.class);
-                startActivity(i);
-                getActivity().finish();
+                if (check(mUsername.getText().toString(), mPassword.getText().toString(), mConfirmPassword.getText().toString(), mEMail.getText().toString())) {
+
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("isLogin", true);
+                    editor.apply();
+
+                    Intent i = new Intent(view.getContext(), MainActivity.class);
+                    startActivity(i);
+                    getActivity().finish();
+                }
             }
         });
 
@@ -133,11 +149,18 @@ public class RegistrationFragment extends Fragment {
         if (requestCode == REQUEST_CODE) {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
 
-            customer.setDateOfBirth(date);
+            customer.setDateOfBirth(date);//////////////////////////////////////////////// delete when connecting to database
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE dd MMM, yyyy", Locale.ENGLISH);
 
             mDateOfBirth.setText(simpleDateFormat.format(customer.getDateOfBirth()));
         }
+    }
+
+    private boolean check(String username, String firstPassword, String secondPassword, String email) {
+
+        //check with the database...
+
+        return true;
     }
 }
