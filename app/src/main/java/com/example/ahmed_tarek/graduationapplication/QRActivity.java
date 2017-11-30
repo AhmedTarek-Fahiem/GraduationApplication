@@ -1,16 +1,21 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,7 +40,6 @@ public class QRActivity extends AppCompatActivity {
     private ImageView mQRImageView;
     private Button mShare;
     private Button mSave;
-    private Bitmap QR;
 
     public static Intent newIntent(Context packageContext, String qrText) {
         Intent intent = new Intent(packageContext, QRActivity.class);
@@ -43,14 +47,19 @@ public class QRActivity extends AppCompatActivity {
         return intent;
     }
 
-     private boolean saveInternalQR(Bitmap QR, File path) {
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+    }
+
+     private boolean saveQR(Bitmap QR, File path) {
         FileOutputStream stream;
         path.mkdirs();
-        Log.d("STRING", path.getAbsolutePath());
         try {
-            Log.d("STRING", "entered slipstream");
-            stream = new FileOutputStream(new File(path,"QR.png"));
+            File savingDirectory = new File(path,"QR.png");
+            stream = new FileOutputStream(savingDirectory);
             QR.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            savingDirectory.setReadable(true);
             stream.close();
             return true;
         }
@@ -78,11 +87,12 @@ public class QRActivity extends AppCompatActivity {
         mSave = (Button) findViewById(R.id.save_qr_button);
         mShare = (Button) findViewById(R.id.share_qr_button);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        checkPermission();
         if (!sharedPreferences.getBoolean("Saved",false)) {
             try {
-                QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
+                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
-                if (saveInternalQR(QR, new File(new ContextWrapper(getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString())))
+                if (saveQR(QR, new File(new ContextWrapper(getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString())))
                     sharedPreferences.edit().putBoolean("Saved", true)
                             .apply();
             }
@@ -96,8 +106,10 @@ public class QRActivity extends AppCompatActivity {
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(saveInternalQR(QR, new File(Environment.getExternalStorageDirectory().toString() + "/QR")))
+                BitmapDrawable drawable = (BitmapDrawable) mQRImageView.getDrawable();
+                if(saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR")))
                     Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_success, Toast.LENGTH_LONG).show();
+                MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), new String[] { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR/QR.png"}, new String[] { "image/png" }, null);
             }
         });
 
