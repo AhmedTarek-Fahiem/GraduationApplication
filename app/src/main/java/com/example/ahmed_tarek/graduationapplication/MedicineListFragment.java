@@ -1,6 +1,8 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -33,7 +35,6 @@ public class MedicineListFragment extends Fragment {
     private EditText mSearchTextEditText;
     private FloatingActionButton mSearchSubmitButton;
 
-    private static Boolean flag = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,7 +43,11 @@ public class MedicineListFragment extends Fragment {
         medicineLab = MedicineLab.get();
         mCartLab = CartLab.get();
 
+
         if (savedInstanceState == null) {
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+            editor.putBoolean("cartFlag", false);
+            editor.apply();
             mCartLab.clearMedicines();
         }
     }
@@ -81,7 +86,11 @@ public class MedicineListFragment extends Fragment {
         });
 
         mSearchSubmitButton = (FloatingActionButton) view.findViewById(R.id.search_submit);
-        mSearchSubmitButton.setVisibility(View.GONE);
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("cartFlag", false)) {
+            mSearchSubmitButton.setVisibility(View.VISIBLE);
+        } else {
+            mSearchSubmitButton.setVisibility(View.GONE);
+        }
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,21 +127,25 @@ public class MedicineListFragment extends Fragment {
 
             mMedicineNameTextView.setText(mMedicineHold.getName());
             mSelectedCheckBox.setChecked(mCartLab.isExist(mMedicineHold.getID()));
-            if (flag) {
+            if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("cartFlag", false)) {
                 mSearchSubmitButton.setVisibility(View.VISIBLE);
             }
 
             mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
                     if (compoundButton.isChecked()) {
                         mCartLab.addMedicine(mMedicineHold);
-                        flag = true;
+                        editor.putBoolean("cartFlag", true);
+                        editor.apply();
                         mSearchSubmitButton.setVisibility(View.VISIBLE);
                     } else {
                         mCartLab.removeMedicine(mMedicineHold);
                         if (mCartLab.getCartMedicines().size() == 0) {
-                            flag = false;
+                            editor.putBoolean("cartFlag", false);
+                            editor.apply();
                             mSearchSubmitButton.setVisibility(View.GONE);
                         }
                     }
