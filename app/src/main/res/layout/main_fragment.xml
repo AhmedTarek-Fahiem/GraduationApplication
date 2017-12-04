@@ -32,9 +32,10 @@
         android:id="@+id/search_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        app:backgroundTint="@color/zxing_custom_viewfinder_laser"
-        app:srcCompat="@android:drawable/ic_menu_send" />
+        android:layout_alignParentEnd="true"
+        android:scaleType="center"
+        app:backgroundTint="@color/backgroundTintGreen"
+        app:srcCompat="@drawable/ic_send" />
 
 </RelativeLayout>

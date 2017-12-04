@@ -31,5 +31,13 @@
         android:layout_height="wrap_content"
         android:text="@string/login_button" />
 
+    <TextView
+        android:id="@+id/login_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:textColor="@color/errorMessage"
+        android:textAlignment="center"
+        android:textAllCaps="true"/>
 
 </LinearLayout>

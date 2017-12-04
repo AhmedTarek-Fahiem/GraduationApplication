@@ -14,16 +14,16 @@ public class Customer {
     private String mPassword;
     private String mEMail;
     private Date mDateOfBirth;
-    private char mGender;
+    private String mGender;
 
     public static Customer getCustomer() {
         if (sCustomer == null) {
-            return new Customer();
+            sCustomer = new Customer();
         }
         return sCustomer;
     }
 
-    public Customer() {
+    private Customer() {
     }
 
     public String getUsername() {
@@ -58,11 +58,11 @@ public class Customer {
         mDateOfBirth = dateOfBirth;
     }
 
-    public char getGender() {
+    public String getGender() {
         return mGender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(String gender) {
         mGender = gender;
     }
 }

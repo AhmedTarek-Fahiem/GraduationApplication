@@ -1,6 +1,7 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,9 +14,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -39,6 +42,7 @@ public class RegistrationFragment extends Fragment {
     private Button mDateOfBirth;
     private Spinner mGender;
     private Button mRegistrationButton;
+    private TextView mErrorMessage;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +56,8 @@ public class RegistrationFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.registration_fragment, container, false);
 
+        mErrorMessage = (TextView) view.findViewById(R.id.registration_error);
+
         mUsername = (EditText) view.findViewById(R.id.register_username_label);
         mUsername.addTextChangedListener(new TextWatcher() {
             @Override
@@ -59,7 +65,7 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                customer.setUsername(charSequence.toString());//////////////////////////////////////////////// delete when connecting to database
+                mErrorMessage.setVisibility(View.GONE);
             }
 
             @Override
@@ -73,7 +79,7 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                customer.setPassword(charSequence.toString());//////////////////////////////////////////////// delete when connecting to database
+                mErrorMessage.setVisibility(View.GONE);
             }
 
             @Override
@@ -86,7 +92,9 @@ public class RegistrationFragment extends Fragment {
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                mErrorMessage.setVisibility(View.GONE);
+            }
 
             @Override
             public void afterTextChanged(Editable editable) {}
@@ -99,7 +107,7 @@ public class RegistrationFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                customer.setEMail(charSequence.toString());//////////////////////////////////////////////// delete when connecting to database
+                mErrorMessage.setVisibility(View.GONE);
             }
 
             @Override
@@ -117,23 +125,44 @@ public class RegistrationFragment extends Fragment {
             }
         });
 
-        ///////////////////////////////////////////////////// gender spinner listener
+        mGender = (Spinner) view.findViewById(R.id.register_gender_spinner_label);
 
         mRegistrationButton = (Button) view.findViewById(R.id.registration_button);
         mRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (check(mUsername.getText().toString(), mPassword.getText().toString(), mConfirmPassword.getText().toString(), mEMail.getText().toString())) {
+                if (mUsername.getText().length() == 0) {
+                    mErrorMessage.setText("Enter your username..");
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                } else if(mPassword.getText().length() == 0) {
+                    mErrorMessage.setText("Enter your password..");
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                } else if(mConfirmPassword.getText().length() == 0) {
+                    mErrorMessage.setText("Enter confirm password..");
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                } else if(!(mPassword.getText().toString()).equals(mConfirmPassword.getText().toString())) {
+                    mErrorMessage.setText("password not match..");
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                } else if(mEMail.getText().length() == 0) {
+                    mErrorMessage.setText("Enter your e-mail..");
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                } else {
+                    if (check(mUsername.getText().toString(), mPassword.getText().toString(), mConfirmPassword.getText().toString(), mEMail.getText().toString())) {
 
-                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("isLogin", true);
-                    editor.apply();
-
-                    Intent i = new Intent(view.getContext(), MainActivity.class);
-                    startActivity(i);
-                    getActivity().finish();
+                        Intent i = new Intent(view.getContext(), MainActivity.class);
+                        startActivity(i);
+                        getActivity().finish();
+                    } else {
+                        mErrorMessage.setText("Wrong data entered...");
+                        mErrorMessage.setVisibility(View.VISIBLE);
+                    }
+                }
+                try {
+                    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -160,6 +189,21 @@ public class RegistrationFragment extends Fragment {
     private boolean check(String username, String firstPassword, String secondPassword, String email) {
 
         //check with the database...
+
+        customer.setUsername(mUsername.getText().toString());
+        customer.setPassword(mPassword.getText().toString());
+        customer.setEMail(mEMail.getText().toString());
+        customer.setGender(mGender.getSelectedItemPosition() == 0? "Male" : "Female");
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+        editor.putBoolean("isLogin", true);
+
+        editor.putString("username", customer.getUsername());
+        editor.putString("password", customer.getPassword());
+        editor.putString("email", customer.getEMail());
+        editor.putString("gender", customer.getGender());
+
+        editor.apply();
 
         return true;
     }
