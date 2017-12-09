@@ -51,5 +51,6 @@
     <string name="details_medicine_category">Medicine Category</string>
     <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
     <string name="title_activity_qr_generation">QrGeneration</string>
+    <string name="title_activity_bluetooth">BluetoothActivity</string>
 
 </resources>

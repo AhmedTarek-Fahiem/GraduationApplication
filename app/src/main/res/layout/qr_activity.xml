@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/id"
+        android:id="@+id/qrInquiry"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -18,18 +18,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/id"
+        android:layout_below="@id/qrInquiry"
         android:orientation="vertical"
         android:gravity="center"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp">
-
-        <TextView
-            android:id="@+id/put_ID"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
         <ImageView
             android:id="@+id/qrImage"
