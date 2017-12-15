@@ -169,7 +169,7 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.action_bar_items, menu);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("Saved",false)) {
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("isSaved",false)) {
             menu.findItem(R.id.bar_recent_qr).setVisible(true);
         } else {
             menu.findItem(R.id.bar_recent_qr).setVisible(false);
@@ -186,7 +186,7 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
         switch (item.getItemId()) {
             case R.id.bar_recent_qr :
 
-                Intent intent = QRActivity.newIntent(getActivity(), true);
+                Intent intent = QRActivity.newIntent(getActivity());
                 startActivity(intent);
 
                 return true;
