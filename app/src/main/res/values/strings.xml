@@ -41,8 +41,9 @@
     <string name="next_button">Generate QR</string>
     <string name="share_button">Share</string>
     <string name="save_button">Save</string>
-    <string name="save_success">Successfully Saved</string>
-    <string name="save_fail">Failed to save QR</string>
+    <string name="save_success">Successfully Saved\nImage path: Pictures/QR</string>
+    <string name="save_fail">Permission denied</string>
+    <string name="save_blocked">Permission blocked</string>
 
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>

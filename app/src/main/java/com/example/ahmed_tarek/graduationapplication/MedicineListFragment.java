@@ -169,7 +169,7 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.action_bar_items, menu);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("isSaved",false)) {
+        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(Customer.getCustomer().getUsername(),false)) {
             menu.findItem(R.id.bar_recent_qr).setVisible(true);
         } else {
             menu.findItem(R.id.bar_recent_qr).setVisible(false);

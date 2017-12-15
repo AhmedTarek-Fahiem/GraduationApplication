@@ -162,9 +162,21 @@ public class QRActivity extends AppCompatActivity {
         return intent;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_fail, Toast.LENGTH_LONG).show();
+        else if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            saveExternal();
+        else
+            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_blocked, Toast.LENGTH_LONG).show();
+    }
+
     private void checkPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 123);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, 123);
+        else
+            saveExternal();
     }
 
      private String[] saveQR(Bitmap QR, File path, boolean isExternal) {
@@ -188,6 +200,12 @@ public class QRActivity extends AppCompatActivity {
         }
     }
 
+    private void saveExternal() {
+        BitmapDrawable drawable = (BitmapDrawable) mQRImageView.getDrawable();
+        MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), true), new String[] { "image/png" }, null);
+        Toast.makeText(getApplicationContext(), R.string.save_success, Toast.LENGTH_LONG).show();
+    }
+
     private void loadQR() {
         try {
             mQRImageView.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(new File(new ContextWrapper(this.getApplicationContext()).getDir("QR",Context.MODE_PRIVATE).getAbsolutePath(), Customer.getCustomer().getUsername() + ".png"))));
@@ -208,8 +226,8 @@ public class QRActivity extends AppCompatActivity {
             try {
                 Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
-                if(saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), false) != null);
-                PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("isSaved", true).apply();
+                if(saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), false) != null)
+                    PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(Customer.getCustomer().getUsername(), true).apply();
             }
             catch (WriterException e) {
                 e.printStackTrace();
@@ -220,11 +238,7 @@ public class QRActivity extends AppCompatActivity {
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BitmapDrawable drawable = (BitmapDrawable) mQRImageView.getDrawable();
                 checkPermission();
-                MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), true), new String[] { "image/png" }, null);
-                Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_success, Toast.LENGTH_LONG).show();
-                Snackbar.make(view, "Image Path: Pictures/QR", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
 
