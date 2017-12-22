@@ -15,12 +15,22 @@ public class Medicine {
     private int mConcentration;
     private String mActiveIngredients;
     private double mPrice;
-    private int quantity;
+    private int mQuantity;
     private int repeat;
 
-    public Medicine() {
-        mID = UUID.randomUUID();
-        quantity = 1;
+    public Medicine(String name, int concentration, String category, String form, String activeIngredients, double price, int quantity) {   ///delete_T  generate medicine id only when we want to generate an imagine data
+        this(UUID.randomUUID(), name, concentration, category, form, activeIngredients, price, quantity);
+    }
+
+    public Medicine(UUID id, String name, int concentration, String category, String form, String activeIngredients, double price, int quantity) {
+        mID = id;
+        mName = name;
+        mConcentration = concentration;
+        mCategory = category;
+        mForm = form;
+        mActiveIngredients = activeIngredients;
+        mPrice = price;
+        mQuantity = quantity;
     }
 
     public UUID getID() {
@@ -31,56 +41,28 @@ public class Medicine {
         return mName;
     }
 
-    public void setName(String name) {
-        mName = name;
-    }
-
     public String getCategory() {
         return mCategory;
-    }
-
-    public void setCategory(String category) {
-        mCategory = category;
     }
 
     public String getForm() {
         return mForm;
     }
 
-    public void setForm(String form) {
-        mForm = form;
-    }
-
     public int getConcentration() {
         return mConcentration;
-    }
-
-    public void setConcentration(int concentration) {
-        mConcentration = concentration;
     }
 
     public String getActiveIngredients() {
         return mActiveIngredients;
     }
 
-    public void setActiveIngredients(String activeIngredients) {
-        mActiveIngredients = activeIngredients;
-    }
-
     public double getPrice() {
         return mPrice;
     }
 
-    public void setPrice(double price) {
-        mPrice = price;
-    }
-
     public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+        return mQuantity;
     }
 
     public int getRepeat() {

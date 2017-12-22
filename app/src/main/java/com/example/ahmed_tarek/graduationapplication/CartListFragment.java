@@ -1,5 +1,6 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,12 +12,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,31 +26,46 @@ import java.util.List;
 
 public class CartListFragment extends Fragment {
 
+    private DrawerInterface mDrawerInterface;
     private RecyclerView mCartListRecyclerView;
     private CartMedicineAdapter mCartMedicineAdapter;
-
-    private CartLab cartLab;
-    private List<Medicine> medicines = new ArrayList<>();
-
     private Button mGenerateButton;
     private TextView mTotalPrice;
 
-    private double totalPrice;
+    private PrescriptionHandler mPrescriptionHandler;
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try {
+            mDrawerInterface = (DrawerInterface) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString() + " must implement DrawerInterface");
+        }
+        try {
+            InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(getView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.cart_fragment, container, false);
 
+        mDrawerInterface.lockDrawer();
+        setHasOptionsMenu(false);
+
         mCartListRecyclerView = (RecyclerView) view.findViewById(R.id.cart_list_recycler_view);
         mCartListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        cartLab = CartLab.get();
-        medicines = cartLab.getCartMedicines();
+        mPrescriptionHandler = PrescriptionHandler.get();
 
         if (mCartMedicineAdapter == null) {
-            mCartMedicineAdapter = new CartMedicineAdapter(cartLab.getCartMedicines());
+            mCartMedicineAdapter = new CartMedicineAdapter(mPrescriptionHandler.getPrescriptionCartMedicines());
             mCartListRecyclerView.setAdapter(mCartMedicineAdapter);
         } else {
             mCartMedicineAdapter.notifyDataSetChanged();
@@ -61,18 +77,22 @@ public class CartListFragment extends Fragment {
         mGenerateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Medicine> qrMedicines;
-                qrMedicines = cartLab.getCartMedicines();
+
+                List<CartMedicine> qrMedicines;
+                qrMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
 
                 String cartMedicines = "";
 
                 for(int i = 0 ; i < qrMedicines.size() ; i++){
-                    cartMedicines += qrMedicines.get(i).getName();
+                    cartMedicines += MedicineLab.get(getActivity()).getMedicine(qrMedicines.get(i).getMedicineID()).getName();///
                     cartMedicines += ',';
                     cartMedicines += String.valueOf(qrMedicines.get(i).getQuantity());
                     if(i != (qrMedicines.size() - 1))
                         cartMedicines += '&';
                 }
+
+                mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
+                mPrescriptionHandler.prescriptionCommit(getActivity());
 
                 Intent intent = QRActivity.newIntent(getActivity(), cartMedicines);
                 startActivity(intent);
@@ -86,40 +106,41 @@ public class CartListFragment extends Fragment {
 
     private class CartMedicineHolder extends RecyclerView.ViewHolder {
 
-        private Medicine mMedicine;
+        private CartMedicine mCartMedicine;
 
-        private TextView mMedicineNameTextView;
-        private EditText mMedicineQuantity;
-        private Spinner mMedicineRepeat;
+        private TextView mCartMedicineNameTextView;
+        private EditText mCartMedicineQuantity;
+        private Spinner mCartMedicineRepeat;
 
         public CartMedicineHolder(View itemView) {
             super(itemView);
 
-            mMedicineNameTextView = (TextView) itemView.findViewById(R.id.cart_medicine_name);
-            mMedicineQuantity = (EditText) itemView.findViewById(R.id.cart_medicine_quantity);
-            mMedicineRepeat = (Spinner) itemView.findViewById(R.id.cart_medicine_regular_spinner);
+            mCartMedicineNameTextView = (TextView) itemView.findViewById(R.id.cart_medicine_name);
+            mCartMedicineQuantity = (EditText) itemView.findViewById(R.id.cart_medicine_quantity);
+            mCartMedicineRepeat = (Spinner) itemView.findViewById(R.id.cart_medicine_regular_spinner);
         }
 
-        public void bindMedicine(Medicine medicine) {
-            mMedicine = medicine;
+        public void bindCartMedicine(CartMedicine cartMedicine) {
 
-            mMedicineNameTextView.setText(mMedicine.getName());
-            mMedicineQuantity.setText(String.valueOf(mMedicine.getQuantity()));
-            switch (mMedicine.getRepeat()) {
+            mCartMedicine = cartMedicine;
+
+            mCartMedicineNameTextView.setText(MedicineLab.get(getActivity()).getMedicine(mCartMedicine.getMedicineID()).getName());
+            mCartMedicineQuantity.setText(String.valueOf(mCartMedicine.getQuantity()));
+            switch (mCartMedicine.getRepeatDuration()) {
                 case 0:
-                    mMedicineRepeat.setSelection(0);
+                    mCartMedicineRepeat.setSelection(0);
                     break;
                 case 7:
-                    mMedicineRepeat.setSelection(1);
+                    mCartMedicineRepeat.setSelection(1);
                     break;
                 case 30:
-                    mMedicineRepeat.setSelection(2);
+                    mCartMedicineRepeat.setSelection(2);
                     break;
                 default:
-                        mMedicineRepeat.setSelection(0);
+                    mCartMedicineRepeat.setSelection(0);
             }
 
-            mMedicineQuantity.addTextChangedListener(new TextWatcher() {
+            mCartMedicineQuantity.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
@@ -127,9 +148,9 @@ public class CartListFragment extends Fragment {
                 public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
 
                     if (count != 0) {
-                        cartLab.setMedicineQuantity(mMedicine.getID(), Integer.parseInt(charSequence.toString()));
+                        mPrescriptionHandler.setCartMedicineQuantity(mCartMedicine.getMedicineID(), Integer.parseInt(charSequence.toString()));
                     } else {
-                        cartLab.setMedicineQuantity(mMedicine.getID(), 1);
+                        mPrescriptionHandler.setCartMedicineQuantity(mCartMedicine.getMedicineID(), 1);
                     }
                     updatePrice();
                 }
@@ -138,16 +159,16 @@ public class CartListFragment extends Fragment {
                 public void afterTextChanged(Editable editable) {}
             });
 
-            mMedicineRepeat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            mCartMedicineRepeat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                     String selectedItem = adapterView.getItemAtPosition(position).toString();
                     if (selectedItem.equals("None")) {
-                        cartLab.setMedicineRepeat(mMedicine.getID(), 0);
+                        mPrescriptionHandler.setCartMedicineRepeatDuration(mCartMedicine.getMedicineID(), 0);
                     } else if (selectedItem.equals("Weekly")) {
-                        cartLab.setMedicineRepeat(mMedicine.getID(), 7);
+                        mPrescriptionHandler.setCartMedicineRepeatDuration(mCartMedicine.getMedicineID(), 7);
                     } else {
-                        cartLab.setMedicineRepeat(mMedicine.getID(), 30);
+                        mPrescriptionHandler.setCartMedicineRepeatDuration(mCartMedicine.getMedicineID(), 30);
                     }
                 }
 
@@ -160,10 +181,10 @@ public class CartListFragment extends Fragment {
 
     private class CartMedicineAdapter extends RecyclerView.Adapter<CartMedicineHolder> {
 
-        List<Medicine> mMedicines;
+        List<CartMedicine> mCartMedicines;
 
-        public CartMedicineAdapter(List<Medicine> medicines) {
-            mMedicines = medicines;
+        public CartMedicineAdapter(List<CartMedicine> cartMedicines) {
+            mCartMedicines = cartMedicines;
         }
 
         @Override
@@ -178,23 +199,22 @@ public class CartListFragment extends Fragment {
         @Override
         public void onBindViewHolder(CartMedicineHolder holder, int position) {
 
-            Medicine medicine = mMedicines.get(position);
-            holder.bindMedicine(medicine);
+            CartMedicine cartMedicine = mCartMedicines.get(position);
+            holder.bindCartMedicine(cartMedicine);
         }
 
         @Override
         public int getItemCount() {
-            return mMedicines.size();
+            return mCartMedicines.size();
         }
     }
 
     private void updatePrice() {
-        List<Medicine> medicines;
-        medicines = cartLab.getCartMedicines();
-        totalPrice = 0;
+        List<CartMedicine> cartMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
+        double totalPrice = 0;
 
-        for (Medicine medicine : medicines) {
-            totalPrice += medicine.getPrice() * medicine.getQuantity();
+        for (CartMedicine cartMedicine : cartMedicines) {
+            totalPrice += MedicineLab.get(getActivity()).getMedicine(cartMedicine.getMedicineID()).getPrice() * cartMedicine.getQuantity();
         }
 
         mTotalPrice.setText(String.valueOf(totalPrice));

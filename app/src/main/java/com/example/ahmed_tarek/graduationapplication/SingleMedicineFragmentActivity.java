@@ -17,12 +17,10 @@ public abstract class SingleMedicineFragmentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.navigation_drawer);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-
         Fragment fragment = fragmentManager.findFragmentById(R.id.main_fragment_container);
-
         if (fragment == null) {
             fragment = createFragment();
             fragmentManager.beginTransaction()

@@ -15,10 +15,6 @@ import android.widget.Button;
 
 public class AccessFragment extends Fragment {
 
-    private Button mLoginButton;
-    private Button mRegistrationButton;
-
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +25,9 @@ public class AccessFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.access_fragment, container, false);
+
+        Button mLoginButton;
+        Button mRegistrationButton;
 
         mLoginButton = (Button) view.findViewById(R.id.start_login_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {

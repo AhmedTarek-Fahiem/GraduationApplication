@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp">
+
+    <!--<Button-->
+        <!--android:id="@+id/add_prescription"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentEnd="true" />-->
+
+    <ImageButton
+        android:id="@+id/add_prescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="false"
+        android:background="@drawable/ic_add"
+        android:elevation="0dp" />
+
+    <TextView
+        android:id="@+id/prescription_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/add_prescription"
+        android:textSize="15sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/prescription_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/add_prescription"
+        android:layout_below="@id/prescription_date"/>
+
+    <View
+        android:layout_height="2dip"
+        android:background="#FF909090"
+        android:layout_width="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_below="@id/add_prescription"/>
+
+</RelativeLayout>

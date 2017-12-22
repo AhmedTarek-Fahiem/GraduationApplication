@@ -12,9 +12,19 @@
         <item>Male</item>
         <item>Female</item>
     </string-array>
+    <string name="empty_username">Enter your username..</string>
+    <string name="empty_password">Enter your password..</string>
+    <string name="empty_confirmation_password">Enter confirm password..</string>
+    <string name="password_match">Password doesn\'t match..</string>
+    <string name="empty_email">Enter your email..</string>
+    <string name="empty_date">Enter your Date of Birth..</string>
+    <string name="used_email">The email entered is already used in another account</string>
+    <string name="used_username">Username is already used\nTry another one</string>
+    <string name="invalid_login">Wrong username or password\nTry again</string>
+
     <string name="search_label_hint">Medicine Name.....</string>
     <string name="submit_button">Submit</string>
-    <string name="medical_history">Medical History</string>
+    <string name="home_page">Home Page</string>
     <string name="order_history">Order History</string>
     <string name="sign_out">Sign Out</string>
     <string name="drawer_open">Open navigation drawer</string>

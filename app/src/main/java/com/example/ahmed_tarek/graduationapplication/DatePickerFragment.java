@@ -22,7 +22,6 @@ import java.util.GregorianCalendar;
 public class DatePickerFragment extends DialogFragment {
 
     public static final String EXTRA_DATE = "com.example.ahmed_tarek.graduationapplication.date";
-
     private static final String ARG_DATE = "date";
 
     private DatePicker mDatePicker;

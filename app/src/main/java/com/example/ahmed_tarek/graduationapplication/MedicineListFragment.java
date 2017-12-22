@@ -1,122 +1,61 @@
 package com.example.ahmed_tarek.graduationapplication;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import java.util.List;
 
 /**
  * Created by Ahmed_Tarek on 17/11/23.
  */
 
-public class MedicineListFragment extends Fragment implements NavigationView.OnNavigationItemSelectedListener {
+public class MedicineListFragment extends Fragment {
 
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mActionBarDrawerToggle;
-
+    private DrawerInterface mDrawerInterface;
     private RecyclerView mMedicineListRecyclerView;
     private MedicineAdapter mMedicineAdapter;
-
-    private MedicineLab medicineLab;
-    private CartLab mCartLab;
-
     private EditText mSearchTextEditText;
     private FloatingActionButton mSearchSubmitButton;
+    private TextView mMedicinesNumberTextView;
+
+    private PrescriptionHandler mPrescriptionHandler;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setHasOptionsMenu(true);
-
-        medicineLab = MedicineLab.get();
-        mCartLab = CartLab.get();
-
-        if (savedInstanceState == null) {
-            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-            editor.putBoolean("cartFlag", false);
-            editor.apply();
-            mCartLab.clearMedicines();
+        try {
+            mDrawerInterface = (DrawerInterface) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString() + " must implement DrawerInterface");
         }
+
+        MedicineLab.get(getActivity());         ///delete_T
+        mPrescriptionHandler = PrescriptionHandler.get();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.navigation_drawer, container, false);
+        View view = inflater.inflate(R.layout.main_fragment, container, false);
 
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-
-        mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
-        mActionBarDrawerToggle = new ActionBarDrawerToggle(getActivity(), mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close){
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                try {
-                    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(getView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                try {
-                    InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(getView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
-        mActionBarDrawerToggle.syncState();
-
-        NavigationView navigationView = (NavigationView) view.findViewById(R.id.navigation_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        View navigationHeaderView = navigationView.getHeaderView(0);
-
-        TextView username = (TextView) navigationHeaderView.findViewById(R.id.navigation_header_username);
-        username.setText(Customer.getCustomer().getUsername());
-        TextView email = (TextView) navigationHeaderView.findViewById(R.id.navigation_header_email);
-        email.setText(Customer.getCustomer().getEMail());
-
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerInterface.unlockDrawer();
+        setHasOptionsMenu(true);
 
         mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
         mMedicineListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -136,21 +75,16 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                submitButtonVisibility();
                 if (mSearchTextEditText.getText().length() == 0) {
                     mMedicineAdapter.updateList(null);
                 } else {
-                    mMedicineAdapter.updateList(medicineLab.getMedicines(mSearchTextEditText.getText().toString()));
+                    mMedicineAdapter.updateList(MedicineLab.get(getActivity()).getMedicines(mSearchTextEditText.getText().toString()));
                 }
             }
         });
 
         mSearchSubmitButton = (FloatingActionButton) view.findViewById(R.id.search_submit);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("cartFlag", false)) {
-            mSearchSubmitButton.setVisibility(View.VISIBLE);
-        } else {
-            mSearchSubmitButton.setVisibility(View.GONE);
-        }
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,61 +96,22 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
             }
         });
 
+        mMedicinesNumberTextView = (TextView) view.findViewById(R.id.medicines_number);
+
+        submitButtonVisibility();
+
         return view;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.action_bar_items, menu);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(Customer.getCustomer().getUsername(),false)) {
-            menu.findItem(R.id.bar_recent_qr).setVisible(true);
+    private void submitButtonVisibility() {
+        if (!mPrescriptionHandler.isEmpty()) {
+            mSearchSubmitButton.setVisibility(View.VISIBLE);
+            mMedicinesNumberTextView.setVisibility(View.VISIBLE);
+            mMedicinesNumberTextView.setText(String.valueOf(mPrescriptionHandler.getMedicinesNumber()));
         } else {
-            menu.findItem(R.id.bar_recent_qr).setVisible(false);
+            mSearchSubmitButton.setVisibility(View.GONE);
+            mMedicinesNumberTextView.setVisibility(View.GONE);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if (mActionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-
-        switch (item.getItemId()) {
-            case R.id.bar_recent_qr :
-
-                Intent intent = QRActivity.newIntent(getActivity());
-                startActivity(intent);
-
-                return true;
-            default :
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.medical_history :
-
-                //////in progress
-                break;
-            case R.id.order_history :
-
-                //////in progress
-                break;
-            case R.id.sign_out :
-                PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putBoolean("isLogin", false).apply();
-                Intent intent = new Intent(getActivity(), AccessActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                getActivity().finish();
-                break;
-        }
-        mDrawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     private class MedicineHolder extends RecyclerView.ViewHolder {
@@ -240,27 +135,20 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
             mMedicineHold = medicine;
 
             mMedicineNameTextView.setText(mMedicineHold.getName());
-            mSelectedCheckBox.setChecked(mCartLab.isExist(mMedicineHold.getID()));
-            if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("cartFlag", false)) {
-                mSearchSubmitButton.setVisibility(View.VISIBLE);
-            }
+            mSelectedCheckBox.setChecked(mPrescriptionHandler.isExist(mMedicineHold.getID()));
+            submitButtonVisibility();
 
             mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
                     if (compoundButton.isChecked()) {
-                        mCartLab.addMedicine(mMedicineHold);
-                        editor.putBoolean("cartFlag", true);
-                        editor.apply();
-                        mSearchSubmitButton.setVisibility(View.VISIBLE);
+                        mPrescriptionHandler.addCart(new CartMedicine(mMedicineHold.getID()));
+                        submitButtonVisibility();
                     } else {
-                        mCartLab.removeMedicine(mMedicineHold);
-                        if (mCartLab.getCartMedicines().size() == 0) {
-                            editor.putBoolean("cartFlag", false);
-                            editor.apply();
-                            mSearchSubmitButton.setVisibility(View.GONE);
+                        mPrescriptionHandler.removeCart(mMedicineHold);
+                        if (mPrescriptionHandler.isEmpty()) {
+                            submitButtonVisibility();
                         }
                     }
                 }
@@ -269,13 +157,7 @@ public class MedicineListFragment extends Fragment implements NavigationView.OnN
             mDetailsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    FragmentManager fragmentManager = getFragmentManager();
-                    MedicineDetailsFragment medicineDetailsFragment = MedicineDetailsFragment.newInstance(mMedicineHold.getID());
-
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.main_fragment_container, medicineDetailsFragment)
-                            .addToBackStack(null)
-                            .commit();
+                    MedicineDetailsDialog.newInstance(mMedicineHold.getID()).show(getFragmentManager(), "medicine_details");
                 }
             });
         }

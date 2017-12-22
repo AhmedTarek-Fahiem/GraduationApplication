@@ -3,7 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="errorMessage">#E50000</color>
+    <color name="errorMessage">#e50000</color>
     <color name="backgroundTintBlue">#FF0099CC</color>
-    <color name="backgroundTintGreen">#15E500</color>
+    <color name="backgroundTintGreen">#0c7700</color>
 </resources>

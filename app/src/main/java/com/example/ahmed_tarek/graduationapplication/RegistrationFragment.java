@@ -3,9 +3,7 @@ package com.example.ahmed_tarek.graduationapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,10 +28,9 @@ import java.util.Locale;
 public class RegistrationFragment extends Fragment {
 
     private static final String DIALOG_DATE = "dialog_date";
-
     private static final int REQUEST_CODE = 1;
 
-    Customer customer;
+    Date mUserDateOfBirth;
 
     private EditText mUsername;
     private EditText mPassword;
@@ -47,7 +44,6 @@ public class RegistrationFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        customer = Customer.getCustomer();
     }
 
     @Nullable
@@ -119,7 +115,7 @@ public class RegistrationFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 FragmentManager fragmentManager = getFragmentManager();
-                DatePickerFragment dialog = DatePickerFragment.newInstance(customer.getDateOfBirth());
+                DatePickerFragment dialog = DatePickerFragment.newInstance(mUserDateOfBirth);
                 dialog.setTargetFragment(RegistrationFragment.this, REQUEST_CODE);
                 dialog.show(fragmentManager, DIALOG_DATE);
             }
@@ -133,29 +129,28 @@ public class RegistrationFragment extends Fragment {
             public void onClick(View view) {
 
                 if (mUsername.getText().length() == 0) {
-                    mErrorMessage.setText("Enter your username..");
+                    mErrorMessage.setText(R.string.empty_username);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if(mPassword.getText().length() == 0) {
-                    mErrorMessage.setText("Enter your password..");
+                } else if (mPassword.getText().length() == 0) {
+                    mErrorMessage.setText(R.string.empty_password);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if(mConfirmPassword.getText().length() == 0) {
-                    mErrorMessage.setText("Enter confirm password..");
+                } else if (mConfirmPassword.getText().length() == 0) {
+                    mErrorMessage.setText(R.string.empty_confirmation_password);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if(!(mPassword.getText().toString()).equals(mConfirmPassword.getText().toString())) {
-                    mErrorMessage.setText("password not match..");
+                } else if (!(mPassword.getText().toString()).equals(mConfirmPassword.getText().toString())) {
+                    mErrorMessage.setText(R.string.password_match);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if(mEMail.getText().length() == 0) {
-                    mErrorMessage.setText("Enter your e-mail..");
+                } else if (mEMail.getText().length() == 0) {
+                    mErrorMessage.setText(R.string.empty_email);
+                    mErrorMessage.setVisibility(View.VISIBLE);
+                } else if (mUserDateOfBirth == null) {
+                    mErrorMessage.setText(R.string.empty_date);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
-                    if (check(mUsername.getText().toString(), mPassword.getText().toString(), mConfirmPassword.getText().toString(), mEMail.getText().toString())) {
-
+                    if (check(mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString())) {
                         Intent i = new Intent(view.getContext(), MainActivity.class);
                         startActivity(i);
                         getActivity().finish();
-                    } else {
-                        mErrorMessage.setText("Wrong data entered...");
-                        mErrorMessage.setVisibility(View.VISIBLE);
                     }
                 }
                 try {
@@ -176,35 +171,30 @@ public class RegistrationFragment extends Fragment {
             return;
         }
         if (requestCode == REQUEST_CODE) {
-            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-
-            customer.setDateOfBirth(date);//////////////////////////////////////////////// delete when connecting to database
+            mUserDateOfBirth = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE dd MMM, yyyy", Locale.ENGLISH);
-
-            mDateOfBirth.setText(simpleDateFormat.format(customer.getDateOfBirth()));
+            mDateOfBirth.setText(simpleDateFormat.format(mUserDateOfBirth));
         }
     }
 
-    private boolean check(String username, String firstPassword, String secondPassword, String email) {
+    private boolean check(String username, String firstPassword, String email) {
 
-        //check with the database...
+        String message = UserLab.get(getActivity()).register(username, firstPassword, email, mUserDateOfBirth, mGender.getSelectedItemPosition() == 0);
 
-        customer.setUsername(mUsername.getText().toString());
-        customer.setPassword(mPassword.getText().toString());
-        customer.setEMail(mEMail.getText().toString());
-        customer.setGender(mGender.getSelectedItemPosition() == 0? "Male" : "Female");
-
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-        editor.putBoolean("isLogin", true);
-
-        editor.putString("username", customer.getUsername());
-        editor.putString("password", customer.getPassword());
-        editor.putString("email", customer.getEMail());
-        editor.putString("gender", customer.getGender());
-
-        editor.apply();
-
-        return true;
+        switch (message) {
+            case "success":
+                return true;
+            case "email":
+                mErrorMessage.setText(R.string.used_email);
+                mErrorMessage.setVisibility(View.VISIBLE);
+                return false;
+            case "username":
+                mErrorMessage.setText(R.string.used_username);
+                mErrorMessage.setVisibility(View.VISIBLE);
+                return false;
+            default:
+                return false;
+        }
     }
 }

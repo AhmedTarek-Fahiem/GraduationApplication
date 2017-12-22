@@ -1,7 +1,6 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.Manifest;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -15,11 +14,10 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -187,7 +185,7 @@ public class QRActivity extends AppCompatActivity {
             if(isExternal)
                 savingDirectory = new File(path, new SimpleDateFormat("yyyyMMdd_HHmmSS", Locale.US).format(new java.util.Date()) + ".png");
             else
-                savingDirectory = new File(path, Customer.getCustomer().getUsername() + ".png");
+                savingDirectory = new File(path, UserLab.get(this).getUsername() + ".png");
             stream = new FileOutputStream(savingDirectory);
             QR.compress(Bitmap.CompressFormat.PNG, 100, stream);
             savingDirectory.setReadable(true);
@@ -208,7 +206,7 @@ public class QRActivity extends AppCompatActivity {
 
     private void loadQR() {
         try {
-            mQRImageView.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(new File(new ContextWrapper(this.getApplicationContext()).getDir("QR",Context.MODE_PRIVATE).getAbsolutePath(), Customer.getCustomer().getUsername() + ".png"))));
+            mQRImageView.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(new File(new ContextWrapper(this.getApplicationContext()).getDir("QR",Context.MODE_PRIVATE).getAbsolutePath(), UserLab.get(this).getUsername() + ".png"))));
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -227,7 +225,7 @@ public class QRActivity extends AppCompatActivity {
                 Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
                 if(saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), false) != null)
-                    PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(Customer.getCustomer().getUsername(), true).apply();
+                    PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(UserLab.get(this).getUsername(), true).apply();
             }
             catch (WriterException e) {
                 e.printStackTrace();
@@ -255,7 +253,7 @@ public class QRActivity extends AppCompatActivity {
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 }
-                MyDialogFragment.newInstance(content).show(getFragmentManager().beginTransaction(), "dialog");
+                MyDialogFragment.newInstance(content).show(getSupportFragmentManager().beginTransaction(), "dialog");
             }
         });
     }
