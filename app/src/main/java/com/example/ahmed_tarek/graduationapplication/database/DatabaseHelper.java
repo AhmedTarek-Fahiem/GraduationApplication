@@ -7,6 +7,7 @@ import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.Use
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.MedicineDbSchema.MedicineTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.PrescriptionDbSchema.PrescriptionTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.CartMedicineDbSchema.CartMedicineTable;
+import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.RegularOrderDbSchema.RegularOrderTable;
 
 /**
  * Created by Ahmed_Tarek on 17/12/17.
@@ -64,6 +65,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 PrescriptionTable.NAME + "(" + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + ")" +
                 ", foreign key (" + CartMedicineTable.CartMedicineColumns.MEDICINE_UUID + ") references " +
                 MedicineTable.NAME + "(" + MedicineTable.MedicineColumns.MEDICINE_UUID + ")" +
+                ")");
+
+        sqLiteDatabase.execSQL("create table " + RegularOrderTable.NAME + "(" +
+                RegularOrderTable.RegularOrderColumns.USER_UUID + " text NOT NULL, " +
+                RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + " text NOT NULL, " +
+                RegularOrderTable.RegularOrderColumns.FIRE_TIME + " text NOT NULL " +
+                ", primary key (" + RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + ", " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + ")" +
+                ", foreign key (" + RegularOrderTable.RegularOrderColumns.USER_UUID + ") references " +
+                UserTable.NAME + "(" + UserTable.UserColumns.USER_UUID + ")" +
+                ", foreign key (" + RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + ") references " +
+                PrescriptionTable.NAME + "(" + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + ")" +
                 ")");
 
     }

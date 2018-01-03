@@ -16,6 +16,11 @@
             android:title="@string/order_history" />
 
         <item
+            android:id="@+id/regular_orders"
+            android:icon="@drawable/ic_regular"
+            android:title="@string/regular_orders" />
+
+        <item
             android:id="@+id/sign_out"
             android:icon="@drawable/ic_logout"
             android:title="@string/sign_out" />
