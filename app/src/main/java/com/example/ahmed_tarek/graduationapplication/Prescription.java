@@ -13,9 +13,9 @@ public class Prescription {
     private Date mDate;
     private double mPrice;
 
-
     public Prescription() {
         mID = UUID.randomUUID();
+        mDate = new Date();
     }
 
     public Prescription(UUID ID, Date date, double price) {
@@ -30,10 +30,6 @@ public class Prescription {
 
     public Date getDate() {
         return mDate;
-    }
-
-    public void setDate() {
-        mDate = new Date();
     }
 
     public double getPrice() {

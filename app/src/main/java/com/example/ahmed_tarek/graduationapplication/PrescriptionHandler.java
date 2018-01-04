@@ -50,6 +50,10 @@ public class PrescriptionHandler {
         }
     }
 
+    public Prescription getPrescription() {
+        return mPrescription;
+    }
+
     public boolean isExist(UUID uuid) {
         for (CartMedicine cartMedicine : mCartMedicines) {
             if (cartMedicine.getMedicineID().equals(uuid))

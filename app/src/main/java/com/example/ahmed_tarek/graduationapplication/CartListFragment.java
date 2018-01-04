@@ -1,7 +1,6 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,7 +17,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
+
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Ahmed_Tarek on 17/11/23.
@@ -78,24 +81,22 @@ public class CartListFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                List<CartMedicine> qrMedicines;
-                qrMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
-
+                List<CartMedicine> qrMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
+                boolean regular = false;
                 String cartMedicines = "";
-
+                UUID id = mPrescriptionHandler.getPrescription().getID();
                 for(int i = 0 ; i < qrMedicines.size() ; i++){
-                    cartMedicines += MedicineLab.get(getActivity()).getMedicine(qrMedicines.get(i).getMedicineID()).getName();///
-                    cartMedicines += ',';
-                    cartMedicines += String.valueOf(qrMedicines.get(i).getQuantity());
+                    cartMedicines = cartMedicines + MedicineLab.get(getActivity()).getMedicine(qrMedicines.get(i).getMedicineID()).getName() + ',' + String.valueOf(qrMedicines.get(i).getQuantity());
+                    if(qrMedicines.get(i).getRepeatDuration() != 0)
+                        regular = true;
                     if(i != (qrMedicines.size() - 1))
                         cartMedicines += '&';
                 }
-
                 mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
                 mPrescriptionHandler.prescriptionCommit(getActivity());
-
-                Intent intent = QRActivity.newIntent(getActivity(), cartMedicines);
-                startActivity(intent);
+                if (regular)
+                    BootUpReceiver.schedule(getContext(), id);
+                startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
             }
         });
 

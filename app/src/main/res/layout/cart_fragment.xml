@@ -21,47 +21,12 @@
         android:text="@string/cart_title"
         style="?android:listSeparatorTextViewStyle"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="24"
-        style="?android:listSeparatorTextViewStyle">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="11"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:textAlignment="textStart"
-            android:text="@string/medicine_name_label_title"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="6"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:textAlignment="center"
-            android:text="@string/medicine_quantity_label_title"/>
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="7"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:textAlignment="center"
-            android:text="@string/medicine_repeatly_label_title"/>
-
-    </LinearLayout>
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/cart_list_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="22">
+        android:layout_weight="22"
+        android:layout_marginTop="5dp">
 
     </android.support.v7.widget.RecyclerView>
 
@@ -98,7 +63,5 @@
             android:text="@string/next_button"/>
 
     </LinearLayout>
-
-
 
 </LinearLayout>

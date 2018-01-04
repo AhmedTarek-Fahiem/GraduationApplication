@@ -13,11 +13,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
+
+import java.util.UUID;
 
 public class MainActivity extends SingleMedicineFragmentActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
 
@@ -34,6 +37,13 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getIntent().getAction() != null)
+            if(getIntent().getAction().equals(CustomNotificationService.ACTION_SHOW)) {
+                String[] a = getIntent().getStringArrayExtra(CustomNotificationService.PRESCRIPTION_IDS);
+                for(String string : a)
+                    Log.e("EUREKA","IT WORKS! " + UUID.fromString(string));
+            }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);

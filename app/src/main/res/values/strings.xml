@@ -26,6 +26,7 @@
     <string name="submit_button">Submit</string>
     <string name="home_page">Home Page</string>
     <string name="order_history">Order History</string>
+    <string name="regular_orders">Regular Orders</string>
     <string name="sign_out">Sign Out</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -43,7 +44,7 @@
     <string name="medicine_repeatly_label_title">Repeat</string>
     <string name="quantity_label_hint">1</string>
     <string-array name="regular_label">
-        <item>None</item>
+        <item>Not Regular</item>
         <item>Weekly</item>
         <item>Monthly</item>
     </string-array>

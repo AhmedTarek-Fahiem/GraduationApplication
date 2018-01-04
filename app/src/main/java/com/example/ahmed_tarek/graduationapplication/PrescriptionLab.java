@@ -130,7 +130,6 @@ public class PrescriptionLab {
 
     public void addPrescription(UUID userUUID, Prescription prescription, List<CartMedicine> cartMedicines) {
 
-        prescription.setDate();
         ContentValues contentValues = getContentValues(userUUID.toString(), prescription);
         mSQLiteDatabase.insert(PrescriptionTable.NAME, null, contentValues);
 

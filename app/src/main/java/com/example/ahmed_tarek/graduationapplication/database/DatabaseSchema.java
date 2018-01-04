@@ -91,4 +91,18 @@ public class DatabaseSchema {
     }
 
 
+    public class RegularOrderDbSchema {
+
+        public final class RegularOrderTable {
+            public static final String NAME = "regular_order";
+
+            public final class RegularOrderColumns {
+                public static final String USER_UUID = "user_uuid";
+                public static final String PRESCRIPTION_UUID = "prescription_uuid";
+                public static final String FIRE_TIME = "fire_time";
+            }
+        }
+    }
+
+
 }

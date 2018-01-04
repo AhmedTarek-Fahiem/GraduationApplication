@@ -15,8 +15,11 @@
             android:id="@+id/cart_medicine_name"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:layout_weight="14"
-            android:text="@string/details_medicine_name" />
+            android:layout_weight="13"
+            android:text="@string/details_medicine_name"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"/>
 
         <EditText
             android:id="@+id/cart_medicine_quantity"
@@ -31,9 +34,18 @@
             android:id="@+id/cart_medicine_regular_spinner"
             android:layout_height="wrap_content"
             android:layout_width="0dp"
-            android:layout_weight="6"
+            android:layout_weight="7"
             android:entries="@array/regular_label">
         </Spinner>
+
+        <ImageButton
+            android:id="@+id/remove_cart"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="false"
+            android:background="@drawable/ic_remove"
+            android:elevation="0dp" />
 
     </LinearLayout>
 
@@ -43,35 +55,3 @@
         android:layout_width="match_parent"/>
 
 </LinearLayout>
-
-<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content">-->
-
-    <!--<Spinner-->
-        <!--android:id="@+id/medicine_regular_spinner"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_marginTop="10dp"-->
-        <!--android:entries="@array/regular_label">-->
-    <!--</Spinner>-->
-
-    <!--<EditText-->
-        <!--android:id="@+id/medicine_quantity"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_toStartOf="@id/medicine_regular_spinner"-->
-        <!--android:hint="@string/quantity_label_hint"-->
-        <!--android:inputType="number"/>-->
-
-    <!--<TextView-->
-        <!--android:id="@+id/medicine_name"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_marginTop="12dp"-->
-        <!--android:layout_toStartOf="@id/medicine_quantity"-->
-        <!--android:text="@string/details_medicine_name" />-->
-
-
-<!--</RelativeLayout>-->
