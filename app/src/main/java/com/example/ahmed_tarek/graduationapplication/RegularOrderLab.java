@@ -79,8 +79,6 @@ public class RegularOrderLab {
     }
 
     public long[] getTimeStamps() {
-        List<String> prescriptions = new ArrayList<>();
-
         Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") });
         long[] timeStamps;
         try {
@@ -103,6 +101,28 @@ public class RegularOrderLab {
         return timeStamps;
     }
 
+    public List<Regular> getRegularOrders(){
+        List<Regular> regularOrdersList = new ArrayList<>();
+
+        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") });
+
+        try {
+            if (cursor.getCount() == 0)
+                return null;
+
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                regularOrdersList.add(new Regular(UUID.fromString(cursor.getString(1)), Long.parseLong(cursor.getString(2))));
+                cursor.moveToNext();
+            }
+        }
+        finally {
+            cursor.close();
+        }
+
+        return regularOrdersList;
+    }
+
     public void addRegularOrder(UUID prescriptionUUID, long timeStamp) {
         ContentValues contentValues = new ContentValues();
 
@@ -113,11 +133,14 @@ public class RegularOrderLab {
         mSQLiteDatabase.insert(RegularOrderTable.NAME, null, contentValues);
     }
 
-    public void removeEntry(UUID prescriptionUUID, long timeStamp) {
+    public boolean removeEntry(UUID prescriptionUUID, long timeStamp) {
+
         mSQLiteDatabase.delete(RegularOrderTable.NAME,
                 RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " +
                         RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + " = ? and " +
                         RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ? ",
                 new String[]{ sharedPreferences.getString("userID", ""), prescriptionUUID.toString(), String.valueOf(timeStamp) });
+
+        return reminderExists(timeStamp);
     }
 }

@@ -5,35 +5,29 @@
     android:layout_marginTop="10dp">
 
     <ImageButton
-        android:id="@+id/add_prescription"
+        android:id="@+id/remove_regular_order"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:adjustViewBounds="false"
-        android:background="@drawable/ic_add"
+        android:background="@drawable/ic_remove_alarm"
         android:elevation="0dp" />
 
     <TextView
-        android:id="@+id/prescription_date"
+        android:id="@+id/regular_order_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/add_prescription"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/remove_regular_order"
         android:textSize="15sp"
         android:textStyle="bold"/>
-
-    <TextView
-        android:id="@+id/prescription_price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/add_prescription"
-        android:layout_below="@id/prescription_date"/>
 
     <View
         android:layout_height="2dip"
         android:background="#FF909090"
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_below="@id/add_prescription"/>
+        android:layout_below="@id/remove_regular_order"/>
 
 </RelativeLayout>

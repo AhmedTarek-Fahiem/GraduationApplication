@@ -15,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -112,6 +113,7 @@ public class CartListFragment extends Fragment {
         private TextView mCartMedicineNameTextView;
         private EditText mCartMedicineQuantity;
         private Spinner mCartMedicineRepeat;
+        private ImageButton mRemoveCart;
 
         public CartMedicineHolder(View itemView) {
             super(itemView);
@@ -119,6 +121,7 @@ public class CartListFragment extends Fragment {
             mCartMedicineNameTextView = (TextView) itemView.findViewById(R.id.cart_medicine_name);
             mCartMedicineQuantity = (EditText) itemView.findViewById(R.id.cart_medicine_quantity);
             mCartMedicineRepeat = (Spinner) itemView.findViewById(R.id.cart_medicine_regular_spinner);
+            mRemoveCart = (ImageButton) itemView.findViewById(R.id.remove_cart);
         }
 
         public void bindCartMedicine(CartMedicine cartMedicine) {
@@ -164,9 +167,9 @@ public class CartListFragment extends Fragment {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                     String selectedItem = adapterView.getItemAtPosition(position).toString();
-                    if (selectedItem.equals("None")) {
+                    if (selectedItem.equals(getResources().getStringArray(R.array.regular_label)[0])) {
                         mPrescriptionHandler.setCartMedicineRepeatDuration(mCartMedicine.getMedicineID(), 0);
-                    } else if (selectedItem.equals("Weekly")) {
+                    } else if (selectedItem.equals(getResources().getStringArray(R.array.regular_label)[1])) {
                         mPrescriptionHandler.setCartMedicineRepeatDuration(mCartMedicine.getMedicineID(), 7);
                     } else {
                         mPrescriptionHandler.setCartMedicineRepeatDuration(mCartMedicine.getMedicineID(), 30);
@@ -177,6 +180,16 @@ public class CartListFragment extends Fragment {
                 public void onNothingSelected(AdapterView<?> adapterView) {}
             });
 
+            mRemoveCart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mPrescriptionHandler.removeCart(mCartMedicine);
+                    mCartMedicineAdapter.updateList(mPrescriptionHandler.getPrescriptionCartMedicines());
+                    if (mPrescriptionHandler.isEmpty()) {
+                        getFragmentManager().popBackStackImmediate();
+                    }
+                }
+            });
         }
     }
 
@@ -207,6 +220,12 @@ public class CartListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCartMedicines.size();
+        }
+
+        public void updateList(List<CartMedicine> cartMedicines) {
+
+            this.mCartMedicines = cartMedicines;
+            notifyDataSetChanged();
         }
     }
 

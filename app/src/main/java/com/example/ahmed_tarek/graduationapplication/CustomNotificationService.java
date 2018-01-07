@@ -12,6 +12,9 @@ import android.support.v4.app.NotificationCompat;
 
 import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -22,6 +25,7 @@ public class CustomNotificationService extends IntentService {
 
     public static final String ACTION_SHOW = "prescription_init";
     public static final String PRESCRIPTION_IDS = "prescription_ids";
+    private static int notificationID = 0;
 
     public CustomNotificationService() {
         super(CustomNotificationService.class.getSimpleName());
@@ -37,12 +41,12 @@ public class CustomNotificationService extends IntentService {
                     .setColor(getResources().getColor(R.color.colorAccent))
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .setContentText("You have pending regular medicines")
-                    .setSmallIcon(R.drawable.ic_notification)
+                    .setSmallIcon(R.drawable.ic_today_notification)
                     .setAutoCancel(true)
-                    .setLights(Color.CYAN, 500, 1000)
-                    .setContentIntent(PendingIntent.getActivity(this, 1, new Intent(this, MainActivity.class).putExtra(PRESCRIPTION_IDS, ids).setAction(ACTION_SHOW), PendingIntent.FLAG_UPDATE_CURRENT));
+                    .setLights(Color.CYAN, 500, 2000)
+                    .setContentIntent(PendingIntent.getActivity(this, notificationID, new Intent(this, MainActivity.class).putExtra(PRESCRIPTION_IDS, ids).setAction(ACTION_SHOW).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK), PendingIntent.FLAG_UPDATE_CURRENT));
             final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.notify(1, builder.build());
+            manager.notify(notificationID++, builder.build());
             for(String id : ids)
                 RegularOrderLab.get(getApplicationContext()).removeEntry(UUID.fromString(id), date);
         }

@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
@@ -42,6 +41,7 @@ public class OrderHistory extends Fragment {
         View view = inflater.inflate(R.layout.order_history_fragment, container, false);
 
         mDrawerInterface.unlockDrawer();
+        mDrawerInterface.checkedNavigationItem(1);
 
         RecyclerView orderHistoryRecyclerView = (RecyclerView) view.findViewById(R.id.order_history_list_recycler_view);
         orderHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -71,7 +71,7 @@ public class OrderHistory extends Fragment {
         public void bindOrder(final Prescription prescription) {
 
             mPrescriptionDateTextView.setText(new SimpleDateFormat("EEE dd MMM, yyyy - h:m a", Locale.ENGLISH).format(prescription.getDate()));
-            mPrescriptionPriceTextView.setText(String.valueOf(prescription.getPrice()));
+            mPrescriptionPriceTextView.setText("Price : " + String.valueOf(prescription.getPrice()) + " L.E");
             mAddButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

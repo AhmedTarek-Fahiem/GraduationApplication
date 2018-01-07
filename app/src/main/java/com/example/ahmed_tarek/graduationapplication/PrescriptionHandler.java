@@ -54,6 +54,10 @@ public class PrescriptionHandler {
         return mPrescription;
     }
 
+    public void removeCart(CartMedicine cartMedicine) {
+        mCartMedicines.remove(cartMedicine);
+    }
+
     public boolean isExist(UUID uuid) {
         for (CartMedicine cartMedicine : mCartMedicines) {
             if (cartMedicine.getMedicineID().equals(uuid))

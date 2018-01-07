@@ -19,13 +19,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
-
+import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends SingleMedicineFragmentActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
+    private NavigationView navigationView;
 
     private static boolean recentQRFlag = true;
 
@@ -38,12 +39,23 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getIntent().getAction() != null)
-            if(getIntent().getAction().equals(CustomNotificationService.ACTION_SHOW)) {
-                String[] a = getIntent().getStringArrayExtra(CustomNotificationService.PRESCRIPTION_IDS);
-                for(String string : a)
-                    Log.e("EUREKA","IT WORKS! " + UUID.fromString(string));
+        if(getIntent().getAction() != null) {
+            if (getIntent().getAction().equals(CustomNotificationService.ACTION_SHOW)) {
+                String[] prescriptionsIDs = getIntent().getStringArrayExtra(CustomNotificationService.PRESCRIPTION_IDS);
+
+                PrescriptionHandler.get().reset();
+                PrescriptionHandler prescriptionHandler = PrescriptionHandler.get();
+                List<CartMedicine> cartMedicines;
+
+                for (String string : prescriptionsIDs) {
+                    cartMedicines = PrescriptionLab.get(this).getCarts(UUID.fromString(string), System.currentTimeMillis());
+                    for (CartMedicine cartMedicine : cartMedicines) {
+                        prescriptionHandler.addCart(cartMedicine);
+                    }
+                    Log.e("EUREKA", "IT WORKS! " + UUID.fromString(string));
+                }
             }
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
@@ -76,8 +88,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
         mActionBarDrawerToggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.getMenu().getItem(0).setChecked(true);
 
         View navigationHeaderView = navigationView.getHeaderView(0);
 
@@ -130,6 +143,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
         switch (item.getItemId()) {
             case R.id.home_page:
                 if (!(currentFragment instanceof MedicineListFragment)) {
+                    fragmentManager.popBackStack("order_history", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    fragmentManager.popBackStack("regular_orders", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     fragmentManager.beginTransaction()
                             .replace(R.id.main_fragment_container, new MedicineListFragment())
                             .addToBackStack("home_page")
@@ -142,6 +157,15 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
                     fragmentManager.beginTransaction()
                             .replace(R.id.main_fragment_container, new OrderHistory())
                             .addToBackStack("order_history")
+                            .commit();
+                }
+                break;
+            case R.id.regular_orders :
+                if (!(currentFragment instanceof RegularOrders)) {
+                    fragmentManager.popBackStack("regular_orders", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.main_fragment_container, new RegularOrders())
+                            .addToBackStack("regular_orders")
                             .commit();
                 }
                 break;
@@ -179,5 +203,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
     public void unlockDrawer() {
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         recentQRFlag = true;
+    }
+
+    @Override
+    public void checkedNavigationItem(int item) {
+        navigationView.getMenu().getItem(item).setChecked(true);
     }
 }

@@ -16,7 +16,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import java.util.List;
 
 /**
@@ -55,6 +54,7 @@ public class MedicineListFragment extends Fragment {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
 
         mDrawerInterface.unlockDrawer();
+        mDrawerInterface.checkedNavigationItem(0);
         setHasOptionsMenu(true);
 
         mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
@@ -147,9 +147,7 @@ public class MedicineListFragment extends Fragment {
                         submitButtonVisibility();
                     } else {
                         mPrescriptionHandler.removeCart(mMedicineHold);
-                        if (mPrescriptionHandler.isEmpty()) {
-                            submitButtonVisibility();
-                        }
+                        submitButtonVisibility();
                     }
                 }
             });

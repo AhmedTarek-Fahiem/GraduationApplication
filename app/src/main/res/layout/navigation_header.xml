@@ -16,7 +16,7 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@mipmap/ic_launcher" />
+        app:srcCompat="@mipmap/ic_account" />
 
     <TextView
         android:id="@+id/navigation_header_username"

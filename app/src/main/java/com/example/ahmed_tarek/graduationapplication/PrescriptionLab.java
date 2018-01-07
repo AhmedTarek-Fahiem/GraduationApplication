@@ -104,6 +104,31 @@ public class PrescriptionLab {
 
         return cartMedicines;
     }
+    public List<CartMedicine> getCarts(UUID prescriptionID, long currentTime) {
+        List<CartMedicine> cartMedicines = new ArrayList<>();
+        PrescriptionCartCursorWrapper cursorWrapper;
+
+        cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + " = ?", new String[]{ prescriptionID.toString() });
+        cursorWrapper.moveToFirst();
+        long prescriptionTime = cursorWrapper.getPrescription().getDate().getTime();
+        String repeatDuration = (((int) ((currentTime - prescriptionTime) / (1000*60))) >= 2)? "30" : "7";   /*(1000*60*60*24)*/
+
+        cursorWrapper = queryPrescriptionCart(CartMedicineTable.NAME, CartMedicineTable.CartMedicineColumns.PRESCRIPTION_UUID + " = ? and " + CartMedicineTable.CartMedicineColumns.REPEAT_DURATION + " = ?", new String[]{ prescriptionID.toString(), repeatDuration });
+        try {
+            if (cursorWrapper.getCount() == 0)
+                return null;
+
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                cartMedicines.add(cursorWrapper.getCartMedicine());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+
+        return cartMedicines;
+    }
 
 
 
