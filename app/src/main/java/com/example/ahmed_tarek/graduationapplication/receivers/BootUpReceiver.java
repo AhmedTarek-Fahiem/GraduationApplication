@@ -34,7 +34,7 @@ public final class BootUpReceiver extends BroadcastReceiver {
     }
 
     public static void cancelAlarm(Context context, long timeStamp) {
-        PendingIntent pendingIntent = PendingIntent.getService(context, REQUEST_CODE, new Intent(context, CustomNotificationService.class).addCategory("" + timeStamp), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(context, REQUEST_CODE, new Intent(context, CustomNotificationService.class).setAction(ACTION_NOTIFY).addCategory("" + timeStamp), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.cancel(pendingIntent);
         pendingIntent.cancel();
