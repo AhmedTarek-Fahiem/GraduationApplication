@@ -1,6 +1,7 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.os.Bundle;
+
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -33,7 +34,6 @@ public class MedicineListFragment extends Fragment {
 
     private PrescriptionHandler mPrescriptionHandler;
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +44,6 @@ public class MedicineListFragment extends Fragment {
             throw new ClassCastException(getActivity().toString() + " must implement DrawerInterface");
         }
 
-        MedicineLab.get(getActivity());         ///delete_T
         mPrescriptionHandler = PrescriptionHandler.get();
     }
 

@@ -12,16 +12,15 @@
         <item>Male</item>
         <item>Female</item>
     </string-array>
-    <string name="empty_username">Enter your username..</string>
-    <string name="empty_password">Enter your password..</string>
-    <string name="empty_confirmation_password">Enter confirm password..</string>
-    <string name="password_match">Password doesn\'t match..</string>
-    <string name="empty_email">Enter your email..</string>
-    <string name="empty_date">Enter your Date of Birth..</string>
+    <string name="empty_username">Enter your username!</string>
+    <string name="empty_password">Enter your password!</string>
+    <string name="empty_confirmation_password">Confirm your password!</string>
+    <string name="password_match">Passwords doesn\'t match!</string>
+    <string name="empty_email">Enter your email!</string>
+    <string name="empty_date">Enter the date of your birth!</string>
     <string name="used_email">The email entered is already used in another account</string>
     <string name="used_username">Username is already used\nTry another one</string>
     <string name="invalid_login">Wrong username or password\nTry again</string>
-
     <string name="search_label_hint">Medicine Name.....</string>
     <string name="submit_button">Submit</string>
     <string name="home_page">Home Page</string>
@@ -50,12 +49,18 @@
     </string-array>
     <string name="total_payment">Total Payment: </string>
     <string name="next_button">Generate QR</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="share_button">Share</string>
     <string name="save_button">Save</string>
     <string name="save_success">Successfully Saved\nImage path: Pictures/QR</string>
-    <string name="save_fail">Permission denied</string>
-    <string name="save_blocked">Permission blocked</string>
-
+    <string name="permission_fail">Cannot save without permission</string>
+    <string name="permission_blocked">Permission blocked\nChange manually from settings to continue</string>
+    <string name="permission_granted">Permission granted</string>
+    <string name="permission_warning">Cannot check for database updates until granted permissions</string>
+    <string name="no_permission">"Warning: No permissions granted\nWorking with the current version"</string>
+    <string name="update_required">Database outdated\nPlease provide any kind of internet connection to get the latest version of medicines</string>
+    <string name="try_again">Try again?</string>
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>
     <string name="details_medicine_form">Medicine Form</string>
@@ -63,6 +68,5 @@
     <string name="details_medicine_category">Medicine Category</string>
     <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
     <string name="title_activity_qr_generation">QrGeneration</string>
-    <string name="title_activity_bluetooth">BluetoothActivity</string>
 
 </resources>

@@ -1,24 +1,35 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -30,11 +41,54 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
 
     private static boolean recentQRFlag = true;
 
+    public static class ChanceDialog extends DialogFragment {
+
+        static ChanceDialog newInstance() {
+            return new ChanceDialog();
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.chance_dialog, container, false);
+
+            Button yes = v.findViewById(R.id.yes);
+            Button no = v.findViewById(R.id.no);
+            yes.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    ActivityCompat.requestPermissions(getActivity(), new String[] { Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET }, 123);
+                    dismiss();
+                }
+            });
+            no.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    dismiss();
+                }
+            });
+
+            return v;
+        }
+    }
+
     @Override
     protected Fragment createFragment() {
         return new MedicineListFragment();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE))
+            Toast.makeText(getApplicationContext(), R.string.permission_warning, Toast.LENGTH_LONG).show();
+        else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            MedicineLab.get(this);
+        else
+            Toast.makeText(getApplicationContext(), R.string.permission_blocked, Toast.LENGTH_LONG).show();
+    }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +110,13 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
                 }
             }
         }
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET}, 123);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+                ChanceDialog.newInstance().show(getSupportFragmentManager().beginTransaction(), "dialog");
+        }
+        MedicineLab.get(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);

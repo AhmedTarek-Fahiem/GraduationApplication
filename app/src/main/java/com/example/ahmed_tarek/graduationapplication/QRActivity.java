@@ -41,7 +41,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -164,11 +163,11 @@ public class QRActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_fail, Toast.LENGTH_LONG).show();
-        else if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.permission_fail, Toast.LENGTH_LONG).show();
+        else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             saveExternal();
         else
-            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.save_blocked, Toast.LENGTH_LONG).show();
+            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.permission_blocked, Toast.LENGTH_LONG).show();
     }
 
     private void checkPermission() {
