@@ -1,9 +1,14 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -20,6 +25,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,16 +36,127 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.iq80.snappy.Main;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends SingleMedicineFragmentActivity implements NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
+public class MainActivity extends SingleMedicineFragmentActivity implements AsyncResponse, NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView navigationView;
+    private static final String TAG_SUCCESS = "success";
+    private static final String TAG_VERSION = "version";
+    private static final String TAG_TIMESTAMP = "ver";
+    private static final String TAG_MEDICINES = "medicines";
 
     private static boolean recentQRFlag = true;
+
+    private static class LoadAll extends AsyncTask<String, String, JSONArray> {
+
+        private AsyncResponse delegate = null;
+        private ProgressDialog pDialog;
+        private String type = null;
+
+        LoadAll(AsyncResponse delegate, Activity activity) {
+            pDialog = new ProgressDialog(activity);
+            this.delegate = delegate;
+        }
+
+        private JSONObject makeHttpRequest(String url, String method, List<NameValuePair> params) {
+
+            InputStream is = null;
+            JSONObject jObj = null;
+            String json = "";
+            try {
+                if (method.equals("POST")) {
+                    DefaultHttpClient httpClient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost(url);
+                    httpPost.setEntity(new UrlEncodedFormEntity(params));
+                    HttpResponse httpResponse = httpClient.execute(httpPost);
+                    HttpEntity httpEntity = httpResponse.getEntity();
+                    is = httpEntity.getContent();
+                } else if (method.equals("GET")) {
+                    DefaultHttpClient httpClient = new DefaultHttpClient();
+                    String paramString = URLEncodedUtils.format(params, "utf-8");
+                    url += "?" + paramString;
+                    HttpGet httpGet = new HttpGet(url);
+                    HttpResponse httpResponse = httpClient.execute(httpGet);
+                    HttpEntity httpEntity = httpResponse.getEntity();
+                    is = httpEntity.getContent();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        is, "iso-8859-1"), 8);
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+                is.close();
+                json = sb.toString();
+            } catch (Exception e) {
+                Log.e("Buffer Error", "Error converting result " + e.toString());
+            }
+            try {
+                jObj = new JSONObject(json);
+            } catch (JSONException e) {
+                Log.e("JSON Parser", "Error parsing data " + e.toString());
+            }
+            return jObj;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog.setMessage("Checking for latest updates\nPlease wait...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected JSONArray doInBackground(String... args) {
+            JSONObject json = makeHttpRequest(args[0], "GET", new ArrayList<NameValuePair>());
+            type = args[1];
+            try {
+                if (args[1].equals(TAG_MEDICINES) && json.getInt(TAG_SUCCESS) == 1)
+                    return json.getJSONArray(TAG_MEDICINES);
+                else if (args[1].equals(TAG_VERSION) && json.getInt(TAG_SUCCESS) == 1)
+                    return json.getJSONArray(TAG_VERSION);
+            } catch (JSONException | NullPointerException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONArray result) {
+            pDialog.dismiss();
+            delegate.processFinish(result, type);
+        }
+    }
 
     public static class ChanceDialog extends DialogFragment {
 
@@ -82,13 +199,62 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE))
-            Toast.makeText(getApplicationContext(), R.string.permission_warning, Toast.LENGTH_LONG).show();
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE)) {
+            showToast(R.string.permission_warning, getApplicationContext());
+            ChanceDialog.newInstance().show(getSupportFragmentManager().beginTransaction(), "dialog");
+        }
         else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            MedicineLab.get(this);
+            if(checkState())
+                new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_version.php", TAG_VERSION);
+            else
+                MainActivity.showToast(R.string.update_required, getApplicationContext());
         else
-            Toast.makeText(getApplicationContext(), R.string.permission_blocked, Toast.LENGTH_LONG).show();
+            showToast(R.string.permission_blocked, getApplicationContext());
     }
+
+    private boolean checkState() {
+        return ((ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
+    }
+
+    @Override
+    public void processFinish(JSONArray output, String type) {
+        if (type.equals(TAG_VERSION)) {
+            if (output != null) {
+                String version = null;
+                try {
+                    version = output.getJSONObject(0).getString(TAG_TIMESTAMP);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
+                    MedicineLab.get(this);
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("database", true).apply();
+                    new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_medicines.php", TAG_MEDICINES);
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
+                }
+                else if (!version.equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("version", null))) {
+                    new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_medicines.php", TAG_MEDICINES);
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
+                }
+                else {
+                    MedicineLab.get(this);
+                    showToast(R.string.already_upToDate, getApplicationContext());
+                }
+            } else
+                showToast(R.string.connection_failure, getApplicationContext());
+        }
+        else if(type.equals(TAG_MEDICINES)) {
+            if(output != null) {
+                try {
+                    MedicineLab.update(getApplicationContext(), output);
+                } catch (ExecutionException | InterruptedException | JSONException e) {
+                    e.printStackTrace();
+                }
+            } else
+                MainActivity.showToast(R.string.connection_failure, getApplicationContext());
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,21 +269,21 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
 
                 for (String string : prescriptionsIDs) {
                     cartMedicines = PrescriptionLab.get(this).getCarts(UUID.fromString(string), System.currentTimeMillis());
-                    for (CartMedicine cartMedicine : cartMedicines) {
+                    for (CartMedicine cartMedicine : cartMedicines)
                         prescriptionHandler.addCart(cartMedicine);
-                    }
-                    Log.e("EUREKA", "IT WORKS! " + UUID.fromString(string));
                 }
             }
         }
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23)
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET}, 123);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
-                ChanceDialog.newInstance().show(getSupportFragmentManager().beginTransaction(), "dialog");
-        }
-        MedicineLab.get(this);
-
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
+            if (checkState())
+                new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_version.php", TAG_VERSION);
+            else
+                MainActivity.showToast(R.string.update_required, getApplicationContext());
+        } else
+            MainActivity.showToast(R.string.no_permission, getApplicationContext());
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
@@ -162,7 +328,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
     }
 
     @Override
@@ -269,5 +434,11 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Navi
     @Override
     public void checkedNavigationItem(int item) {
         navigationView.getMenu().getItem(item).setChecked(true);
+    }
+
+    public static void showToast(int message, Context context) {
+        Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+        ((TextView)(toast.getView()).findViewById(android.R.id.message)).setGravity(Gravity.CENTER);
+        toast.show();
     }
 }

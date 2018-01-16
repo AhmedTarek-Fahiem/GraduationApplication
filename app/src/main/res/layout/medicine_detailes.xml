@@ -72,25 +72,6 @@
 
         <TextView
             android:layout_column="1"
-            android:id="@+id/details_medicine_concentration_label"
-            android:text="@string/details_medicine_concentration_label"
-            style="?android:listSeparatorTextViewStyle"/>
-
-        <TextView
-            android:id="@+id/details_medicine_concentration"
-            android:text="@string/details_medicine_concentration"
-            style="?android:listSeparatorTextViewStyle"/>
-
-    </TableRow>
-
-    <View
-        android:layout_height="2dip"
-        android:background="#FF909090" />
-
-    <TableRow>
-
-        <TextView
-            android:layout_column="1"
             android:id="@+id/details_medicine_active_ingredients_label"
             android:text="@string/details_medicine_active_ingredients_label"
             style="?android:listSeparatorTextViewStyle"/>

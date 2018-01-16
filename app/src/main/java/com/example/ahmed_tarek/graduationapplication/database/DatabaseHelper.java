@@ -35,7 +35,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("create table " + MedicineTable.NAME + "(" +
                 MedicineTable.MedicineColumns.MEDICINE_UUID + " text NOT NULL primary key, " +
                 MedicineTable.MedicineColumns.MEDICINE_NAME + " text NOT NULL, " +
-                MedicineTable.MedicineColumns.MEDICINE_CONCENTRATION + " integer NOT NULL, " +
                 MedicineTable.MedicineColumns.MEDICINE_CATEGORY + " text NOT NULL, " +
                 MedicineTable.MedicineColumns.MEDICINE_FORM + " text NOT NULL, " +
                 MedicineTable.MedicineColumns.MEDICINE_ACTIVE_INGREDIENTS + " text NOT NULL, " +

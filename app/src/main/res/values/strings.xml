@@ -59,7 +59,10 @@
     <string name="permission_granted">Permission granted</string>
     <string name="permission_warning">Cannot check for database updates until granted permissions</string>
     <string name="no_permission">"Warning: No permissions granted\nWorking with the current version"</string>
-    <string name="update_required">Database outdated\nPlease provide any kind of internet connection to get the latest version of medicines</string>
+    <string name="update_required">Database might be outdated\nPlease provide any kind of internet connection to check for the latest version of medicines</string>
+    <string name="update_complete">Database update is complete!</string>
+    <string name="already_upToDate">Already up-to-date\nYou are good to go!</string>
+    <string name="connection_failure">Connection to database failed\nServer may be offline</string>
     <string name="try_again">Try again?</string>
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>

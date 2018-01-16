@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -163,11 +164,11 @@ public class QRActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
-            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.permission_fail, Toast.LENGTH_LONG).show();
+            MainActivity.showToast(R.string.permission_fail, getApplicationContext());
         else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             saveExternal();
         else
-            Toast.makeText(QRActivity.super.getApplicationContext(), R.string.permission_blocked, Toast.LENGTH_LONG).show();
+            MainActivity.showToast(R.string.permission_blocked, getApplicationContext());
     }
 
     private void checkPermission() {
@@ -201,7 +202,7 @@ public class QRActivity extends AppCompatActivity {
     private void saveExternal() {
         BitmapDrawable drawable = (BitmapDrawable) mQRImageView.getDrawable();
         MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), true), new String[] { "image/png" }, null);
-        Toast.makeText(getApplicationContext(), R.string.save_success, Toast.LENGTH_LONG).show();
+        MainActivity.showToast(R.string.save_success, getApplicationContext());
     }
 
     private void loadQR() {

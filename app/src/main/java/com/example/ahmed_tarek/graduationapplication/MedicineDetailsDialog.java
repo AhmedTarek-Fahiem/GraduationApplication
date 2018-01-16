@@ -48,14 +48,12 @@ public class MedicineDetailsDialog extends DialogFragment {
         TextView medicineName = (TextView) view.findViewById(R.id.details_medicine_name);
         TextView medicineCategory = (TextView) view.findViewById(R.id.details_medicine_category);
         TextView medicineForm = (TextView) view.findViewById(R.id.details_medicine_form);
-        TextView medicineConcentration = (TextView) view.findViewById(R.id.details_medicine_concentration);
         TextView medicineActiveIngredients = (TextView) view.findViewById(R.id.details_medicine_active_ingredients);
         TextView medicinePrice = (TextView) view.findViewById(R.id.details_medicine_price);
 
         medicineName.setText(mMedicine.getName());
         medicineCategory.setText(mMedicine.getCategory());
         medicineForm.setText(mMedicine.getForm());
-        medicineConcentration.setText(String.valueOf(mMedicine.getConcentration()));
         medicineActiveIngredients.setText(mMedicine.getActiveIngredients());
         medicinePrice.setText(String.valueOf(mMedicine.getPrice()));
 

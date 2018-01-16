@@ -51,7 +51,6 @@ public class DatabaseSchema {
                 public static final String MEDICINE_NAME = "medicine_name";
                 public static final String MEDICINE_CATEGORY = "medicine_category";
                 public static final String MEDICINE_FORM = "medicine_form";
-                public static final String MEDICINE_CONCENTRATION = "medicine_concentration";
                 public static final String MEDICINE_ACTIVE_INGREDIENTS = "medicine_active_ingredients";
                 public static final String MEDICINE_PRICE = "medicine_price";
                 public static final String MEDICINE_QUANTITY = "medicine_quantity";
