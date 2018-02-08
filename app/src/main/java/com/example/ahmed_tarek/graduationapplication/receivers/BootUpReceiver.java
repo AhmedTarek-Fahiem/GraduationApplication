@@ -72,8 +72,8 @@ public final class BootUpReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
-            if(RegularOrderLab.get(context).getTimeStamps() != null)
-                for(long timeStamp : RegularOrderLab.get(context).getTimeStamps())
+            if (RegularOrderLab.get(context).getTimeStamps() != null)
+                for (long timeStamp : RegularOrderLab.get(context).getTimeStamps())
                     alarmInit(context, timeStamp);
     }
 }

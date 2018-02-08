@@ -2,6 +2,8 @@ package com.example.ahmed_tarek.graduationapplication;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,16 +17,41 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 /**
  * Created by Ahmed_Tarek on 17/11/07.
  */
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment implements AsyncResponse {
 
     private EditText mUsername;
     private EditText mPassword;
     private Button mLoginButton;
     private TextView mErrorMessage;
+    static final String TAG_LOGIN = "login";
+
+    private boolean checkState() {
+        return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
+    }
+
+    @Override
+    public void processFinish(JSONArray output, String type) {
+        if (type.equals(TAG_LOGIN))
+            if (output != null)
+                try {
+                    int key = output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS);
+                    if (key == 0)
+                        MainActivity.showToast(R.string.wrong_credentials, getContext());
+                    else if (key == 1) {
+                        startActivity(new Intent(getContext(), MainActivity.class));
+                        getActivity().finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,9 +107,10 @@ public class LoginFragment extends Fragment {
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (check(mUsername.getText().toString(), mPassword.getText().toString())) {
-                        Intent i = new Intent(view.getContext(), MainActivity.class);
-                        startActivity(i);
-                        getActivity().finish();
+                        if (checkState())
+                            new MainActivity.DatabaseComm(LoginFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/login.php", TAG_LOGIN, mUsername.getText().toString(), mPassword.getText().toString());
+                        else
+                            MainActivity.showToast(R.string.update_required, getContext());
                     }
                 }
                 try {

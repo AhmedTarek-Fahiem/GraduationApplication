@@ -59,10 +59,14 @@
     <string name="permission_granted">Permission granted</string>
     <string name="permission_warning">Cannot check for database updates until granted permissions</string>
     <string name="no_permission">"Warning: No permissions granted\nWorking with the current version"</string>
-    <string name="update_required">Database might be outdated\nPlease provide any kind of internet connection to check for the latest version of medicines</string>
+    <string name="update_required">Connection to database is required\nPlease provide any kind of internet connection to do so</string>
     <string name="update_complete">Database update is complete!</string>
     <string name="already_upToDate">Already up-to-date\nYou are good to go!</string>
     <string name="connection_failure">Connection to database failed\nServer may be offline</string>
+    <string name="username_exists">This username is already taken\nTry another one</string>
+    <string name="email_linked">This email is already linked to another account</string>
+    <string name="database_error">A database error occurred\nPlease try again later</string>
+    <string name="wrong_credentials">Wrong username/password\nMake sure you type them correctly</string>
     <string name="try_again">Try again?</string>
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>
@@ -71,5 +75,4 @@
     <string name="details_medicine_category">Medicine Category</string>
     <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
     <string name="title_activity_qr_generation">QrGeneration</string>
-
 </resources>

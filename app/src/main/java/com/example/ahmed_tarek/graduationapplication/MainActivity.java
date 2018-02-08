@@ -44,7 +44,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.iq80.snappy.Main;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,20 +63,20 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView navigationView;
-    private static final String TAG_SUCCESS = "success";
+    static final String TAG_SUCCESS = "success";
     private static final String TAG_VERSION = "version";
     private static final String TAG_TIMESTAMP = "ver";
     private static final String TAG_MEDICINES = "medicines";
 
     private static boolean recentQRFlag = true;
 
-    private static class LoadAll extends AsyncTask<String, String, JSONArray> {
+    static class DatabaseComm extends AsyncTask<String, String, JSONArray> {
 
         private AsyncResponse delegate = null;
         private ProgressDialog pDialog;
-        private String type = null;
+        private String type;
 
-        LoadAll(AsyncResponse delegate, Activity activity) {
+        DatabaseComm(AsyncResponse delegate, Activity activity) {
             pDialog = new ProgressDialog(activity);
             this.delegate = delegate;
         }
@@ -87,15 +87,14 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
             JSONObject jObj = null;
             String json = "";
             try {
+                DefaultHttpClient httpClient = new DefaultHttpClient();
                 if (method.equals("POST")) {
-                    DefaultHttpClient httpClient = new DefaultHttpClient();
                     HttpPost httpPost = new HttpPost(url);
                     httpPost.setEntity(new UrlEncodedFormEntity(params));
                     HttpResponse httpResponse = httpClient.execute(httpPost);
                     HttpEntity httpEntity = httpResponse.getEntity();
                     is = httpEntity.getContent();
                 } else if (method.equals("GET")) {
-                    DefaultHttpClient httpClient = new DefaultHttpClient();
                     String paramString = URLEncodedUtils.format(params, "utf-8");
                     url += "?" + paramString;
                     HttpGet httpGet = new HttpGet(url);
@@ -130,7 +129,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pDialog.setMessage("Checking for latest updates\nPlease wait...");
+            pDialog.setMessage("Connecting\nPlease wait...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -138,13 +137,29 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
         @Override
         protected JSONArray doInBackground(String... args) {
-            JSONObject json = makeHttpRequest(args[0], "GET", new ArrayList<NameValuePair>());
+            JSONObject json;
             type = args[1];
+            List<NameValuePair> parameters = new ArrayList<>();
+            if (type.equals(LoginFragment.TAG_LOGIN) || args[1].equals(RegistrationFragment.TAG_REGISTRATION)) {
+                parameters.add(new BasicNameValuePair("username", args[2]));
+                parameters.add(new BasicNameValuePair("password", args[3]));
+                if (type.equals(RegistrationFragment.TAG_REGISTRATION)) {
+                    parameters.add(new BasicNameValuePair("email", args[4]));
+                    parameters.add(new BasicNameValuePair("DoB", args[5]));
+                    parameters.add(new BasicNameValuePair("gender", args[6]));
+                }
+                json = makeHttpRequest(args[0], "POST", parameters);
+            } else
+                json = makeHttpRequest(args[0], "GET", parameters);
             try {
-                if (args[1].equals(TAG_MEDICINES) && json.getInt(TAG_SUCCESS) == 1)
+                if (type.equals(TAG_MEDICINES) && json.getInt(TAG_SUCCESS) == 1)
                     return json.getJSONArray(TAG_MEDICINES);
-                else if (args[1].equals(TAG_VERSION) && json.getInt(TAG_SUCCESS) == 1)
+                else if (type.equals(TAG_VERSION) && json.getInt(TAG_SUCCESS) == 1)
                     return json.getJSONArray(TAG_VERSION);
+                else if (type.equals(RegistrationFragment.TAG_REGISTRATION)) {
+                    return json.getJSONArray(RegistrationFragment.TAG_ERROR);
+                } else if (type.equals(LoginFragment.TAG_LOGIN))
+                    return json.getJSONArray(TAG_SUCCESS);
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
@@ -205,9 +220,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
         else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             if(checkState())
-                new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_version.php", TAG_VERSION);
+                new DatabaseComm(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_version.php", TAG_VERSION);
             else
-                MainActivity.showToast(R.string.update_required, getApplicationContext());
+                showToast(R.string.update_required, getApplicationContext());
         else
             showToast(R.string.permission_blocked, getApplicationContext());
     }
@@ -229,11 +244,11 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
                     MedicineLab.get(this);
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("database", true).apply();
-                    new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_medicines.php", TAG_MEDICINES);
+                    new DatabaseComm(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_medicines.php", TAG_MEDICINES);
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
                 }
                 else if (!version.equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("version", null))) {
-                    new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_medicines.php", TAG_MEDICINES);
+                    new DatabaseComm(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_medicines.php", TAG_MEDICINES);
                     PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
                 }
                 else {
@@ -279,7 +294,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.INTERNET}, 123);
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
             if (checkState())
-                new LoadAll(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_version.php", TAG_VERSION);
+                new DatabaseComm(this, MainActivity.this).execute("http://ahmedgesraha.ddns.net/get_version.php", TAG_VERSION);
             else
                 MainActivity.showToast(R.string.update_required, getApplicationContext());
         } else

@@ -3,6 +3,8 @@ package com.example.ahmed_tarek.graduationapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +19,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -25,10 +31,12 @@ import java.util.Locale;
  * Created by Ahmed_Tarek on 17/11/07.
  */
 
-public class RegistrationFragment extends Fragment {
+public class RegistrationFragment extends Fragment implements AsyncResponse{
 
     private static final String DIALOG_DATE = "dialog_date";
     private static final int REQUEST_CODE = 1;
+    static final String TAG_REGISTRATION = "registration";
+    static final String TAG_ERROR = "error";
 
     Date mUserDateOfBirth;
 
@@ -40,6 +48,32 @@ public class RegistrationFragment extends Fragment {
     private Spinner mGender;
     private Button mRegistrationButton;
     private TextView mErrorMessage;
+
+    private boolean checkState() {
+        return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
+    }
+
+    @Override
+    public void processFinish(JSONArray output, String type) {
+        if (type.equals(TAG_REGISTRATION)) {
+            if (output != null) {
+                try {
+                    int error = output.getJSONObject(0).getInt(TAG_ERROR);
+                    if (error == 0) {
+                        startActivity(new Intent(getContext(), MainActivity.class));
+                        getActivity().finish();
+                    } else if (error == 1)
+                        MainActivity.showToast(R.string.username_exists, getContext());
+                    else if (error == 2)
+                        MainActivity.showToast(R.string.email_linked, getContext());
+                    else if (error == 3)
+                        MainActivity.showToast(R.string.database_error, getContext());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,9 +182,10 @@ public class RegistrationFragment extends Fragment {
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (check(mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString())) {
-                        Intent i = new Intent(view.getContext(), MainActivity.class);
-                        startActivity(i);
-                        getActivity().finish();
+                        if (checkState())
+                            new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/register.php", TAG_REGISTRATION, mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString());
+                        else
+                            MainActivity.showToast(R.string.update_required, getContext());
                     }
                 }
                 try {
