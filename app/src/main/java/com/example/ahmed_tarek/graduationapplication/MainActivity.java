@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -55,6 +56,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -341,6 +343,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         TextView email = (TextView) navigationHeaderView.findViewById(R.id.navigation_header_email);
         email.setText(UserLab.get(this).getEMail());
 
+        int security_PIN = PreferenceManager.getDefaultSharedPreferences(this).getInt("security_pin", 0);
+        ((TextView) navigationView.getMenu().findItem(R.id.user_pin).getActionView()).setText(security_PIN == 0 ? null : String.valueOf(security_PIN));
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
     }
@@ -391,6 +396,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                             .addToBackStack("home_page")
                             .commit();
                 }
+                mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.order_history :
                 if (!(currentFragment instanceof OrderHistory)) {
@@ -400,6 +406,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                             .addToBackStack("order_history")
                             .commit();
                 }
+                mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.regular_orders :
                 if (!(currentFragment instanceof RegularOrders)) {
@@ -409,6 +416,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                             .addToBackStack("regular_orders")
                             .commit();
                 }
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                break;
+            case R.id.user_pin:
+                setMenuPIN();
                 break;
             case R.id.sign_out :
                 PrescriptionHandler.get().reset();
@@ -417,9 +428,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();
+                mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
         }
-        mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -449,6 +460,19 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     @Override
     public void checkedNavigationItem(int item) {
         navigationView.getMenu().getItem(item).setChecked(true);
+    }
+
+    @Override
+    public void setMenuPIN() {
+        int security_PIN = new Random().nextInt(10000000) + 1000000;
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putInt("security_pin", security_PIN);
+        editor.apply();
+
+        TextView pinText = (TextView) navigationView.getMenu().findItem(R.id.user_pin).getActionView();
+        pinText.setText(String.valueOf(security_PIN));
+        //TODO: save the generated security pin at the server database and set the timer that don't allowed the user to generate new pin after it finish
     }
 
     public static void showToast(int message, Context context) {

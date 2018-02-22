@@ -45,6 +45,8 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     if (key == 0)
                         MainActivity.showToast(R.string.wrong_credentials, getContext());
                     else if (key == 1) {
+                        //TODO: get the user information and save it at UserLab if there is no security pin generated send it as 0
+                        //UserLab.get(getContext()).saveUserData();
                         startActivity(new Intent(getContext(), MainActivity.class));
                         getActivity().finish();
                     }
@@ -106,12 +108,10 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     mErrorMessage.setText(R.string.empty_password);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
-                    if (check(mUsername.getText().toString(), mPassword.getText().toString())) {
-                        if (checkState())
-                            new MainActivity.DatabaseComm(LoginFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/login.php", TAG_LOGIN, mUsername.getText().toString(), mPassword.getText().toString());
-                        else
-                            MainActivity.showToast(R.string.update_required, getContext());
-                    }
+                    if (checkState())
+                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/login.php", TAG_LOGIN, mUsername.getText().toString(), mPassword.getText().toString());
+                    else
+                        MainActivity.showToast(R.string.update_required, getContext());
                 }
                 try {
                     InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -125,16 +125,4 @@ public class LoginFragment extends Fragment implements AsyncResponse {
         return view;
     }
 
-    private boolean check(String username, String password){
-
-        String message = UserLab.get(getActivity()).login(username, password);
-
-        if (message.equals("success")) {
-            return true;
-        } else {
-            mErrorMessage.setText(R.string.invalid_login);
-            mErrorMessage.setVisibility(View.VISIBLE);
-            return false;
-        }
-    }
 }

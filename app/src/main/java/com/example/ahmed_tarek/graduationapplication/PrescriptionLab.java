@@ -111,7 +111,8 @@ public class PrescriptionLab {
         cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + " = ?", new String[]{ prescriptionID.toString() });
         cursorWrapper.moveToFirst();
         long prescriptionTime = cursorWrapper.getPrescription().getDate().getTime();
-        String repeatDuration = (((int) ((currentTime - prescriptionTime) / (1000*60))) >= 2)? "30" : "7";   /*(1000*60*60*24)*/
+//        String repeatDuration = (((int) ((currentTime - prescriptionTime) / (1000*60))) >= 2)? "30" : "7";   /*(1000*60*60*24)*/
+        String repeatDuration = "7";
 
         cursorWrapper = queryPrescriptionCart(CartMedicineTable.NAME, CartMedicineTable.CartMedicineColumns.PRESCRIPTION_UUID + " = ? and " + CartMedicineTable.CartMedicineColumns.REPEAT_DURATION + " = ?", new String[]{ prescriptionID.toString(), repeatDuration });
         try {

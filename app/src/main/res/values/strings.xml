@@ -18,17 +18,17 @@
     <string name="password_match">Passwords doesn\'t match!</string>
     <string name="empty_email">Enter your email!</string>
     <string name="empty_date">Enter the date of your birth!</string>
-    <string name="used_email">The email entered is already used in another account</string>
-    <string name="used_username">Username is already used\nTry another one</string>
     <string name="invalid_login">Wrong username or password\nTry again</string>
     <string name="search_label_hint">Medicine Name.....</string>
     <string name="submit_button">Submit</string>
+    <string name="user_pin">Security PIN</string>
     <string name="home_page">Home Page</string>
     <string name="order_history">Order History</string>
     <string name="regular_orders">Regular Orders</string>
     <string name="sign_out">Sign Out</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="generate_pin">Generate\nNew PIN</string>
     <string name="recent_qr">Recent QR</string>
     <string name="details_button">Details</string>
     <string name="details_medicine_name_label">Name :</string>
@@ -68,6 +68,7 @@
     <string name="database_error">A database error occurred\nPlease try again later</string>
     <string name="wrong_credentials">Wrong username/password\nMake sure you type them correctly</string>
     <string name="try_again">Try again?</string>
+    <string name="no_internet">No Internet Connection</string>
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>
     <string name="details_medicine_form">Medicine Form</string>

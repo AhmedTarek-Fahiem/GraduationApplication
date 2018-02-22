@@ -22,7 +22,8 @@ public final class BootUpReceiver extends BroadcastReceiver {
     public static final String UUID = "prescription_id";
     public static final String DATE = "fire_date";
     private static final int REQUEST_CODE = 1;
-    private static final int HOUR = 8;
+//    private static final int HOUR = 8;
+    private static final int HOUR = 0;
 
     public static long fireAfter(int days) {
         return AlarmManager.INTERVAL_DAY - (TimeZone.getDefault().getOffset(System.currentTimeMillis()) + System.currentTimeMillis()) % AlarmManager.INTERVAL_DAY + days * AlarmManager.INTERVAL_DAY + HOUR * AlarmManager.INTERVAL_HOUR + System.currentTimeMillis();
@@ -55,14 +56,16 @@ public final class BootUpReceiver extends BroadcastReceiver {
         }
         if (case7) {
 //            time = fireAfter(6);
-            time = System.currentTimeMillis() + 60000;
+            time = fireAfter(0);
+//            time = System.currentTimeMillis() + 60000;
             if (!RegularOrderLab.get(context).reminderExists(time))
                 alarmInit(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
         }
         if (case30) {
 //            time = fireAfter(29);
-            time = System.currentTimeMillis() + 120000;
+            time = fireAfter(1);
+//            time = System.currentTimeMillis() + 120000;
             if (!RegularOrderLab.get(context).reminderExists(time))
                 alarmInit(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);

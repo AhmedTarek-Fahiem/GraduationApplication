@@ -5,8 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:layout_marginRight="16dp"
-    android:layout_marginLeft="16dp"
     android:layout_marginTop="10dp"
     android:layout_marginBottom="10dp"
     android:weightSum="24"
@@ -33,6 +31,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"
         android:orientation="horizontal"
         android:layout_weight="1"
         android:weightSum="15"
@@ -63,5 +63,14 @@
             android:text="@string/next_button"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/internet_warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_internet"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:background="@color/errorMessage"/>
 
 </LinearLayout>

@@ -3,9 +3,11 @@ package com.example.ahmed_tarek.graduationapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,6 +28,7 @@ import org.json.JSONException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Created by Ahmed_Tarek on 17/11/07.
@@ -60,6 +63,8 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 try {
                     int error = output.getJSONObject(0).getInt(TAG_ERROR);
                     if (error == 0) {
+                        //TODO: get the user id and save it at UserLab
+                        //UserLab.get(getContext()).saveUserData(, mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
                         startActivity(new Intent(getContext(), MainActivity.class));
                         getActivity().finish();
                     } else if (error == 1)
@@ -181,12 +186,10 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     mErrorMessage.setText(R.string.empty_date);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
-                    if (check(mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString())) {
-                        if (checkState())
-                            new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/register.php", TAG_REGISTRATION, mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString());
-                        else
-                            MainActivity.showToast(R.string.update_required, getContext());
-                    }
+                    if (checkState())
+                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/register.php", TAG_REGISTRATION, mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString());
+                    else
+                        MainActivity.showToast(R.string.update_required, getContext());
                 }
                 try {
                     InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -213,23 +216,4 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
         }
     }
 
-    private boolean check(String username, String firstPassword, String email) {
-
-        String message = UserLab.get(getActivity()).register(username, firstPassword, email, mUserDateOfBirth, mGender.getSelectedItemPosition() == 0);
-
-        switch (message) {
-            case "success":
-                return true;
-            case "email":
-                mErrorMessage.setText(R.string.used_email);
-                mErrorMessage.setVisibility(View.VISIBLE);
-                return false;
-            case "username":
-                mErrorMessage.setText(R.string.used_username);
-                mErrorMessage.setVisibility(View.VISIBLE);
-                return false;
-            default:
-                return false;
-        }
-    }
 }

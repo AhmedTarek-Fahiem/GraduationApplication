@@ -17,12 +17,12 @@
             android:layout_column="1"
             android:id="@+id/details_medicine_name_label"
             android:text="@string/details_medicine_name_label"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
         <TextView
             android:id="@+id/details_medicine_name"
             android:text="@string/details_medicine_name"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
     </TableRow>
 
@@ -36,12 +36,12 @@
             android:layout_column="1"
             android:id="@+id/details_medicine_category_label"
             android:text="@string/details_medicine_category_label"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
         <TextView
             android:id="@+id/details_medicine_category"
             android:text="@string/details_medicine_category"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
     </TableRow>
 
@@ -55,12 +55,12 @@
             android:layout_column="1"
             android:id="@+id/details_medicine_form_label"
             android:text="@string/details_medicine_form_label"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
         <TextView
             android:id="@+id/details_medicine_form"
             android:text="@string/details_medicine_form"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
     </TableRow>
 
@@ -74,12 +74,13 @@
             android:layout_column="1"
             android:id="@+id/details_medicine_active_ingredients_label"
             android:text="@string/details_medicine_active_ingredients_label"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
         <TextView
             android:id="@+id/details_medicine_active_ingredients"
             android:text="@string/details_medicine_active_ingredients"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"
+            android:maxEms="1"/>
 
     </TableRow>
 
@@ -93,12 +94,12 @@
             android:layout_column="1"
             android:id="@+id/details_medicine_price_label"
             android:text="@string/details_medicine_price_label"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
         <TextView
             android:id="@+id/details_medicine_price"
             android:text="@string/details_medicine_price"
-            style="?android:listSeparatorTextViewStyle"/>
+            style="@style/DialogSubtitle"/>
 
     </TableRow>
 
