@@ -3,7 +3,6 @@ package com.example.ahmed_tarek.graduationapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -65,7 +64,6 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 try {
                     int error = output.getJSONObject(0).getInt(TAG_ERROR);
                     if (error == 0) {
-                        Log.e("UUID", UUID.fromString(output.getJSONObject(0).getString(TAG_ID)) + "&" + output.getJSONObject(0).getString(TAG_ID));
                         UserLab.get(getContext()).saveUserData(UUID.fromString(output.getJSONObject(0).getString(TAG_ID)), mUsername.getText().toString(), mEMail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
                         startActivity(new Intent(getContext(), MainActivity.class));

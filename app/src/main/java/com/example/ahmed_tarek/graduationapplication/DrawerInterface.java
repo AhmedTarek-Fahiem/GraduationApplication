@@ -5,8 +5,8 @@ package com.example.ahmed_tarek.graduationapplication;
  */
 
 public interface DrawerInterface {
-    public void lockDrawer();
-    public void unlockDrawer();
-    public void checkedNavigationItem(int item);
-    public String setMenuPIN();
+    void lockDrawer();
+    void unlockDrawer();
+    void checkedNavigationItem(int item);
+    String setMenuPIN();
 }
