@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,9 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
     private static final String DIALOG_DATE = "dialog_date";
     private static final int REQUEST_CODE = 1;
     static final String TAG_REGISTRATION = "registration";
+    static final String TAG_RESULT = "result";
     static final String TAG_ERROR = "error";
+    static final String TAG_ID = "id";
 
     Date mUserDateOfBirth;
 
@@ -49,7 +52,6 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
     private EditText mEMail;
     private Button mDateOfBirth;
     private Spinner mGender;
-    private Button mRegistrationButton;
     private TextView mErrorMessage;
 
     private boolean checkState() {
@@ -63,8 +65,9 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 try {
                     int error = output.getJSONObject(0).getInt(TAG_ERROR);
                     if (error == 0) {
-                        //TODO: get the user id and save it at UserLab
-                        //UserLab.get(getContext()).saveUserData(, mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
+                        Log.e("UUID", UUID.fromString(output.getJSONObject(0).getString(TAG_ID)) + "&" + output.getJSONObject(0).getString(TAG_ID));
+                        UserLab.get(getContext()).saveUserData(UUID.fromString(output.getJSONObject(0).getString(TAG_ID)), mUsername.getText().toString(), mEMail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
                         startActivity(new Intent(getContext(), MainActivity.class));
                         getActivity().finish();
                     } else if (error == 1)
@@ -76,7 +79,8 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }
+            } else
+                MainActivity.showToast(R.string.connection_failure, getContext());
         }
     }
 
@@ -162,7 +166,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
 
         mGender = (Spinner) view.findViewById(R.id.register_gender_spinner_label);
 
-        mRegistrationButton = (Button) view.findViewById(R.id.registration_button);
+        Button mRegistrationButton = (Button) view.findViewById(R.id.registration_button);
         mRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -187,7 +191,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/register.php", TAG_REGISTRATION, mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString());
+                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute("http://ahmedgesraha.ddns.net/register.php", mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString());
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }
@@ -215,5 +219,4 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             mDateOfBirth.setText(simpleDateFormat.format(mUserDateOfBirth));
         }
     }
-
 }

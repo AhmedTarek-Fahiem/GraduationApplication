@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -19,6 +20,10 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.sql.Date;
+import java.util.UUID;
 
 /**
  * Created by Ahmed_Tarek on 17/11/07.
@@ -28,9 +33,12 @@ public class LoginFragment extends Fragment implements AsyncResponse {
 
     private EditText mUsername;
     private EditText mPassword;
-    private Button mLoginButton;
     private TextView mErrorMessage;
     static final String TAG_LOGIN = "login";
+    static final String TAG_PATIENT = "patient";
+    private static final String TAG_EMAIL = "email";
+    private static final String TAG_DoB = "DoB";
+    private static final String TAG_GENDER = "gender";
 
     private boolean checkState() {
         return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
@@ -45,14 +53,18 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     if (key == 0)
                         MainActivity.showToast(R.string.wrong_credentials, getContext());
                     else if (key == 1) {
-                        //TODO: get the user information and save it at UserLab if there is no security pin generated send it as 0
-                        //UserLab.get(getContext()).saveUserData();
+                        JSONObject o = output.getJSONObject(0);
+                        UserLab.get(getContext()).saveUserData(UUID.fromString(o.getString(RegistrationFragment.TAG_ID)), mUsername.getText().toString(), o.getString(TAG_EMAIL), Date.valueOf(o.getString(TAG_DoB)), o.getString(TAG_GENDER).equals("m"), Integer.valueOf(o.getString(MainActivity.TAG_PIN)));
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putInt(UserLab.get(getContext()).getUsername() + "_securityPin", UserLab.get(getContext()).getSecurity_PIN()).apply();
                         startActivity(new Intent(getContext(), MainActivity.class));
                         getActivity().finish();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            else
+                MainActivity.showToast(R.string.connection_failure,getContext());
     }
 
     @Override
@@ -66,9 +78,9 @@ public class LoginFragment extends Fragment implements AsyncResponse {
 
         View view = inflater.inflate(R.layout.login_fragment, container, false);
 
-        mErrorMessage = (TextView) view.findViewById(R.id.login_error);
+        mErrorMessage = view.findViewById(R.id.login_error);
 
-        mUsername = (EditText) view.findViewById(R.id.login_username_label);
+        mUsername = view.findViewById(R.id.login_username_label);
         mUsername.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -82,7 +94,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
             public void afterTextChanged(Editable editable) {}
         });
 
-        mPassword = (EditText) view.findViewById(R.id.login_password_label);
+        mPassword = view.findViewById(R.id.login_password_label);
         mPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -96,7 +108,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
             public void afterTextChanged(Editable editable) {}
         });
 
-        mLoginButton = (Button) view.findViewById(R.id.login_button);
+        Button mLoginButton = view.findViewById(R.id.login_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,7 +121,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity()).execute("http://ahmedgesraha.ddns.net/login.php", TAG_LOGIN, mUsername.getText().toString(), mPassword.getText().toString());
+                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), TAG_LOGIN).execute("http://ahmedgesraha.ddns.net/login.php", mUsername.getText().toString(), mPassword.getText().toString());
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }
@@ -124,5 +136,4 @@ public class LoginFragment extends Fragment implements AsyncResponse {
 
         return view;
     }
-
 }

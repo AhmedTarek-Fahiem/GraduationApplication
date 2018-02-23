@@ -10,10 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
-import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 
 /**
  * Created by Ahmed_Tarek on 17/12/14.

@@ -8,5 +8,5 @@ public interface DrawerInterface {
     public void lockDrawer();
     public void unlockDrawer();
     public void checkedNavigationItem(int item);
-    public void setMenuPIN();
+    public String setMenuPIN();
 }

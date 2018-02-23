@@ -27,7 +27,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
@@ -112,15 +111,15 @@ public class QRActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             content = getArguments().getString("content");
             int size = 0, index = 0;
-            for(int i = 0; i < content.length(); i++)
-                if(content.charAt(i) == ',')
+            for (int i = 0; i < content.length(); i++)
+                if (content.charAt(i) == ',')
                     size++;
             contents = new Content[size];
             String name, quantity;
             for(int i = 0; i < size; i++) {
                 name = content.substring(index, content.indexOf(',', index));
                 index = content.indexOf(',', index) + 1;
-                if(index != content.length() - 1) {
+                if (index != content.length() - 1) {
                     quantity = content.substring(index, content.indexOf('&', index));
                     index = content.indexOf('&', index) + 1;
                 }

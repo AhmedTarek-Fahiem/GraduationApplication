@@ -1,26 +1,13 @@
 package com.example.ahmed_tarek.graduationapplication;
 
-import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseHelper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,14 +15,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.MedicineDbSchema.MedicineTable;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

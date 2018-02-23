@@ -41,7 +41,7 @@ public class MedicineDetailsDialog extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.medicine_detailes, container, false);
+        View view = inflater.inflate(R.layout.medicine_details, container, false);
 
         getDialog().setTitle(mMedicine.getName());
 

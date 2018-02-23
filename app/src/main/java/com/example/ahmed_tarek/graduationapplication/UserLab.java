@@ -47,27 +47,25 @@ public class UserLab {
     }
 
 
-    public void saveUserData(UUID userID, String username, String password, String email, Date dateOfBirth, boolean gender, int security_PIN) {
+    public void saveUserData(UUID userID, String username, String email, Date dateOfBirth, boolean gender, int security_PIN) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
         editor.putBoolean("isLogin", true);
         editor.putString("userID", userID.toString());
         editor.putString("username", username);
-        editor.putString("password", password);
         editor.putString("email", email);
         editor.putLong("date", dateOfBirth.getTime());
         editor.putBoolean("gender", gender);
         editor.putInt("security_pin", security_PIN);
         editor.apply();
 
-        mUser = new User(userID, username, password, email, dateOfBirth, gender, security_PIN);
+        mUser = new User(userID, username, email, dateOfBirth, gender, security_PIN);
     }
     public void loadUserData() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
-        if ( sharedPreferences.getBoolean("isLogin", true) ) {
+        if ( sharedPreferences.getBoolean("isLoggedIn", false) ) {
             mUser = new User(UUID.fromString(sharedPreferences.getString("userID", "")),
                     sharedPreferences.getString("username", "admin"),
-                    sharedPreferences.getString("password", "1234"),
                     sharedPreferences.getString("email", "admin@domain.com"),
                     new Date(sharedPreferences.getLong("date", new Date().getTime())),
                     sharedPreferences.getBoolean("gender", true),
@@ -80,17 +78,15 @@ public class UserLab {
 
         private UUID mUserID;
         private String mUsername;
-        private String mPassword;
         private String mEMail;
         private Date mDateOfBirth;
         private boolean mGender;
         private int mSecurity_PIN;
 
 
-        private User(UUID userID, String username, String password, String email, Date dateOfBirth, boolean gender, int security_PIN) {
+        private User(UUID userID, String username, String email, Date dateOfBirth, boolean gender, int security_PIN) {
             mUserID = userID;
             mUsername = username;
-            mPassword = password;
             mEMail = email;
             mDateOfBirth = dateOfBirth;
             mGender = gender;
@@ -104,10 +100,6 @@ public class UserLab {
 
         public String getUsername() {
             return mUsername;
-        }
-
-        public String getPassword() {
-            return mPassword;
         }
 
         public String getEMail() {

@@ -1,6 +1,9 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,6 +41,9 @@ public class CartListFragment extends Fragment {
 
     private PrescriptionHandler mPrescriptionHandler;
 
+    private boolean checkState() {
+        return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,7 +65,12 @@ public class CartListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.cart_fragment, container, false);
-
+        TextView warning = view.findViewById(R.id.internet_warning);
+        if (checkState()) {
+            warning.setBackgroundColor(Color.GREEN);
+            warning.setText(R.string.connected);
+        }
+        warning.setVisibility(View.VISIBLE);
         mDrawerInterface.lockDrawer();
         setHasOptionsMenu(false);
 
@@ -86,11 +97,11 @@ public class CartListFragment extends Fragment {
                 boolean regular = false;
                 String cartMedicines = "";
                 UUID id = mPrescriptionHandler.getPrescription().getID();
-                for(int i = 0 ; i < qrMedicines.size() ; i++){
+                for (int i = 0 ; i < qrMedicines.size() ; i++){
                     cartMedicines = cartMedicines + MedicineLab.get(getActivity()).getMedicine(qrMedicines.get(i).getMedicineID()).getName() + ',' + String.valueOf(qrMedicines.get(i).getQuantity());
-                    if(qrMedicines.get(i).getRepeatDuration() != 0)
+                    if (qrMedicines.get(i).getRepeatDuration() != 0)
                         regular = true;
-                    if(i != (qrMedicines.size() - 1))
+                    if (i != (qrMedicines.size() - 1))
                         cartMedicines += '&';
                 }
                 mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));

@@ -20,7 +20,7 @@ public class AccessActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if ( !sharedPreferences.getBoolean("isLogin", false) ) {
+        if ( !sharedPreferences.getBoolean("isLoggedIn", false) ) {
             setContentView(R.layout.access_activity);
 
             FragmentManager fragmentManager = getSupportFragmentManager();
