@@ -56,7 +56,7 @@ public class MedicineListFragment extends Fragment {
         mDrawerInterface.checkedNavigationItem(0);
         setHasOptionsMenu(true);
 
-        mMedicineListRecyclerView = (RecyclerView) view.findViewById(R.id.medicine_list_recycler_view);
+        mMedicineListRecyclerView = view.findViewById(R.id.medicine_list_recycler_view);
         mMedicineListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (mMedicineListRecyclerView.getAdapter() == null) {
@@ -64,7 +64,7 @@ public class MedicineListFragment extends Fragment {
             mMedicineListRecyclerView.setAdapter(mMedicineAdapter);
         }
 
-        mSearchTextEditText = (EditText) view.findViewById(R.id.search_label);
+        mSearchTextEditText = view.findViewById(R.id.search_label);
         mSearchTextEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
@@ -83,7 +83,7 @@ public class MedicineListFragment extends Fragment {
             }
         });
 
-        mSearchSubmitButton = (FloatingActionButton) view.findViewById(R.id.search_submit);
+        mSearchSubmitButton = view.findViewById(R.id.search_submit);
         mSearchSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,7 +95,7 @@ public class MedicineListFragment extends Fragment {
             }
         });
 
-        mMedicinesNumberTextView = (TextView) view.findViewById(R.id.medicines_number);
+        mMedicinesNumberTextView = view.findViewById(R.id.medicines_number);
 
         submitButtonVisibility();
 
@@ -124,9 +124,9 @@ public class MedicineListFragment extends Fragment {
         public MedicineHolder(View itemView) {
             super(itemView);
 
-            mSelectedCheckBox = (CheckBox) itemView.findViewById(R.id.medicine_selected_check_box);
-            mMedicineNameTextView = (TextView) itemView.findViewById(R.id.medicine_name);
-            mDetailsButton = (FloatingActionButton) itemView.findViewById(R.id.medicine_details_button);
+            mSelectedCheckBox = itemView.findViewById(R.id.medicine_selected_check_box);
+            mMedicineNameTextView = itemView.findViewById(R.id.medicine_name);
+            mDetailsButton = itemView.findViewById(R.id.medicine_details_button);
 
         }
 

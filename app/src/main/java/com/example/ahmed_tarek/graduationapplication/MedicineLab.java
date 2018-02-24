@@ -49,7 +49,7 @@ public class MedicineLab {
         return contentValues;
     }
 
-    static void update(Context context, JSONArray medicinesList) throws ExecutionException, InterruptedException, JSONException {
+    public void update(Context context, JSONArray medicinesList) throws ExecutionException, InterruptedException, JSONException {
         formatTable();
         for (int i = 0; i < medicinesList.length(); i++) {
             JSONObject o = medicinesList.getJSONObject(i);
@@ -99,8 +99,8 @@ public class MedicineLab {
                 whereClause,
                 whereArgs,
                 null,
+                null,
                 null
-                ,null
         );
         return new MedicineCursorWrapper(cursor);
     }
@@ -133,7 +133,7 @@ public class MedicineLab {
 
     public Medicine getMedicine(UUID id) {
 
-        MedicineCursorWrapper cursorWrapper = queryMedicines(MedicineTable.MedicineColumns.MEDICINE_UUID + " = ?", new String[]{ id.toString()});
+        MedicineCursorWrapper cursorWrapper = queryMedicines(MedicineTable.MedicineColumns.MEDICINE_UUID + " = ?", new String[]{id.toString()});
         try {
             if (cursorWrapper.getCount() == 0) {
                 return null;
@@ -145,7 +145,7 @@ public class MedicineLab {
         }
     }
 
-    public static void formatTable() {
+    private void formatTable() {
         mSQLiteDatabase.delete(MedicineTable.NAME, null, null);
     }
 }

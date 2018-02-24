@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
@@ -45,12 +46,17 @@ public class RegularOrders extends Fragment {
         mDrawerInterface.unlockDrawer();
         mDrawerInterface.checkedNavigationItem(2);
 
-        RecyclerView regularOrderRecyclerView = (RecyclerView) view.findViewById(R.id.regular_order_list_recycler_view);
+        RecyclerView regularOrderRecyclerView = view.findViewById(R.id.regular_order_list_recycler_view);
         regularOrderRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (regularOrderRecyclerView.getAdapter() == null) {
             mRegularOrderAdapter = new RegularOrderAdapter(RegularOrderLab.get(getActivity()).getRegularOrders());
             regularOrderRecyclerView.setAdapter(mRegularOrderAdapter);
+        }
+
+        if (mRegularOrderAdapter.getItemCount() > 0) {
+            LinearLayout linearLayout = view.findViewById(R.id.regular_empty_window);
+            linearLayout.setVisibility(View.GONE);
         }
 
         return view;
@@ -65,8 +71,8 @@ public class RegularOrders extends Fragment {
         public RegularOrderHolder(View itemView) {
             super(itemView);
 
-            mOrderDateTextView = (TextView) itemView.findViewById(R.id.regular_order_date);
-            mRemoveAlarmButton = (ImageButton) itemView.findViewById(R.id.remove_regular_order);
+            mOrderDateTextView = itemView.findViewById(R.id.regular_order_date);
+            mRemoveAlarmButton = itemView.findViewById(R.id.remove_regular_order);
         }
 
         public void bindOrder(final Regular regularOrder) {

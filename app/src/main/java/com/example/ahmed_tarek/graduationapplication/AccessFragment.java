@@ -29,7 +29,7 @@ public class AccessFragment extends Fragment {
         Button mLoginButton;
         Button mRegistrationButton;
 
-        mLoginButton = (Button) view.findViewById(R.id.start_login_button);
+        mLoginButton = view.findViewById(R.id.start_login_button);
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -41,7 +41,7 @@ public class AccessFragment extends Fragment {
             }
         });
 
-        mRegistrationButton = (Button) view.findViewById(R.id.start_registration_button);
+        mRegistrationButton = view.findViewById(R.id.start_registration_button);
         mRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

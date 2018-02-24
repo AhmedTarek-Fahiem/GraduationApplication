@@ -12,11 +12,11 @@
         <item>Male</item>
         <item>Female</item>
     </string-array>
-    <string name="empty_username">Enter your username!</string>
-    <string name="empty_password">Enter your password!</string>
+    <string name="empty_username">Enter your username!\n[5 chars min, 20 chars max]</string>
+    <string name="empty_password">Enter your password!\n[5 chars min, 20 chars max]</string>
     <string name="empty_confirmation_password">Confirm your password!</string>
     <string name="password_match">Passwords doesn\'t match!</string>
-    <string name="empty_email">Enter your email!</string>
+    <string name="invalid_email">Enter a valid E-Mail!</string>
     <string name="empty_date">Enter the date of your birth!</string>
     <string name="invalid_login">Wrong username or password\nTry again</string>
     <string name="search_label_hint">Medicine Name.....</string>
@@ -26,6 +26,8 @@
     <string name="order_history">Order History</string>
     <string name="regular_orders">Regular Orders</string>
     <string name="sign_out">Sign Out</string>
+    <string name="empty_order_page">Nothing in Order History</string>
+    <string name="empty_regular_page">Nothing in Regular Orders</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="generate_pin">Generate\nNew PIN</string>

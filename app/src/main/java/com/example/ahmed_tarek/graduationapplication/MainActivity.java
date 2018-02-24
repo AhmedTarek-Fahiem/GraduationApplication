@@ -283,7 +283,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         } else if (type.equals(TAG_MEDICINES)) {
             if (output != null) {
                 try {
-                    MedicineLab.update(getApplicationContext(), output);
+                    MedicineLab.get(this).update(getApplicationContext(), output);
                 } catch (ExecutionException | InterruptedException | JSONException e) {
                     e.printStackTrace();
                 }
@@ -331,10 +331,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     showToast(R.string.version_warning, getApplicationContext());
         } else
             showToast(R.string.no_permission, getApplicationContext());
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer_layout);
+        mDrawerLayout = findViewById(R.id.main_drawer_layout);
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close){
             @Override
             public void onDrawerOpened(View drawerView) {
@@ -362,15 +362,15 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
         mActionBarDrawerToggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.getMenu().getItem(0).setChecked(true);
 
         View navigationHeaderView = navigationView.getHeaderView(0);
 
-        TextView username = (TextView) navigationHeaderView.findViewById(R.id.navigation_header_username);
+        TextView username = navigationHeaderView.findViewById(R.id.navigation_header_username);
         username.setText(UserLab.get(this).getUsername());
-        TextView email = (TextView) navigationHeaderView.findViewById(R.id.navigation_header_email);
+        TextView email = navigationHeaderView.findViewById(R.id.navigation_header_email);
         email.setText(UserLab.get(this).getEMail());
 
         int securityPIN = PreferenceManager.getDefaultSharedPreferences(this).getInt(UserLab.get(this).getUsername() + "_securityPin", 0);

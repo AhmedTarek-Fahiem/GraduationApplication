@@ -74,7 +74,7 @@ public class CartListFragment extends Fragment {
         mDrawerInterface.lockDrawer();
         setHasOptionsMenu(false);
 
-        mCartListRecyclerView = (RecyclerView) view.findViewById(R.id.cart_list_recycler_view);
+        mCartListRecyclerView = view.findViewById(R.id.cart_list_recycler_view);
         mCartListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mPrescriptionHandler = PrescriptionHandler.get();
@@ -86,9 +86,9 @@ public class CartListFragment extends Fragment {
             mCartMedicineAdapter.notifyDataSetChanged();
         }
 
-        mTotalPrice = (TextView) view.findViewById(R.id.total_payment_number);
+        mTotalPrice = view.findViewById(R.id.total_payment_number);
 
-        mGenerateButton = (Button) view.findViewById(R.id.generate_qr);
+        mGenerateButton = view.findViewById(R.id.generate_qr);
         mGenerateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,10 +129,10 @@ public class CartListFragment extends Fragment {
         public CartMedicineHolder(View itemView) {
             super(itemView);
 
-            mCartMedicineNameTextView = (TextView) itemView.findViewById(R.id.cart_medicine_name);
-            mCartMedicineQuantity = (EditText) itemView.findViewById(R.id.cart_medicine_quantity);
-            mCartMedicineRepeat = (Spinner) itemView.findViewById(R.id.cart_medicine_regular_spinner);
-            mRemoveCart = (ImageButton) itemView.findViewById(R.id.remove_cart);
+            mCartMedicineNameTextView = itemView.findViewById(R.id.cart_medicine_name);
+            mCartMedicineQuantity = itemView.findViewById(R.id.cart_medicine_quantity);
+            mCartMedicineRepeat = itemView.findViewById(R.id.cart_medicine_regular_spinner);
+            mRemoveCart = itemView.findViewById(R.id.remove_cart);
         }
 
         public void bindCartMedicine(CartMedicine cartMedicine) {

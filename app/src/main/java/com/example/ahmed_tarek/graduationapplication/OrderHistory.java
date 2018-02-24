@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -43,12 +44,17 @@ public class OrderHistory extends Fragment {
         mDrawerInterface.unlockDrawer();
         mDrawerInterface.checkedNavigationItem(1);
 
-        RecyclerView orderHistoryRecyclerView = (RecyclerView) view.findViewById(R.id.order_history_list_recycler_view);
+        RecyclerView orderHistoryRecyclerView = view.findViewById(R.id.order_history_list_recycler_view);
         orderHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (orderHistoryRecyclerView.getAdapter() == null) {
             mPrescriptionAdapter = new PrescriptionAdapter(PrescriptionLab.get(getActivity()).getPrescriptions(UserLab.get(getActivity()).getUserUUID()));
             orderHistoryRecyclerView.setAdapter(mPrescriptionAdapter);
+        }
+
+        if (mPrescriptionAdapter.getItemCount() > 0) {
+            LinearLayout linearLayout = view.findViewById(R.id.order_empty_window);
+            linearLayout.setVisibility(View.GONE);
         }
 
         return view;
@@ -63,9 +69,9 @@ public class OrderHistory extends Fragment {
         public PrescriptionHolder(View itemView) {
             super(itemView);
 
-            mPrescriptionDateTextView = (TextView) itemView.findViewById(R.id.prescription_date);
-            mPrescriptionPriceTextView = (TextView) itemView.findViewById(R.id.prescription_price);
-            mAddButton = (ImageButton) itemView.findViewById(R.id.add_prescription);
+            mPrescriptionDateTextView = itemView.findViewById(R.id.prescription_date);
+            mPrescriptionPriceTextView = itemView.findViewById(R.id.prescription_price);
+            mAddButton = itemView.findViewById(R.id.add_prescription);
         }
 
         public void bindOrder(final Prescription prescription) {

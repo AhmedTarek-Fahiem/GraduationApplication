@@ -8,6 +8,27 @@
     android:layout_marginTop="16dp"
     android:layout_marginBottom="16dp">
 
+    <LinearLayout
+        android:id="@+id/order_empty_window"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_shopping_cart"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/DialogSubtitle"
+            android:textAlignment="center"
+            android:text="@string/empty_order_page"/>
+
+    </LinearLayout>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/order_history_list_recycler_view"
         android:layout_width="match_parent"

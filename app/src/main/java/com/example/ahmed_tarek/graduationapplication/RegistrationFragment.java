@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,9 +94,9 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
 
         View view = inflater.inflate(R.layout.registration_fragment, container, false);
 
-        mErrorMessage = (TextView) view.findViewById(R.id.registration_error);
+        mErrorMessage = view.findViewById(R.id.registration_error);
 
-        mUsername = (EditText) view.findViewById(R.id.register_username_label);
+        mUsername = view.findViewById(R.id.register_username_label);
         mUsername.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -109,7 +110,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             public void afterTextChanged(Editable editable) {}
         });
 
-        mPassword = (EditText) view.findViewById(R.id.register_password_label);
+        mPassword = view.findViewById(R.id.register_password_label);
         mPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -123,7 +124,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             public void afterTextChanged(Editable editable) {}
         });
 
-        mConfirmPassword = (EditText) view.findViewById(R.id.register_confirm_password_label);
+        mConfirmPassword = view.findViewById(R.id.register_confirm_password_label);
         mConfirmPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -137,7 +138,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             public void afterTextChanged(Editable editable) {}
         });
 
-        mEMail = (EditText) view.findViewById(R.id.register_email_label);
+        mEMail = view.findViewById(R.id.register_email_label);
         mEMail.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -151,7 +152,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             public void afterTextChanged(Editable editable) {}
         });
 
-        mDateOfBirth = (Button) view.findViewById(R.id.register_date_of_birth_label);
+        mDateOfBirth = view.findViewById(R.id.register_date_of_birth_label);
         mDateOfBirth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,17 +163,17 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             }
         });
 
-        mGender = (Spinner) view.findViewById(R.id.register_gender_spinner_label);
+        mGender = view.findViewById(R.id.register_gender_spinner_label);
 
-        Button mRegistrationButton = (Button) view.findViewById(R.id.registration_button);
+        Button mRegistrationButton = view.findViewById(R.id.registration_button);
         mRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (mUsername.getText().length() == 0) {
+                if (mUsername.getText().length() < 5 || mUsername.getText().length() > 20) {
                     mErrorMessage.setText(R.string.empty_username);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if (mPassword.getText().length() == 0) {
+                } else if (mPassword.getText().length() < 5 || mPassword.getText().length() > 20) {
                     mErrorMessage.setText(R.string.empty_password);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else if (mConfirmPassword.getText().length() == 0) {
@@ -181,8 +182,8 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 } else if (!(mPassword.getText().toString()).equals(mConfirmPassword.getText().toString())) {
                     mErrorMessage.setText(R.string.password_match);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if (mEMail.getText().length() == 0) {
-                    mErrorMessage.setText(R.string.empty_email);
+                } else if (mEMail.getText().length() == 0 || !Patterns.EMAIL_ADDRESS.matcher(mEMail.getText()).matches()) {
+                    mErrorMessage.setText(R.string.invalid_email);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else if (mUserDateOfBirth == null) {
                     mErrorMessage.setText(R.string.empty_date);
