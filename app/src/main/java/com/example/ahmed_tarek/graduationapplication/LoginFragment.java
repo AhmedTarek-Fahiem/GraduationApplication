@@ -121,7 +121,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), TAG_LOGIN).execute("http://ahmedgesraha.ddns.net/login.php", mUsername.getText().toString(), mPassword.getText().toString());
+                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), TAG_LOGIN).execute(new String[] { "http://ahmedgesraha.ddns.net/login.php", mUsername.getText().toString(), mPassword.getText().toString() });
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

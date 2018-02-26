@@ -49,7 +49,7 @@ public class MedicineLab {
         return contentValues;
     }
 
-    public void update(Context context, JSONArray medicinesList) throws ExecutionException, InterruptedException, JSONException {
+    void update(Context context, JSONArray medicinesList) throws ExecutionException, InterruptedException, JSONException {
         formatTable();
         for (int i = 0; i < medicinesList.length(); i++) {
             JSONObject o = medicinesList.getJSONObject(i);

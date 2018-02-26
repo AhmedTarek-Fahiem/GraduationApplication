@@ -115,15 +115,14 @@ public class QRActivity extends AppCompatActivity {
                     size++;
             contents = new Content[size];
             String name, quantity;
-            for(int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 name = content.substring(index, content.indexOf(',', index));
                 index = content.indexOf(',', index) + 1;
-                if (index != content.length() - 1) {
+                if (index < content.length() - 5) {
                     quantity = content.substring(index, content.indexOf('&', index));
                     index = content.indexOf('&', index) + 1;
-                }
-                else
-                    quantity = content.substring(index);
+                } else
+                    quantity = content.substring(index, content.length());
                 contents[i] = new Content(name, quantity);
             }
             setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
@@ -181,7 +180,7 @@ public class QRActivity extends AppCompatActivity {
         path.mkdirs();
         File savingDirectory;
         try {
-            if(isExternal)
+            if (isExternal)
                 savingDirectory = new File(path, new SimpleDateFormat("yyyyMMdd_HHmmSS", Locale.US).format(new java.util.Date()) + ".png");
             else
                 savingDirectory = new File(path, UserLab.get(this).getUsername() + ".png");

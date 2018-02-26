@@ -24,14 +24,19 @@ import android.widget.TextView;
 
 import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
  * Created by Ahmed_Tarek on 17/11/23.
  */
 
-public class CartListFragment extends Fragment {
+public class CartListFragment extends Fragment implements AsyncResponse {
 
     private DrawerInterface mDrawerInterface;
     private RecyclerView mCartListRecyclerView;
@@ -40,6 +45,9 @@ public class CartListFragment extends Fragment {
     private TextView mTotalPrice;
 
     private PrescriptionHandler mPrescriptionHandler;
+
+    private static String cartMedicines;
+    static final String TAG_PRESCRIPTION = "prescription";
 
     private boolean checkState() {
         return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
@@ -94,27 +102,62 @@ public class CartListFragment extends Fragment {
             public void onClick(View v) {
 
                 List<CartMedicine> qrMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
-                boolean regular = false;
-                String cartMedicines = "";
+                boolean isRegular = false;
+                int index = 0, size = qrMedicines.size();
+                cartMedicines = "";
+                String[] params = new String[qrMedicines.size() * 3 + 2];
                 UUID id = mPrescriptionHandler.getPrescription().getID();
                 for (int i = 0 ; i < qrMedicines.size() ; i++){
                     cartMedicines = cartMedicines + MedicineLab.get(getActivity()).getMedicine(qrMedicines.get(i).getMedicineID()).getName() + ',' + String.valueOf(qrMedicines.get(i).getQuantity());
+                    params[i * 3] = qrMedicines.get(i).getMedicineID().toString();
+                    params[i * 3 + 1] = String.valueOf(qrMedicines.get(i).getQuantity());
+                    params[i * 3 + 2] = String.valueOf(qrMedicines.get(i).getRepeatDuration());
                     if (qrMedicines.get(i).getRepeatDuration() != 0)
-                        regular = true;
+                        isRegular = true;
                     if (i != (qrMedicines.size() - 1))
                         cartMedicines += '&';
+                    index = i * 3 + 3;
                 }
                 mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
                 mPrescriptionHandler.prescriptionCommit(getActivity());
-                if (regular)
+                if (isRegular) {
                     BootUpReceiver.schedule(getContext(), id);
-                startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
+                    int count = RegularOrderLab.get(getContext()).getRegularOrders().size();
+                    for (int i = 0; i < count; i++) {
+                        if (id.toString().equals(RegularOrderLab.get(getContext()).getRegularOrders().get(i).getPrescriptionUUID().toString())) {
+                            params[index] = String.valueOf(RegularOrderLab.get(getContext()).getRegularOrders().get(i).getTimeStamp());
+                            index++;
+                        }
+                    }
+                }
+                if (checkState())
+                    new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), TAG_PRESCRIPTION).execute(new String[] { "http://ahmedgesraha.ddns.net/set_presc.php", id.toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(mPrescriptionHandler.getPrescription().getDate()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
+                else
+                    startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
             }
         });
 
         updatePrice();
 
         return view;
+    }
+
+    @Override
+    public void processFinish(JSONArray output, String type) {
+        switch (type) {
+            case TAG_PRESCRIPTION:
+                try {
+                    if (output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0)
+                        MainActivity.showToast(R.string.database_error, getContext());
+                    else {
+                        startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
+                        MainActivity.showToast(R.string.sync_complete, getContext());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
     }
 
     private class CartMedicineHolder extends RecyclerView.ViewHolder {

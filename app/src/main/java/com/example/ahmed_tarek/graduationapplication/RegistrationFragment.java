@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -190,7 +189,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute("http://ahmedgesraha.ddns.net/register.php", mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString());
+                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute(new String[] { "http://ahmedgesraha.ddns.net/register.php", mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

@@ -49,6 +49,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -65,21 +66,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     private static final String TAG_VERSION = "version";
     private static final String TAG_TIMESTAMP = "ver";
     private static final String TAG_MEDICINES = "medicines";
+    private static final String TAG_SYNC = "sync";
     private static String version = null;
 
-
     private static boolean recentQRFlag = true;
-
-    @Override
-    public void getTime(Long time) {
-        if (PreferenceManager.getDefaultSharedPreferences(this).getLong(UserLab.get(this).getUsername() + "_timeOut", 0) + 21600000 > time)
-            showToast(R.string.timed_out, getApplicationContext());
-        else {
-            String PIN = setMenuPIN();
-            new DatabaseComm(this, MainActivity.this, TAG_PIN).execute("http://ahmedgesraha.ddns.net/set_pin.php", UserLab.get(this).getUsername(), PIN);
-        }
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(UserLab.get(this).getUsername() + "_timeOut", time).apply();
-    }
 
     static class OnlineTime extends AsyncTask<String, String, Long> {
 
@@ -122,9 +112,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
     }
 
-
-
-    static class DatabaseComm extends AsyncTask<String, String, JSONArray> {
+    static class DatabaseComm extends AsyncTask<String[], String, JSONArray> {
 
         private AsyncResponse delegate = null;
         private ProgressDialog pDialog;
@@ -184,14 +172,26 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (type.equals(LoginFragment.TAG_LOGIN))
-                pDialog.setMessage("Logging in\nPlease wait...");
-            else if (type.equals(RegistrationFragment.TAG_REGISTRATION))
-                pDialog.setMessage("Checking and completing registration\nPlease wait...");
-            else if (type.equals(TAG_PIN))
-                pDialog.setMessage("Updating PIN in database\nPlease wait...");
-            else if (type.equals(TAG_MEDICINES))
-                pDialog.setMessage("Getting latest medicine updates\nPlease wait...");
+            switch (type) {
+                case LoginFragment.TAG_LOGIN:
+                    pDialog.setMessage("Logging in\nPlease wait...");
+                    break;
+                case RegistrationFragment.TAG_REGISTRATION:
+                    pDialog.setMessage("Checking and completing registration\nPlease wait...");
+                    break;
+                case TAG_PIN:
+                    pDialog.setMessage("Updating PIN in database\nPlease wait...");
+                    break;
+                case TAG_MEDICINES:
+                    pDialog.setMessage("Getting latest medicine updates\nPlease wait...");
+                    break;
+                case CartListFragment.TAG_PRESCRIPTION:
+                    pDialog.setMessage("Uploading data\nPlease wait...");
+                    break;
+                case TAG_SYNC:
+                    pDialog.setMessage("Syncing\nPlease wait...");
+                    break;
+            }
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             if (!type.equals(TAG_VERSION))
@@ -199,28 +199,60 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
 
         @Override
-        protected JSONArray doInBackground(String... args) {
+        protected JSONArray doInBackground(String[]... args) {
             JSONObject json;
             List<NameValuePair> parameters = new ArrayList<>();
             switch (type) {
                 case LoginFragment.TAG_LOGIN:
                 case RegistrationFragment.TAG_REGISTRATION:
-                    parameters.add(new BasicNameValuePair("username", args[1]));
-                    parameters.add(new BasicNameValuePair("password", args[2]));
+                    parameters.add(new BasicNameValuePair("username", args[0][1]));
+                    parameters.add(new BasicNameValuePair("password", args[0][2]));
                     if (type.equals(RegistrationFragment.TAG_REGISTRATION)) {
-                        parameters.add(new BasicNameValuePair("email", args[3]));
-                        parameters.add(new BasicNameValuePair("DoB", args[4]));
-                        parameters.add(new BasicNameValuePair("gender", args[5]));
+                        parameters.add(new BasicNameValuePair("email", args[0][3]));
+                        parameters.add(new BasicNameValuePair("DoB", args[0][4]));
+                        parameters.add(new BasicNameValuePair("gender", args[0][5]));
                     }
-                    json = makeHttpRequest(args[0], "POST", parameters);
+                    json = makeHttpRequest(args[0][0], "POST", parameters);
                     break;
                 case TAG_PIN:
-                    parameters.add(new BasicNameValuePair("username", args[1]));
-                    parameters.add(new BasicNameValuePair("PIN", args[2]));
-                    json = makeHttpRequest(args[0], "POST", parameters);
+                    parameters.add(new BasicNameValuePair("username", args[0][1]));
+                    parameters.add(new BasicNameValuePair("PIN", args[0][2]));
+                    json = makeHttpRequest(args[0][0], "POST", parameters);
+                    break;
+                case TAG_SYNC:
+                    parameters.add(new BasicNameValuePair("id", args[0][1]));
+                    json = makeHttpRequest(args[0][0], "POST", parameters);
+                    break;
+                case CartListFragment.TAG_PRESCRIPTION:
+                    parameters.add(new BasicNameValuePair("prescription_id", args[0][1]));
+                    parameters.add(new BasicNameValuePair("date", args[0][2]));
+                    parameters.add(new BasicNameValuePair("price", args[0][3]));
+                    parameters.add(new BasicNameValuePair("user_id", args[0][4]));
+                    boolean case7 = false, case30 = false;
+                    int index = Integer.parseInt(args[0][5]);
+                    parameters.add(new BasicNameValuePair("medicine_count", args[0][5]));
+                    for (int i = 0; i < index * 3; i += 3) {
+                        parameters.add(new BasicNameValuePair("medicine_id" + i, args[1][i]));
+                        parameters.add(new BasicNameValuePair("quantity" + i, args[1][i + 1]));
+                        parameters.add(new BasicNameValuePair("repeat_duration" + i, args[1][i + 2]));
+                        if (Integer.parseInt(args[1][i + 2]) == 7)
+                            case7 = true;
+                        else if (Integer.parseInt(args[1][i + 2]) == 30)
+                            case30 = true;
+                    }
+                    if (case7 && case30) {
+                        parameters.add(new BasicNameValuePair("regular_count", String.valueOf(2)));
+                        parameters.add(new BasicNameValuePair("fire_time0", args[1][index * 3]));
+                        parameters.add(new BasicNameValuePair("fire_time1", args[1][index * 3 + 1]));
+                    } else if (case7 || case30) {
+                        parameters.add(new BasicNameValuePair("regular_count", String.valueOf(1)));
+                        parameters.add(new BasicNameValuePair("fire_time0", args[1][index * 3]));
+                    } else
+                        parameters.add(new BasicNameValuePair("regular_count", String.valueOf(0)));
+                    json = makeHttpRequest(args[0][0], "POST", parameters);
                     break;
                 default:
-                    json = makeHttpRequest(args[0], "GET", parameters);
+                    json = makeHttpRequest(args[0][0], "GET", parameters);
                     break;
             }
             try {
@@ -232,8 +264,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     return json.getJSONArray(RegistrationFragment.TAG_RESULT);
                 else if (type.equals(LoginFragment.TAG_LOGIN))
                     return json.getJSONArray(LoginFragment.TAG_PATIENT);
-                else if (type.equals(TAG_PIN))
+                else if (type.equals(TAG_PIN) || type.equals(CartListFragment.TAG_PRESCRIPTION))
                     return json.getJSONArray(TAG_SUCCESS);
+                else if (type.equals(TAG_SYNC) && json.getInt(TAG_SUCCESS + "_cart") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1 && json.getInt(TAG_SUCCESS + "_regular") == 1)
+                    return json.getJSONArray(RegistrationFragment.TAG_RESULT);
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
@@ -249,6 +283,18 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     }
 
     @Override
+    public void getTime(Long time) {
+        long flag = PreferenceManager.getDefaultSharedPreferences(this).getLong(UserLab.get(this).getUsername() + "_timeOut", 0) + 21600;
+        if (flag > time)
+            showToast("To perform this action, thee shall wait " + (flag - time) / 3600 + ":" + (int)((((flag - time) % 3600) / 3600.0) * 60) + " hour(s)", getApplicationContext());
+        else {
+            String PIN = setMenuPIN();
+            new DatabaseComm(this, MainActivity.this, TAG_PIN).execute(new String[] { "http://ahmedgesraha.ddns.net/set_pin.php", UserLab.get(this).getUsername(), PIN });
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(UserLab.get(this).getUsername() + "_timeOut", time).apply();
+        }
+    }
+
+    @Override
     protected Fragment createFragment() {
         return new MedicineListFragment();
     }
@@ -259,49 +305,55 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
     @Override
     public void processFinish(JSONArray output, String type) {
-        if (type.equals(TAG_VERSION)) {
-            if (output != null) {
-                try {
-                    version = output.getJSONObject(0).getString(TAG_TIMESTAMP);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if (checkState()) {
-                    if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
-                        MedicineLab.get(this);
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("database", true).apply();
-                        new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute("http://ahmedgesraha.ddns.net/get_medicines.php");
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
-                    } else if (!version.equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("version", null))) {
-                        new DatabaseComm(MainActivity.this, MainActivity.this, TAG_MEDICINES).execute("http://ahmedgesraha.ddns.net/get_medicines.php");
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
-                   }
-                } else
-                    showToast(R.string.update_required, getApplicationContext());
-            } else
-                showToast(R.string.connection_failure, getApplicationContext());
-        } else if (type.equals(TAG_MEDICINES)) {
-            if (output != null) {
-                try {
-                    MedicineLab.get(this).update(getApplicationContext(), output);
-                } catch (ExecutionException | InterruptedException | JSONException e) {
-                    e.printStackTrace();
-                }
-            } else
-                showToast(R.string.connection_failure, getApplicationContext());
-        } else if (type.equals(TAG_PIN)) {
-            if (output != null)
-                try {
-                    if (output.getJSONObject(0).getInt(TAG_SUCCESS) == 0)
-                        showToast(R.string.database_error, getApplicationContext());
-                    else
-                        showToast(R.string.update_complete, getApplicationContext());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            else
-                showToast(R.string.connection_failure, getApplicationContext());
-        }
+        if (output != null) {
+            switch (type) {
+                case TAG_VERSION:
+                    try {
+                        version = output.getJSONObject(0).getString(TAG_TIMESTAMP);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (checkState()) {
+                        if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
+                            MedicineLab.get(this);
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("database", true).apply();
+                            new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute(new String[] { "http://ahmedgesraha.ddns.net/get_medicines.php" });
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
+                        } else if (!version.equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("version", null))) {
+                            new DatabaseComm(MainActivity.this, MainActivity.this, TAG_MEDICINES).execute(new String[] { "http://ahmedgesraha.ddns.net/get_medicines.php" });
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
+                        }
+                    } else
+                        showToast(R.string.update_required, getApplicationContext());
+                    break;
+                case TAG_MEDICINES:
+                    try {
+                        MedicineLab.get(this).update(getApplicationContext(), output);
+                    } catch (ExecutionException | InterruptedException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case TAG_PIN:
+                    try {
+                        if (output.getJSONObject(0).getInt(TAG_SUCCESS) == 0)
+                            showToast(R.string.database_error, getApplicationContext());
+                        else
+                            showToast(R.string.update_complete, getApplicationContext());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case TAG_SYNC:
+                    try {
+                        PrescriptionLab.get(this).sync(this, output, UserLab.get(this).getUserUUID());
+                        showToast(R.string.sync_complete, getApplicationContext());
+                    } catch (JSONException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        } else
+            showToast(R.string.connection_failure, getApplicationContext());
     }
 
     @Override
@@ -325,9 +377,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
             if (savedInstanceState == null)
-                if (checkState())
-                    new DatabaseComm(this, MainActivity.this, TAG_VERSION).execute("http://ahmedgesraha.ddns.net/get_version.php");
-                else
+                if (checkState()) {
+                    new DatabaseComm(this, MainActivity.this, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
+                    new DatabaseComm(this, MainActivity.this, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(this).getUserUUID().toString() });
+                } else
                     showToast(R.string.version_warning, getApplicationContext());
         } else
             showToast(R.string.no_permission, getApplicationContext());
@@ -507,6 +560,12 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     }
 
     public static void showToast(int message, Context context) {
+        Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+        ((TextView)(toast.getView()).findViewById(android.R.id.message)).setGravity(Gravity.CENTER);
+        toast.show();
+    }
+
+    public static void showToast(String message, Context context) {
         Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
         ((TextView)(toast.getView()).findViewById(android.R.id.message)).setGravity(Gravity.CENTER);
         toast.show();

@@ -65,9 +65,9 @@
     <string name="username_exists">This username is already taken\nTry another one</string>
     <string name="email_linked">This email is already linked to another account</string>
     <string name="database_error">A database error occurred\nPlease try again later</string>
+    <string name="sync_complete">All synced up!</string>
     <string name="wrong_credentials">Wrong username/password\nMake sure you type them correctly</string>
     <string name="no_internet">No Internet Connection\nYour order won\'t be saved online unless connected</string>
-    <string name="timed_out">For security reasons, we limited PIN changing intervals to once each 6 hours\nCome back later</string>
     <string name="connected">Connected!\nYour order will be saved for syncing later on other devices</string>
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>

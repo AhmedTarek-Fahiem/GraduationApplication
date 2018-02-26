@@ -4,13 +4,21 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.PrescriptionDbSchema.PrescriptionTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.CartMedicineDbSchema.CartMedicineTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseHelper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Ahmed_Tarek on 17/12/15.
@@ -20,6 +28,13 @@ public class PrescriptionLab {
 
     private static PrescriptionLab sPrescriptionLab;
     private SQLiteDatabase mSQLiteDatabase;
+
+    private static final String TAG_ID = "id";
+    private static final String TAG_DATE = "prescription_date";
+    private static final String TAG_PRICE = "price";
+    private static final String TAG_QUANTITY = "quantity";
+    private static final String TAG_REPEAT = "repeat_duration";
+    private static final String TAG_STAMP = "fire_time";
 
     public static PrescriptionLab get(Context context) {
         if (sPrescriptionLab == null) {
@@ -31,7 +46,6 @@ public class PrescriptionLab {
     private PrescriptionLab(Context context) {
         mSQLiteDatabase = new DatabaseHelper(context.getApplicationContext()).getWritableDatabase();
     }
-
 
     private class PrescriptionCartCursorWrapper extends android.database.CursorWrapper {
 
@@ -52,6 +66,7 @@ public class PrescriptionLab {
                     getInt(3));
         }
     }
+
     private PrescriptionCartCursorWrapper queryPrescriptionCart(String tableName, String whereClause, String[] whereArgs) {
 
         Cursor cursor = mSQLiteDatabase.query(
@@ -104,6 +119,7 @@ public class PrescriptionLab {
 
         return cartMedicines;
     }
+
     public List<CartMedicine> getCarts(UUID prescriptionID, long currentTime) {
         List<CartMedicine> cartMedicines = new ArrayList<>();
         PrescriptionCartCursorWrapper cursorWrapper;
@@ -130,8 +146,6 @@ public class PrescriptionLab {
 
         return cartMedicines;
     }
-
-
 
     private static ContentValues getContentValues(String userUUID, Prescription prescription) {
         ContentValues contentValues = new ContentValues();
@@ -166,4 +180,23 @@ public class PrescriptionLab {
         }
     }
 
+    void sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException {
+        JSONArray prescriptions = arr.getJSONObject(0).getJSONArray("prescriptions");
+        JSONArray carts = arr.getJSONObject(0).getJSONArray("carts");
+        JSONArray regulars = arr.getJSONObject(0).getJSONArray("regulars");
+        for (int i = 0; i < carts.length(); i++) {
+            JSONObject o = carts.getJSONObject(i);
+            mSQLiteDatabase.insert(CartMedicineTable.NAME, null, getContentValues(new CartMedicine(UUID.fromString(o.getString("prescription_" + TAG_ID)), UUID.fromString(o.getString("medicine_" + TAG_ID)), o.getInt(TAG_QUANTITY), o.getInt(TAG_REPEAT))));
+        }
+
+        for (int i = 0; i < prescriptions.length(); i++) {
+            JSONObject o = prescriptions.getJSONObject(i);
+            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).parse(o.getString(TAG_DATE)), o.getDouble(TAG_PRICE))));
+        }
+
+        for (int i = 0; i < regulars.length(); i++) {
+            JSONObject o = regulars.getJSONObject(i);
+            RegularOrderLab.get(context).addRegularOrder(UUID.fromString(o.getString("prescription_" + TAG_ID)), o.getLong(TAG_STAMP));
+        }
+    }
 }
