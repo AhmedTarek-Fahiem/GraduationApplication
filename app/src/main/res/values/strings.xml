@@ -19,6 +19,9 @@
     <string name="invalid_email">Enter a valid E-Mail!</string>
     <string name="empty_date">Enter the date of your birth!</string>
     <string name="invalid_login">Wrong username or password\nTry again</string>
+    <string name="send_verification_email">Send\nVerification E-Mail</string>
+    <string name="resend_verification_email">Resend\nVerification E-Mail</string>
+    <string name="refresh">Refresh</string>
     <string name="search_label_hint">Medicine Name.....</string>
     <string name="submit_button">Submit</string>
     <string name="user_pin">Security PIN</string>

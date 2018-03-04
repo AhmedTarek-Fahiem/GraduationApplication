@@ -205,7 +205,7 @@ public class CartListFragment extends Fragment implements AsyncResponse {
                 @Override
                 public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
 
-                    if (count != 0) {
+                    if (charSequence.length() != 0) {
                         mPrescriptionHandler.setCartMedicineQuantity(mCartMedicine.getMedicineID(), Integer.parseInt(charSequence.toString()));
                     } else {
                         mPrescriptionHandler.setCartMedicineQuantity(mCartMedicine.getMedicineID(), 1);

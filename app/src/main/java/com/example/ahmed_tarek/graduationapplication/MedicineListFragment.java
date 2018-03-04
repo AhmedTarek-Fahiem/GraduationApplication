@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.util.List;
 
@@ -76,8 +77,10 @@ public class MedicineListFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
                 submitButtonVisibility();
                 if (mSearchTextEditText.getText().length() == 0) {
+                    ((RelativeLayout.LayoutParams) mSearchTextEditText.getLayoutParams()).addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
                     mMedicineAdapter.updateList(null);
                 } else {
+                    ((RelativeLayout.LayoutParams) mSearchTextEditText.getLayoutParams()).removeRule(RelativeLayout.CENTER_VERTICAL);
                     mMedicineAdapter.updateList(MedicineLab.get(getActivity()).getMedicines(mSearchTextEditText.getText().toString()));
                 }
             }

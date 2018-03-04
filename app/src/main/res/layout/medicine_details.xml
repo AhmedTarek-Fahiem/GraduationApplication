@@ -17,12 +17,14 @@
             android:layout_column="1"
             android:id="@+id/details_medicine_name_label"
             android:text="@string/details_medicine_name_label"
-            style="@style/DialogSubtitle"/>
+            style="@style/DialogSubtitle"
+            android:maxEms="6"/>
 
         <TextView
             android:id="@+id/details_medicine_name"
             android:text="@string/details_medicine_name"
-            style="@style/DialogSubtitle"/>
+            style="@style/DialogSubtitle"
+            android:maxEms="1"/>
 
     </TableRow>
 

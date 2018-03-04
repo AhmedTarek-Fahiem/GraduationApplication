@@ -18,7 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/search_label_hint"
-        android:inputType="text" />
+        android:inputType="text"
+        android:layout_centerVertical="true"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/medicine_list_recycler_view"
