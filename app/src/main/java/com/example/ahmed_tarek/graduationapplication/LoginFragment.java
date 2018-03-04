@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -17,6 +18,12 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +47,8 @@ public class LoginFragment extends Fragment implements AsyncResponse {
     private static final String TAG_DoB = "DoB";
     private static final String TAG_GENDER = "gender";
 
+    private FirebaseUser user;
+
     private boolean checkState() {
         return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
     }
@@ -55,10 +64,28 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     else if (key == 1) {
                         JSONObject o = output.getJSONObject(0);
                         UserLab.get(getContext()).saveUserData(UUID.fromString(o.getString(RegistrationFragment.TAG_ID)), mUsername.getText().toString(), o.getString(TAG_EMAIL), Date.valueOf(o.getString(TAG_DoB)), o.getString(TAG_GENDER).equals("m"), Integer.valueOf(o.getString(MainActivity.TAG_PIN)));
-                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
-                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putInt(UserLab.get(getContext()).getUsername() + "_securityPin", UserLab.get(getContext()).getSecurity_PIN()).apply();
-                        startActivity(new Intent(getContext(), MainActivity.class));
-                        getActivity().finish();
+                        FirebaseAuth.getInstance().signInWithEmailAndPassword(UserLab.get(getContext()).getEMail(), mPassword.getText().toString())
+                                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (task.isSuccessful()) {
+                                            user = FirebaseAuth.getInstance().getCurrentUser();
+                                            if (user != null) {
+                                                if (user.isEmailVerified()) {
+                                                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
+                                                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putInt(UserLab.get(getContext()).getUsername() + "_securityPin", UserLab.get(getContext()).getSecurity_PIN()).apply();
+                                                    startActivity(new Intent(getContext(), MainActivity.class));
+                                                    getActivity().finish();
+                                                } else
+                                                    getFragmentManager().beginTransaction()
+                                                            .replace(R.id.access_fragment_container, new VerificationFragment())
+                                                            .addToBackStack(null)
+                                                            .commit();
+                                            }
+                                        } else
+                                            MainActivity.showToast("Authentication failed", getContext());
+                                    }
+                                });
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

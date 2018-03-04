@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +21,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,7 +54,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
     private EditText mUsername;
     private EditText mPassword;
     private EditText mConfirmPassword;
-    private EditText mEMail;
+    private EditText mEmail;
     private Button mDateOfBirth;
     private Spinner mGender;
     private TextView mErrorMessage;
@@ -64,10 +70,31 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 try {
                     int error = output.getJSONObject(0).getInt(TAG_ERROR);
                     if (error == 0) {
-                        UserLab.get(getContext()).saveUserData(UUID.fromString(output.getJSONObject(0).getString(TAG_ID)), mUsername.getText().toString(), mEMail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
-                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
-                        startActivity(new Intent(getContext(), MainActivity.class));
-                        getActivity().finish();
+                        final String id = output.getJSONObject(0).getString(TAG_ID);
+                        FirebaseAuth.getInstance().createUserWithEmailAndPassword(mEmail.getText().toString(), mPassword.getText().toString())
+                            .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        FirebaseAuth.getInstance().getCurrentUser().updateProfile(new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(mUsername.getText().toString())
+                                                .build())
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            UserLab.get(getContext()).saveUserData(UUID.fromString(id), mUsername.getText().toString(), mEmail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
+                                                            getFragmentManager().beginTransaction()
+                                                                .replace(R.id.access_fragment_container, new VerificationFragment())
+                                                                .addToBackStack(null)
+                                                                .commit();
+                                                        }
+                                                    }
+                                                });
+                                    } else
+                                        MainActivity.showToast("Creation failed", getContext());
+                                }
+                            });
                     } else if (error == 1)
                         MainActivity.showToast(R.string.username_exists, getContext());
                     else if (error == 2)
@@ -137,8 +164,8 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
             public void afterTextChanged(Editable editable) {}
         });
 
-        mEMail = view.findViewById(R.id.register_email_label);
-        mEMail.addTextChangedListener(new TextWatcher() {
+        mEmail = view.findViewById(R.id.register_email_label);
+        mEmail.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
 
@@ -181,7 +208,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                 } else if (!(mPassword.getText().toString()).equals(mConfirmPassword.getText().toString())) {
                     mErrorMessage.setText(R.string.password_match);
                     mErrorMessage.setVisibility(View.VISIBLE);
-                } else if (mEMail.getText().length() == 0 || !Patterns.EMAIL_ADDRESS.matcher(mEMail.getText()).matches()) {
+                } else if (mEmail.getText().length() == 0 || !Patterns.EMAIL_ADDRESS.matcher(mEmail.getText()).matches()) {
                     mErrorMessage.setText(R.string.invalid_email);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else if (mUserDateOfBirth == null) {
@@ -189,7 +216,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute(new String[] { "http://ahmedgesraha.ddns.net/register.php", mUsername.getText().toString(), mPassword.getText().toString(), mEMail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
+                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute(new String[] { "http://ahmedgesraha.ddns.net/register.php", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

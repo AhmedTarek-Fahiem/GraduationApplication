@@ -1,12 +1,12 @@
 package com.example.ahmed_tarek.graduationapplication;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -17,7 +17,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,6 +29,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -56,6 +57,10 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+interface TimeResponse {
+    void getTime(Long time);
+}
+
 public class MainActivity extends SingleMedicineFragmentActivity implements AsyncResponse, TimeResponse, NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
 
     private DrawerLayout mDrawerLayout;
@@ -70,6 +75,29 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     private static String version = null;
 
     private static boolean recentQRFlag = true;
+
+    private NetworkChangedReceiver receiver;
+
+    public class NetworkChangedReceiver extends BroadcastReceiver {
+
+        private Activity activity;
+
+        NetworkChangedReceiver(Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getExtras() != null) {
+                final NetworkInfo ni = ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+
+                if (ni != null && ni.isConnectedOrConnecting()) {
+                    new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
+                    new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(activity).getUserUUID().toString() });
+                }
+            }
+        }
+    }
 
     static class OnlineTime extends AsyncTask<String, String, Long> {
 
@@ -191,6 +219,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case TAG_SYNC:
                     pDialog.setMessage("Syncing\nPlease wait...");
                     break;
+                case VerificationFragment.TAG_STALL:
+                    pDialog.setMessage("Verification successful\nRedirecting back to application\nPlease wait...");
+                    break;
             }
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
@@ -251,6 +282,15 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         parameters.add(new BasicNameValuePair("regular_count", String.valueOf(0)));
                     json = makeHttpRequest(args[0][0], "POST", parameters);
                     break;
+                case VerificationFragment.TAG_STALL:
+                    json = new JSONObject();
+                    try {
+                        Thread.sleep(5000);
+                        json.put(TAG_SUCCESS, 1);
+                    } catch (InterruptedException | JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
                 default:
                     json = makeHttpRequest(args[0][0], "GET", parameters);
                     break;
@@ -266,7 +306,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     return json.getJSONArray(LoginFragment.TAG_PATIENT);
                 else if (type.equals(TAG_PIN) || type.equals(CartListFragment.TAG_PRESCRIPTION))
                     return json.getJSONArray(TAG_SUCCESS);
-                else if (type.equals(TAG_SYNC) && json.getInt(TAG_SUCCESS + "_cart") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1 && json.getInt(TAG_SUCCESS + "_regular") == 1)
+                else if (type.equals(TAG_SYNC) && ((json.getInt(TAG_SUCCESS + "_cart") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1 && json.getInt(TAG_SUCCESS + "_regular") == 1) || json.getJSONArray(RegistrationFragment.TAG_RESULT).getString(0).equals("empty")))
                     return json.getJSONArray(RegistrationFragment.TAG_RESULT);
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
@@ -345,7 +385,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     break;
                 case TAG_SYNC:
                     try {
-                        PrescriptionLab.get(this).sync(this, output, UserLab.get(this).getUserUUID());
+                        if (!output.getString(0).equals("empty"))
+                            PrescriptionLab.get(this).sync(this, output, UserLab.get(this).getUserUUID());
                         showToast(R.string.sync_complete, getApplicationContext());
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();
@@ -359,6 +400,11 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        receiver = new NetworkChangedReceiver(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        getApplicationContext().registerReceiver(receiver, intentFilter);
 
         if (getIntent().getAction() != null) {
             if (getIntent().getAction().equals(CustomNotificationService.ACTION_SHOW)) {
@@ -375,15 +421,12 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 }
             }
         }
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
-            if (savedInstanceState == null)
-                if (checkState()) {
-                    new DatabaseComm(this, MainActivity.this, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
-                    new DatabaseComm(this, MainActivity.this, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(this).getUserUUID().toString() });
-                } else
-                    showToast(R.string.version_warning, getApplicationContext());
-        } else
-            showToast(R.string.no_permission, getApplicationContext());
+        if (savedInstanceState == null)
+            if (checkState()) {
+                new DatabaseComm(this, MainActivity.this, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
+                new DatabaseComm(this, MainActivity.this, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(this).getUserUUID().toString() });
+            } else
+                showToast(R.string.version_warning, getApplicationContext());
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
@@ -431,6 +474,12 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getApplicationContext().unregisterReceiver(receiver);
     }
 
     @Override
@@ -507,6 +556,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     showToast(R.string.update_required, getApplicationContext());
                 break;
             case R.id.sign_out :
+                FirebaseAuth.getInstance().signOut();
                 PrescriptionHandler.get().reset();
                 PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("isLoggedIn", false).apply();
                 Intent intent = new Intent(this, AccessActivity.class);

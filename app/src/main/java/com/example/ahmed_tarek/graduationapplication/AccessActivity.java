@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 
+
 /**
  * Created by Ahmed_Tarek on 17/11/07.
  */
@@ -18,9 +19,8 @@ public class AccessActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if ( !sharedPreferences.getBoolean("isLoggedIn", false) ) {
+        if (!sharedPreferences.getBoolean("isLoggedIn", false)) {
             setContentView(R.layout.access_activity);
 
             FragmentManager fragmentManager = getSupportFragmentManager();

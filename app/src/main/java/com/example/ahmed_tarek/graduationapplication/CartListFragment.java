@@ -1,6 +1,9 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -39,15 +42,32 @@ import java.util.UUID;
 public class CartListFragment extends Fragment implements AsyncResponse {
 
     private DrawerInterface mDrawerInterface;
-    private RecyclerView mCartListRecyclerView;
     private CartMedicineAdapter mCartMedicineAdapter;
-    private Button mGenerateButton;
     private TextView mTotalPrice;
-
     private PrescriptionHandler mPrescriptionHandler;
 
     private static String cartMedicines;
     static final String TAG_PRESCRIPTION = "prescription";
+
+    NetworkChangedReceiver receiver;
+
+    public class NetworkChangedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getExtras() != null) {
+                final NetworkInfo ni = ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+
+                TextView mWarning = getView().findViewById(R.id.internet_warning);
+                if (ni != null && ni.isConnectedOrConnecting()) {
+                    mWarning.setBackgroundColor(Color.GREEN);
+                    mWarning.setText(R.string.connected);
+                } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
+                    mWarning.setBackgroundColor(Color.RED);
+                    mWarning.setText(R.string.no_internet);
+                }
+            }
+        }
+    }
 
     private boolean checkState() {
         return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
@@ -56,6 +76,12 @@ public class CartListFragment extends Fragment implements AsyncResponse {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        receiver = new NetworkChangedReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        getContext().registerReceiver(receiver, intentFilter);
+
         try {
             mDrawerInterface = (DrawerInterface) getActivity();
         } catch (ClassCastException e) {
@@ -73,16 +99,16 @@ public class CartListFragment extends Fragment implements AsyncResponse {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.cart_fragment, container, false);
-        TextView warning = view.findViewById(R.id.internet_warning);
+
+        TextView mWarning = view.findViewById(R.id.internet_warning);
         if (checkState()) {
-            warning.setBackgroundColor(Color.GREEN);
-            warning.setText(R.string.connected);
+            mWarning.setBackgroundColor(Color.GREEN);
+            mWarning.setText(R.string.connected);
         }
-        warning.setVisibility(View.VISIBLE);
         mDrawerInterface.lockDrawer();
         setHasOptionsMenu(false);
 
-        mCartListRecyclerView = view.findViewById(R.id.cart_list_recycler_view);
+        RecyclerView mCartListRecyclerView = view.findViewById(R.id.cart_list_recycler_view);
         mCartListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         mPrescriptionHandler = PrescriptionHandler.get();
@@ -96,7 +122,7 @@ public class CartListFragment extends Fragment implements AsyncResponse {
 
         mTotalPrice = view.findViewById(R.id.total_payment_number);
 
-        mGenerateButton = view.findViewById(R.id.generate_qr);
+        Button mGenerateButton = view.findViewById(R.id.generate_qr);
         mGenerateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,6 +166,12 @@ public class CartListFragment extends Fragment implements AsyncResponse {
         updatePrice();
 
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getContext().unregisterReceiver(receiver);
     }
 
     @Override

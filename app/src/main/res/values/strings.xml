@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">GraduationApplication</string>
     <string name="login_button">Login</string>
-    <string name="registration_button">Registration</string>
+    <string name="registration_access">Registration</string>
+    <string name="registration_register">Register</string>
     <string name="username_label_hint">Username</string>
     <string name="password_label_hint">Password</string>
     <string name="confirm_password_label_hint">Confirm Password</string>
@@ -19,8 +20,6 @@
     <string name="invalid_email">Enter a valid E-Mail!</string>
     <string name="empty_date">Enter the date of your birth!</string>
     <string name="invalid_login">Wrong username or password\nTry again</string>
-    <string name="send_verification_email">Send\nVerification E-Mail</string>
-    <string name="resend_verification_email">Resend\nVerification E-Mail</string>
     <string name="refresh">Refresh</string>
     <string name="search_label_hint">Medicine Name.....</string>
     <string name="submit_button">Submit</string>
@@ -45,7 +44,6 @@
     <string name="cart_title">Your Cart</string>
     <string name="medicine_name_label_title">Medicine Name</string>
     <string name="medicine_quantity_label_title">Quantity</string>
-    <string name="medicine_repeatly_label_title">Repeat</string>
     <string name="quantity_label_hint">1</string>
     <string-array name="regular_label">
         <item>Not Regular</item>
@@ -61,7 +59,7 @@
     <string name="permission_blocked">Permission blocked\nChange manually from settings to continue</string>
     <string name="permission_granted">Permission granted</string>
     <string name="no_permission">Permission to use internet should be granted first to check for updates</string>
-    <string name="version_warning">Warning: version could be outdated\nRestart app with wifi/mobile data enabled to check for latest updates</string>
+    <string name="version_warning">Warning: version could be outdated\nenable wifi/mobile data to check for latest updates</string>
     <string name="update_required">Connection to database is required\nPlease enable wifi/mobile data to connect</string>
     <string name="update_complete">Database update is complete!</string>
     <string name="connection_failure">Connection to database failed\nServer may be offline</string>
@@ -72,6 +70,9 @@
     <string name="wrong_credentials">Wrong username/password\nMake sure you type them correctly</string>
     <string name="no_internet">No Internet Connection\nYour order won\'t be saved online unless connected</string>
     <string name="connected">Connected!\nYour order will be saved for syncing later on other devices</string>
+    <string name="send_verification_email">Send\nVerification Email</string>
+    <string name="resend_verification_email">Resend\nVerification Email</string>
+    <string name="verification_failure">Failed to send an email</string>
     <string name="details_medicine_name">Medicine Name</string>
     <string name="details_medicine_concentration">Medicine Concentration</string>
     <string name="details_medicine_form">Medicine Form</string>

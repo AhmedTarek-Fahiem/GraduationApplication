@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1092700551602",
+    "firebase_url": "https://graduationapplication-e9c63.firebaseio.com",
+    "project_id": "graduationapplication-e9c63",
+    "storage_bucket": "graduationapplication-e9c63.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092700551602:android:601f574e0c5635c3",
+        "android_client_info": {
+          "package_name": "com.example.ahmed_tarek.graduationapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1092700551602-0kcjcpcoh3j8k8h6muv0q9v4lo0vbf79.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ahmed_tarek.graduationapplication",
+            "certificate_hash": "4ef134016dd8659625b165a425748dffd3b343a8"
+          }
+        },
+        {
+          "client_id": "1092700551602-2n7rqoq7frrea6covf5obgvuntpd2tis.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE2LaJso6a31QuFxWtBFJEQop6NsIilyU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1092700551602-2n7rqoq7frrea6covf5obgvuntpd2tis.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

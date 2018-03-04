@@ -33,7 +33,7 @@
             android:id="@+id/start_registration_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/registration_button" />
+            android:text="@string/registration_access" />
 
     </LinearLayout>
 
