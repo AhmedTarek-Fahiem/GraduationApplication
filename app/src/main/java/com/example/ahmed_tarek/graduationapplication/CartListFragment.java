@@ -59,10 +59,10 @@ public class CartListFragment extends Fragment implements AsyncResponse {
 
                 TextView mWarning = getView().findViewById(R.id.internet_warning);
                 if (ni != null && ni.isConnectedOrConnecting()) {
-                    mWarning.setBackgroundColor(Color.GREEN);
+                    mWarning.setBackgroundColor(getResources().getColor(R.color.backgroundTintGreen));
                     mWarning.setText(R.string.connected);
                 } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
-                    mWarning.setBackgroundColor(Color.RED);
+                    mWarning.setBackgroundColor(getResources().getColor(R.color.errorMessage));
                     mWarning.setText(R.string.no_internet);
                 }
             }

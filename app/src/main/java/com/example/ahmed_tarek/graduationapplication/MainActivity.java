@@ -94,7 +94,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 if (ni != null && ni.isConnectedOrConnecting()) {
                     new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
                     new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(activity).getUserUUID().toString() });
-                }
+                } else
+                    showToast(R.string.version_warning, getApplicationContext());
             }
         }
     }
@@ -190,6 +191,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 Log.e("Buffer Error", "Error converting result " + e.toString());
             }
             try {
+                Log.e("JSON", json);
                 jObj = new JSONObject(json);
             } catch (JSONException e) {
                 Log.e("JSON Parser", "Error parsing data " + e.toString());
@@ -204,6 +206,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case LoginFragment.TAG_LOGIN:
                     pDialog.setMessage("Logging in\nPlease wait...");
                     break;
+                case RegistrationFragment.TAG_CHECK:
+                    pDialog.setMessage("Checking data validity\nPlease wait...");
+                    break;
                 case RegistrationFragment.TAG_REGISTRATION:
                     pDialog.setMessage("Checking and completing registration\nPlease wait...");
                     break;
@@ -216,16 +221,16 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case CartListFragment.TAG_PRESCRIPTION:
                     pDialog.setMessage("Uploading data\nPlease wait...");
                     break;
-                case TAG_SYNC:
+/*                case TAG_SYNC:
                     pDialog.setMessage("Syncing\nPlease wait...");
-                    break;
+                    break;*/
                 case VerificationFragment.TAG_STALL:
                     pDialog.setMessage("Verification successful\nRedirecting back to application\nPlease wait...");
                     break;
             }
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
-            if (!type.equals(TAG_VERSION))
+            if (!type.equals(TAG_VERSION) && !type.equals(TAG_SYNC))
                 pDialog.show();
         }
 
@@ -243,6 +248,11 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         parameters.add(new BasicNameValuePair("DoB", args[0][4]));
                         parameters.add(new BasicNameValuePair("gender", args[0][5]));
                     }
+                    json = makeHttpRequest(args[0][0], "POST", parameters);
+                    break;
+                case RegistrationFragment.TAG_CHECK:
+                    parameters.add(new BasicNameValuePair("username", args[0][1]));
+                    parameters.add(new BasicNameValuePair("email", args[0][2]));
                     json = makeHttpRequest(args[0][0], "POST", parameters);
                     break;
                 case TAG_PIN:
@@ -285,7 +295,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case VerificationFragment.TAG_STALL:
                     json = new JSONObject();
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(2000);
                         json.put(TAG_SUCCESS, 1);
                     } catch (InterruptedException | JSONException e) {
                         e.printStackTrace();
@@ -300,13 +310,13 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     return json.getJSONArray(TAG_MEDICINES);
                 else if (type.equals(TAG_VERSION) && json.getInt(TAG_SUCCESS) == 1)
                     return json.getJSONArray(TAG_VERSION);
-                else if (type.equals(RegistrationFragment.TAG_REGISTRATION))
+                else if (type.equals(RegistrationFragment.TAG_CHECK) || type.equals(RegistrationFragment.TAG_REGISTRATION))
                     return json.getJSONArray(RegistrationFragment.TAG_RESULT);
                 else if (type.equals(LoginFragment.TAG_LOGIN))
                     return json.getJSONArray(LoginFragment.TAG_PATIENT);
                 else if (type.equals(TAG_PIN) || type.equals(CartListFragment.TAG_PRESCRIPTION))
                     return json.getJSONArray(TAG_SUCCESS);
-                else if (type.equals(TAG_SYNC) && ((json.getInt(TAG_SUCCESS + "_cart") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1 && json.getInt(TAG_SUCCESS + "_regular") == 1) || json.getJSONArray(RegistrationFragment.TAG_RESULT).getString(0).equals("empty")))
+                else if (type.equals(TAG_SYNC) && ((json.getInt(TAG_SUCCESS + "_cart") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1)))
                     return json.getJSONArray(RegistrationFragment.TAG_RESULT);
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
@@ -316,7 +326,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
         @Override
         protected void onPostExecute(JSONArray result) {
-            if (!type.equals(TAG_VERSION))
+            if (!type.equals(TAG_VERSION) && !type.equals(TAG_SYNC))
                 pDialog.dismiss();
             delegate.processFinish(result, type);
         }
@@ -387,7 +397,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     try {
                         if (!output.getString(0).equals("empty"))
                             PrescriptionLab.get(this).sync(this, output, UserLab.get(this).getUserUUID());
-                        showToast(R.string.sync_complete, getApplicationContext());
+                        //showToast(R.string.sync_complete, getApplicationContext());
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
@@ -421,12 +431,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 }
             }
         }
-        if (savedInstanceState == null)
-            if (checkState()) {
-                new DatabaseComm(this, MainActivity.this, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
-                new DatabaseComm(this, MainActivity.this, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(this).getUserUUID().toString() });
-            } else
-                showToast(R.string.version_warning, getApplicationContext());
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 

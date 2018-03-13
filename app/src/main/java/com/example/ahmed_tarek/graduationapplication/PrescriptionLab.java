@@ -183,7 +183,6 @@ public class PrescriptionLab {
     void sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException {
         JSONArray prescriptions = arr.getJSONObject(0).getJSONArray("prescriptions");
         JSONArray carts = arr.getJSONObject(0).getJSONArray("carts");
-        JSONArray regulars = arr.getJSONObject(0).getJSONArray("regulars");
         for (int i = 0; i < carts.length(); i++) {
             JSONObject o = carts.getJSONObject(i);
             mSQLiteDatabase.insert(CartMedicineTable.NAME, null, getContentValues(new CartMedicine(UUID.fromString(o.getString("prescription_" + TAG_ID)), UUID.fromString(o.getString("medicine_" + TAG_ID)), o.getInt(TAG_QUANTITY), o.getInt(TAG_REPEAT))));
@@ -193,10 +192,12 @@ public class PrescriptionLab {
             JSONObject o = prescriptions.getJSONObject(i);
             mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).parse(o.getString(TAG_DATE)), o.getDouble(TAG_PRICE))));
         }
-
-        for (int i = 0; i < regulars.length(); i++) {
-            JSONObject o = regulars.getJSONObject(i);
-            RegularOrderLab.get(context).addRegularOrder(UUID.fromString(o.getString("prescription_" + TAG_ID)), o.getLong(TAG_STAMP));
+        if (arr.getJSONObject(0).getInt("success_regular") == 1) {
+            JSONArray regulars = arr.getJSONObject(0).getJSONArray("regulars");
+            for (int i = 0; i < regulars.length(); i++) {
+                JSONObject o = regulars.getJSONObject(i);
+                RegularOrderLab.get(context).addRegularOrder(UUID.fromString(o.getString("prescription_" + TAG_ID)), o.getLong(TAG_STAMP));
+            }
         }
     }
 }

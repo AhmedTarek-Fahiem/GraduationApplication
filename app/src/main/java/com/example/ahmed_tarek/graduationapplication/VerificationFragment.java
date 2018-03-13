@@ -14,7 +14,6 @@ import android.widget.Button;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
@@ -28,28 +27,34 @@ public class VerificationFragment extends Fragment implements AsyncResponse{
     private Button mSend;
     static final String TAG_STALL = "stall";
 
+    void authentication() {
+        mSend.setEnabled(false);
+        FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        mSend.setEnabled(true);
+                        if (task.isSuccessful())
+                            MainActivity.showToast("Verification e-mail sent to " + FirebaseAuth.getInstance().getCurrentUser().getEmail(), getContext());
+                        else
+                            MainActivity.showToast(R.string.verification_failure, getContext());
+                    }
+                });
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.verification_fragment, container, false);
         Button mRefresh = view.findViewById(R.id.refresh);
-        mSend = view.findViewById(R.id.send_verification_email);
+
+        mSend = view.findViewById(R.id.resend_verification_email);
+        authentication();
         mSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mSend.setEnabled(false);
-                FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification()
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                mSend.setText(R.string.resend_verification_email);
-                                mSend.setEnabled(true);
-                                if (task.isSuccessful())
-                                    MainActivity.showToast("Verification email sent to " + FirebaseAuth.getInstance().getCurrentUser().getEmail(), getContext());
-                                else
-                                    MainActivity.showToast(R.string.verification_failure, getContext());
-                            }
-                        });
+                authentication();
             }
         });
         mRefresh.setOnClickListener(new View.OnClickListener() {

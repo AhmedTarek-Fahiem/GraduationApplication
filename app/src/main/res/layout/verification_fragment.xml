@@ -13,16 +13,16 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/send_verification_email"
+            android:id="@+id/resend_verification_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/send_verification_email"/>
+            android:text="@string/resend_verification_email"/>
 
         <Button
             android:id="@+id/refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/refresh"/>
+            android:text="@string/recheck"/>
 
     </LinearLayout>
 
