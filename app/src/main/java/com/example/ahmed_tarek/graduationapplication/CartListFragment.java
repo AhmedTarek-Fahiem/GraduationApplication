@@ -29,6 +29,7 @@ import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -157,7 +158,8 @@ public class CartListFragment extends Fragment implements AsyncResponse {
                     }
                 }
                 if (checkState())
-                    new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), TAG_PRESCRIPTION).execute(new String[] { "http://ahmedgesraha.ddns.net/set_presc.php", id.toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(mPrescriptionHandler.getPrescription().getDate()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
+                    //new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), TAG_PRESCRIPTION).execute(new String[] { "http://ahmedgesraha.ddns.net/set_presc.php", id.toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(mPrescriptionHandler.getPrescription().getDate()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
+                    new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), TAG_PRESCRIPTION).execute(new String[] { MainActivity.LINK + "setPrescription", id.toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(mPrescriptionHandler.getPrescription().getDate()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
                 else
                     startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
             }
@@ -175,11 +177,11 @@ public class CartListFragment extends Fragment implements AsyncResponse {
     }
 
     @Override
-    public void processFinish(JSONArray output, String type) {
+    public void processFinish(JSONObject output, String type) {
         switch (type) {
             case TAG_PRESCRIPTION:
                 try {
-                    if (output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || output.getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0)
+                    if (output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0)
                         MainActivity.showToast(R.string.database_error, getContext());
                     else {
                         startActivity(QRActivity.newIntent(getActivity(), cartMedicines));

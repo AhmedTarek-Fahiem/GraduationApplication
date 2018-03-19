@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Created by Rebel Ekko on 18/03/04.
@@ -81,7 +82,7 @@ public class VerificationFragment extends Fragment implements AsyncResponse{
     }
 
     @Override
-    public void processFinish(JSONArray output, String type) {
+    public void processFinish(JSONObject output, String type) {
         startActivity(new Intent(getContext(), MainActivity.class));
         getActivity().finish();
     }

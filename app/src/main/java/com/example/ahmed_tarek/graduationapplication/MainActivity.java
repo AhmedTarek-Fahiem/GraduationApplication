@@ -40,8 +40,11 @@ import org.apache.commons.net.time.TimeTCPClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,12 +65,12 @@ interface TimeResponse {
 }
 
 public class MainActivity extends SingleMedicineFragmentActivity implements AsyncResponse, TimeResponse, NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
-
+    public static final String LINK = "http://192.168.1.21:8080/";
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView navigationView;
     static final String TAG_SUCCESS = "success";
-    static final String TAG_PIN = "PIN";
+    static final String TAG_PIN = "pin";
     private static final String TAG_VERSION = "version";
     private static final String TAG_TIMESTAMP = "ver";
     private static final String TAG_MEDICINES = "medicines";
@@ -92,8 +95,11 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 final NetworkInfo ni = ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
 
                 if (ni != null && ni.isConnectedOrConnecting()) {
-                    new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
-                    new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(activity).getUserUUID().toString() });
+//                    new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute(new String[] { "http://ahmedgesraha.ddns.net/get_version.php" });
+//                    new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(new String[] { "http://ahmedgesraha.ddns.net/get_presc.php", UserLab.get(activity).getUserUUID().toString() });
+                    new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute(new String[] { LINK + "getVersion" });
+                    new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(new String[] { LINK + "getPrescriptions", UserLab.get(activity).getUserUUID().toString() });
+
                 } else
                     showToast(R.string.version_warning, getApplicationContext());
             }
@@ -141,7 +147,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
     }
 
-    static class DatabaseComm extends AsyncTask<String[], String, JSONArray> {
+    static class DatabaseComm extends AsyncTask<String[], String, JSONObject> {
 
         private AsyncResponse delegate = null;
         private ProgressDialog pDialog;
@@ -153,8 +159,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
             this.type = type;
         }
 
-        private JSONObject makeHttpRequest(String url, String method, List<NameValuePair> params) {
-
+        private JSONObject makeHttpRequest(String url, String method, JSONObject request) {
             InputStream is = null;
             JSONObject jObj = null;
             String json = "";
@@ -162,13 +167,13 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 DefaultHttpClient httpClient = new DefaultHttpClient();
                 if (method.equals("POST")) {
                     HttpPost httpPost = new HttpPost(url);
-                    httpPost.setEntity(new UrlEncodedFormEntity(params));
+                    StringEntity stringEntity = new StringEntity(request.toString());
+                    stringEntity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                    httpPost.setEntity(stringEntity);
                     HttpResponse httpResponse = httpClient.execute(httpPost);
                     HttpEntity httpEntity = httpResponse.getEntity();
                     is = httpEntity.getContent();
                 } else if (method.equals("GET")) {
-                    String paramString = URLEncodedUtils.format(params, "utf-8");
-                    url += "?" + paramString;
                     HttpGet httpGet = new HttpGet(url);
                     HttpResponse httpResponse = httpClient.execute(httpGet);
                     HttpEntity httpEntity = httpResponse.getEntity();
@@ -221,9 +226,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case CartListFragment.TAG_PRESCRIPTION:
                     pDialog.setMessage("Uploading data\nPlease wait...");
                     break;
-/*                case TAG_SYNC:
-                    pDialog.setMessage("Syncing\nPlease wait...");
-                    break;*/
                 case VerificationFragment.TAG_STALL:
                     pDialog.setMessage("Verification successful\nRedirecting back to application\nPlease wait...");
                     break;
@@ -235,89 +237,88 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
 
         @Override
-        protected JSONArray doInBackground(String[]... args) {
-            JSONObject json;
-            List<NameValuePair> parameters = new ArrayList<>();
-            switch (type) {
-                case LoginFragment.TAG_LOGIN:
-                case RegistrationFragment.TAG_REGISTRATION:
-                    parameters.add(new BasicNameValuePair("username", args[0][1]));
-                    parameters.add(new BasicNameValuePair("password", args[0][2]));
-                    if (type.equals(RegistrationFragment.TAG_REGISTRATION)) {
-                        parameters.add(new BasicNameValuePair("email", args[0][3]));
-                        parameters.add(new BasicNameValuePair("DoB", args[0][4]));
-                        parameters.add(new BasicNameValuePair("gender", args[0][5]));
-                    }
-                    json = makeHttpRequest(args[0][0], "POST", parameters);
-                    break;
-                case RegistrationFragment.TAG_CHECK:
-                    parameters.add(new BasicNameValuePair("username", args[0][1]));
-                    parameters.add(new BasicNameValuePair("email", args[0][2]));
-                    json = makeHttpRequest(args[0][0], "POST", parameters);
-                    break;
-                case TAG_PIN:
-                    parameters.add(new BasicNameValuePair("username", args[0][1]));
-                    parameters.add(new BasicNameValuePair("PIN", args[0][2]));
-                    json = makeHttpRequest(args[0][0], "POST", parameters);
-                    break;
-                case TAG_SYNC:
-                    parameters.add(new BasicNameValuePair("id", args[0][1]));
-                    json = makeHttpRequest(args[0][0], "POST", parameters);
-                    break;
-                case CartListFragment.TAG_PRESCRIPTION:
-                    parameters.add(new BasicNameValuePair("prescription_id", args[0][1]));
-                    parameters.add(new BasicNameValuePair("date", args[0][2]));
-                    parameters.add(new BasicNameValuePair("price", args[0][3]));
-                    parameters.add(new BasicNameValuePair("user_id", args[0][4]));
-                    boolean case7 = false, case30 = false;
-                    int index = Integer.parseInt(args[0][5]);
-                    parameters.add(new BasicNameValuePair("medicine_count", args[0][5]));
-                    for (int i = 0; i < index * 3; i += 3) {
-                        parameters.add(new BasicNameValuePair("medicine_id" + i, args[1][i]));
-                        parameters.add(new BasicNameValuePair("quantity" + i, args[1][i + 1]));
-                        parameters.add(new BasicNameValuePair("repeat_duration" + i, args[1][i + 2]));
-                        if (Integer.parseInt(args[1][i + 2]) == 7)
-                            case7 = true;
-                        else if (Integer.parseInt(args[1][i + 2]) == 30)
-                            case30 = true;
-                    }
-                    if (case7 && case30) {
-                        parameters.add(new BasicNameValuePair("regular_count", String.valueOf(2)));
-                        parameters.add(new BasicNameValuePair("fire_time0", args[1][index * 3]));
-                        parameters.add(new BasicNameValuePair("fire_time1", args[1][index * 3 + 1]));
-                    } else if (case7 || case30) {
-                        parameters.add(new BasicNameValuePair("regular_count", String.valueOf(1)));
-                        parameters.add(new BasicNameValuePair("fire_time0", args[1][index * 3]));
-                    } else
-                        parameters.add(new BasicNameValuePair("regular_count", String.valueOf(0)));
-                    json = makeHttpRequest(args[0][0], "POST", parameters);
-                    break;
-                case VerificationFragment.TAG_STALL:
-                    json = new JSONObject();
-                    try {
-                        Thread.sleep(2000);
-                        json.put(TAG_SUCCESS, 1);
-                    } catch (InterruptedException | JSONException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                default:
-                    json = makeHttpRequest(args[0][0], "GET", parameters);
-                    break;
-            }
+        protected JSONObject doInBackground(String[]... args) {
+            JSONObject request = new JSONObject(), json = new JSONObject();
             try {
+                switch (type) {
+                    case LoginFragment.TAG_LOGIN:
+                    case RegistrationFragment.TAG_REGISTRATION:
+                        request.put("username", args[0][1]);
+                        request.put("password", args[0][2]);
+                        if (type.equals(RegistrationFragment.TAG_REGISTRATION)) {
+                            request.put("email", args[0][3]);
+                            request.put("dob", args[0][4]);
+                            request.put("gender", args[0][5].equals("Male")?"m":"f");
+                        }
+                        json = makeHttpRequest(args[0][0], "POST", request);
+                        break;
+                    case RegistrationFragment.TAG_CHECK:
+                        request.put("username", args[0][1]);
+                        request.put("email", args[0][2]);
+                        json = makeHttpRequest(args[0][0], "POST", request);
+                        break;
+                    case TAG_PIN:
+                        request.put("username", args[0][1]);
+                        request.put("pin", args[0][2]);
+                        json = makeHttpRequest(args[0][0], "POST", request);
+                        break;
+                    case TAG_SYNC:
+                        request.put("id", args[0][1]);
+                        json = makeHttpRequest(args[0][0], "POST", request);
+                        break;
+                    case CartListFragment.TAG_PRESCRIPTION:
+                        request.put("prescription_id", args[0][1]);
+                        request.put("date", args[0][2]);
+                        request.put("price", args[0][3]);
+                        request.put("user_id", args[0][4]);
+                        boolean case7 = false, case30 = false;
+                        int index = Integer.parseInt(args[0][5]);
+                        request.put("medicine_count", args[0][5]);
+                        for (int i = 0; i < index * 3; i += 3) {
+                            request.put("medicine_id" + i, args[1][i]);
+                            request.put("quantity" + i, args[1][i + 1]);
+                            request.put("repeat_duration" + i, args[1][i + 2]);
+                            if (Integer.parseInt(args[1][i + 2]) == 7)
+                                case7 = true;
+                            else if (Integer.parseInt(args[1][i + 2]) == 30)
+                                case30 = true;
+                        }
+                        if (case7 && case30) {
+                            request.put("regular_count", String.valueOf(2));
+                            request.put("fire_time0", args[1][index * 3]);
+                            request.put("fire_time1", args[1][index * 3 + 1]);
+                        } else if (case7 || case30) {
+                            request.put("regular_count", String.valueOf(1));
+                            request.put("fire_time0", args[1][index * 3]);
+                        } else
+                            request.put("regular_count", String.valueOf(0));
+                        json = makeHttpRequest(args[0][0], "GET", request);
+                        break;
+                    case VerificationFragment.TAG_STALL:
+                        json = new JSONObject();
+                        try {
+                            Thread.sleep(2000);
+                            json.put(TAG_SUCCESS, 1);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    default:
+                        json = makeHttpRequest(args[0][0], "GET", request);
+                        break;
+                }
                 if (type.equals(TAG_MEDICINES) && json.getInt(TAG_SUCCESS) == 1)
-                    return json.getJSONArray(TAG_MEDICINES);
+                    return json;
                 else if (type.equals(TAG_VERSION) && json.getInt(TAG_SUCCESS) == 1)
-                    return json.getJSONArray(TAG_VERSION);
-                else if (type.equals(RegistrationFragment.TAG_CHECK) || type.equals(RegistrationFragment.TAG_REGISTRATION))
-                    return json.getJSONArray(RegistrationFragment.TAG_RESULT);
+                    return json;
+                else if (type.equals(RegistrationFragment.TAG_CHECK) || type.equals(RegistrationFragment.TAG_REGISTRATION) )
+                    return json;
                 else if (type.equals(LoginFragment.TAG_LOGIN))
-                    return json.getJSONArray(LoginFragment.TAG_PATIENT);
+                    return json;
                 else if (type.equals(TAG_PIN) || type.equals(CartListFragment.TAG_PRESCRIPTION))
-                    return json.getJSONArray(TAG_SUCCESS);
+                    return json;
                 else if (type.equals(TAG_SYNC) && ((json.getInt(TAG_SUCCESS + "_cart") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1)))
-                    return json.getJSONArray(RegistrationFragment.TAG_RESULT);
+                    return json;
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
             }
@@ -325,7 +326,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         }
 
         @Override
-        protected void onPostExecute(JSONArray result) {
+        protected void onPostExecute(JSONObject result) {
             if (!type.equals(TAG_VERSION) && !type.equals(TAG_SYNC))
                 pDialog.dismiss();
             delegate.processFinish(result, type);
@@ -339,7 +340,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
             showToast("To perform this action, thee shall wait " + (flag - time) / 3600 + ":" + (int)((((flag - time) % 3600) / 3600.0) * 60) + " hour(s)", getApplicationContext());
         else {
             String PIN = setMenuPIN();
-            new DatabaseComm(this, MainActivity.this, TAG_PIN).execute(new String[] { "http://ahmedgesraha.ddns.net/set_pin.php", UserLab.get(this).getUsername(), PIN });
+//            new DatabaseComm(this, MainActivity.this, TAG_PIN).execute(new String[] { "http://ahmedgesraha.ddns.net/set_pin.php", UserLab.get(this).getUsername(), PIN });
+            new DatabaseComm(this, MainActivity.this, TAG_PIN).execute(new String[] { LINK + "setPIN", UserLab.get(this).getUsername(), PIN });
             PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(UserLab.get(this).getUsername() + "_timeOut", time).apply();
         }
     }
@@ -354,12 +356,12 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     }
 
     @Override
-    public void processFinish(JSONArray output, String type) {
+    public void processFinish(JSONObject output, String type) {
         if (output != null) {
             switch (type) {
                 case TAG_VERSION:
                     try {
-                        version = output.getJSONObject(0).getString(TAG_TIMESTAMP);
+                        version = output.getString(TAG_TIMESTAMP);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -367,10 +369,11 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
                             MedicineLab.get(this);
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean("database", true).apply();
-                            new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute(new String[] { "http://ahmedgesraha.ddns.net/get_medicines.php" });
+                            //new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute(new String[] { "http://ahmedgesraha.ddns.net/get_medicines.php" });
+                            new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute(new String[] { MainActivity.LINK + "getMedicinesList" });
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
                         } else if (!version.equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("version", null))) {
-                            new DatabaseComm(MainActivity.this, MainActivity.this, TAG_MEDICINES).execute(new String[] { "http://ahmedgesraha.ddns.net/get_medicines.php" });
+                            new DatabaseComm(MainActivity.this, MainActivity.this, TAG_MEDICINES).execute(new String[] { MainActivity.LINK + "getMedicinesList" });
                             PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString("version", version).apply();
                         }
                     } else
@@ -378,14 +381,14 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     break;
                 case TAG_MEDICINES:
                     try {
-                        MedicineLab.get(this).update(getApplicationContext(), output);
+                        MedicineLab.get(this).update(getApplicationContext(), output.getJSONArray(TAG_MEDICINES));
                     } catch (ExecutionException | InterruptedException | JSONException e) {
                         e.printStackTrace();
                     }
                     break;
                 case TAG_PIN:
                     try {
-                        if (output.getJSONObject(0).getInt(TAG_SUCCESS) == 0)
+                        if (output.getInt(TAG_SUCCESS) == 0)
                             showToast(R.string.database_error, getApplicationContext());
                         else
                             showToast(R.string.update_complete, getApplicationContext());
@@ -395,8 +398,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     break;
                 case TAG_SYNC:
                     try {
-                        if (!output.getString(0).equals("empty"))
-                            PrescriptionLab.get(this).sync(this, output, UserLab.get(this).getUserUUID());
+                        if (!output.getJSONArray(RegistrationFragment.TAG_RESULT).isNull(0))
+                            PrescriptionLab.get(this).sync(this, output.getJSONArray(RegistrationFragment.TAG_RESULT), UserLab.get(this).getUserUUID());
                         //showToast(R.string.sync_complete, getApplicationContext());
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();
