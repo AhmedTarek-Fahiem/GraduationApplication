@@ -44,11 +44,10 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
 
     private static final String DIALOG_DATE = "dialog_date";
     private static final int REQUEST_CODE = 1;
-    static final String TAG_REGISTRATION = "registration";
+
     static final String TAG_RESULT = "result";
     static final String TAG_ERROR = "error";
     static final String TAG_ID = "id";
-    static final String TAG_CHECK = "check";
 
     Date mUserDateOfBirth;
 
@@ -68,8 +67,9 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
     public void processFinish(JSONObject output, String type) {
         if (output != null) {
             try {
-                int error = output.getJSONArray(TAG_RESULT).getJSONObject(0).getInt(TAG_ERROR);
-                if (type.equals(TAG_CHECK)) {
+                int error;
+                if (type.equals(MainActivity.TAG_CHECK)) {
+                    error = output.getJSONArray(TAG_RESULT).getJSONObject(0).getInt(TAG_ERROR);
                     if (error == 0) {
                         FirebaseAuth.getInstance().createUserWithEmailAndPassword(mEmail.getText().toString(), mPassword.getText().toString())
                                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
@@ -83,8 +83,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful())
-                                                                //new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute(new String[] { "http://ahmedgesraha.ddns.net/register.php", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
-                                                                new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_REGISTRATION).execute(new String[] { MainActivity.LINK + "register", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
+                                                                new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_REGISTRATION).execute(new String[] { MainActivity.LINK + "register", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
                                                         }
                                                     });
                                         } else
@@ -95,7 +94,8 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                         MainActivity.showToast(R.string.username_exists, getContext());
                     else if (error == 2)
                         MainActivity.showToast(R.string.email_linked, getContext());
-                } else if (type.equals(TAG_REGISTRATION)) {
+                } else if (type.equals(MainActivity.TAG_REGISTRATION)) {
+                    error = output.getInt(TAG_ERROR);
                     String id = output.getJSONArray(LoginFragment.TAG_PATIENT).getJSONObject(0).getString(TAG_ID);
                     if (error == 0) {
                         UserLab.get(getContext()).saveUserData(UUID.fromString(id), mUsername.getText().toString(), mEmail.getText().toString(), mUserDateOfBirth, mGender.getSelectedItemPosition() == 0, 0);
@@ -219,8 +219,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        //new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_CHECK).execute(new String[] { "http://ahmedgesraha.ddns.net/check.php", mUsername.getText().toString(), mEmail.getText().toString()});
-                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), TAG_CHECK).execute(new String[] { MainActivity.LINK + "checkUser", mUsername.getText().toString(), mEmail.getText().toString()});
+                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_CHECK).execute(new String[] { MainActivity.LINK + "checkUser", mUsername.getText().toString(), mEmail.getText().toString()});
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

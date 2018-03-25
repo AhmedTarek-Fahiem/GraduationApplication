@@ -27,13 +27,10 @@ import android.widget.TextView;
 
 import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -48,7 +45,6 @@ public class CartListFragment extends Fragment implements AsyncResponse {
     private PrescriptionHandler mPrescriptionHandler;
 
     private static String cartMedicines;
-    static final String TAG_PRESCRIPTION = "prescription";
 
     NetworkChangedReceiver receiver;
 
@@ -158,8 +154,7 @@ public class CartListFragment extends Fragment implements AsyncResponse {
                     }
                 }
                 if (checkState())
-                    //new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), TAG_PRESCRIPTION).execute(new String[] { "http://ahmedgesraha.ddns.net/set_presc.php", id.toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(mPrescriptionHandler.getPrescription().getDate()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
-                    new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), TAG_PRESCRIPTION).execute(new String[] { MainActivity.LINK + "setPrescription", id.toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(mPrescriptionHandler.getPrescription().getDate()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
+                    new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(new String[] { MainActivity.LINK + "setPrescription", id.toString(), String.valueOf(mPrescriptionHandler.getPrescription().getDate().getTime()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
                 else
                     startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
             }
@@ -179,7 +174,7 @@ public class CartListFragment extends Fragment implements AsyncResponse {
     @Override
     public void processFinish(JSONObject output, String type) {
         switch (type) {
-            case TAG_PRESCRIPTION:
+            case MainActivity.TAG_PRESCRIPTION:
                 try {
                     if (output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0)
                         MainActivity.showToast(R.string.database_error, getContext());

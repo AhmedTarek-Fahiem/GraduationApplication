@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -127,8 +128,9 @@ public class PrescriptionLab {
         cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + " = ?", new String[]{ prescriptionID.toString() });
         cursorWrapper.moveToFirst();
         long prescriptionTime = cursorWrapper.getPrescription().getDate().getTime();
-//        String repeatDuration = (((int) ((currentTime - prescriptionTime) / (1000*60))) >= 2)? "30" : "7";   /*(1000*60*60*24)*/
-        String repeatDuration = "7";
+        int temp = (int)((currentTime - prescriptionTime) / (1000*60*60*24));
+        String repeatDuration = (temp > 7)? ((temp > 30)? "60" : "30"): "7";
+//        String repeatDuration = "7";
 
         cursorWrapper = queryPrescriptionCart(CartMedicineTable.NAME, CartMedicineTable.CartMedicineColumns.PRESCRIPTION_UUID + " = ? and " + CartMedicineTable.CartMedicineColumns.REPEAT_DURATION + " = ?", new String[]{ prescriptionID.toString(), repeatDuration });
         try {
@@ -190,7 +192,7 @@ public class PrescriptionLab {
 
         for (int i = 0; i < prescriptions.length(); i++) {
             JSONObject o = prescriptions.getJSONObject(i);
-            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).parse(o.getString(TAG_DATE)), o.getDouble(TAG_PRICE))));
+            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new Date(o.getLong(TAG_DATE)), o.getDouble(TAG_PRICE))));
         }
         if (arr.getJSONObject(0).getInt("success_regular") == 1) {
             JSONArray regulars = arr.getJSONObject(0).getJSONArray("regulars");

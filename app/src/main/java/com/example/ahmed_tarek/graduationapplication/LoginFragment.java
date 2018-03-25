@@ -25,7 +25,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,7 +40,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
     private EditText mUsername;
     private EditText mPassword;
     private TextView mErrorMessage;
-    static final String TAG_LOGIN = "login";
+
     static final String TAG_PATIENT = "patient";
     private static final String TAG_EMAIL = "email";
     private static final String TAG_DoB = "dob";
@@ -55,10 +54,10 @@ public class LoginFragment extends Fragment implements AsyncResponse {
 
     @Override
     public void processFinish(JSONObject output, String type) {
-        if (type.equals(TAG_LOGIN))
+        if (type.equals(MainActivity.TAG_LOGIN))
             if (output != null)
                 try {
-                    int key = output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS);
+                    int key = output.getInt(MainActivity.TAG_SUCCESS);
                     if (key == 0)
                         MainActivity.showToast(R.string.wrong_credentials, getContext());
                     else if (key == 1) {
@@ -148,8 +147,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        //new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), TAG_LOGIN).execute(new String[] { "http://ahmedgesraha.ddns.net/login.php", mUsername.getText().toString(), mPassword.getText().toString() });
-                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), TAG_LOGIN).execute(new String[] { MainActivity.LINK + "login", mUsername.getText().toString(), mPassword.getText().toString() });
+                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), MainActivity.TAG_LOGIN).execute(new String[] { MainActivity.LINK + "login", mUsername.getText().toString(), mPassword.getText().toString() });
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

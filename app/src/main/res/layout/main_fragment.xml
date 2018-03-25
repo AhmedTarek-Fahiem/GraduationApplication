@@ -36,6 +36,7 @@
         android:layout_alignParentEnd="true">
 
         <android.support.design.widget.FloatingActionButton
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/search_submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,15 +44,20 @@
             app:backgroundTint="@color/backgroundTintGreen"
             app:srcCompat="@drawable/ic_send"
             app:borderWidth="0dp"
-            android:elevation="0dp"
-            app:elevation="0dp"/>
+            app:elevation="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="2dp"
+            app:fabSize="normal" />
 
         <TextView
             android:id="@+id/medicines_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:background="@color/colorPrimary" />
+            android:elevation="7dp"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:background="@drawable/circle" />
 
     </FrameLayout>
 
