@@ -58,6 +58,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
     private Button mDateOfBirth;
     private Spinner mGender;
     private TextView mErrorMessage;
+    private Button mRegistrationButton;
 
     private boolean checkState() {
         return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
@@ -76,6 +77,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if (task.isSuccessful()) {
+                                            mRegistrationButton.setEnabled(false);
                                             FirebaseAuth.getInstance().getCurrentUser().updateProfile(new UserProfileChangeRequest.Builder()
                                                     .setDisplayName(mUsername.getText().toString())
                                                     .build())
@@ -195,7 +197,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
 
         mGender = view.findViewById(R.id.register_gender_spinner_label);
 
-        Button mRegistrationButton = view.findViewById(R.id.registration_button);
+        mRegistrationButton = view.findViewById(R.id.registration_button);
         mRegistrationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

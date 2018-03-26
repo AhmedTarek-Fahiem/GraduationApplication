@@ -44,6 +44,8 @@ public class CartListFragment extends Fragment implements AsyncResponse {
     private TextView mTotalPrice;
     private PrescriptionHandler mPrescriptionHandler;
 
+    private boolean isRegular;
+
     private static String cartMedicines;
 
     NetworkChangedReceiver receiver;
@@ -125,7 +127,7 @@ public class CartListFragment extends Fragment implements AsyncResponse {
             public void onClick(View v) {
 
                 List<CartMedicine> qrMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
-                boolean isRegular = false;
+                isRegular = false;
                 int index = 0, size = qrMedicines.size();
                 cartMedicines = "";
                 String[] params = new String[qrMedicines.size() * 3 + 2];
@@ -176,7 +178,7 @@ public class CartListFragment extends Fragment implements AsyncResponse {
         switch (type) {
             case MainActivity.TAG_PRESCRIPTION:
                 try {
-                    if (output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0)
+                    if (output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || ( isRegular && output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0))
                         MainActivity.showToast(R.string.database_error, getContext());
                     else {
                         startActivity(QRActivity.newIntent(getActivity(), cartMedicines));

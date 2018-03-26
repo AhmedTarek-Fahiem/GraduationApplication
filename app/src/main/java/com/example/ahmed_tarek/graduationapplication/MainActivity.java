@@ -273,6 +273,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         prescriptionJson.put("prescription_date", Long.valueOf(args[0][2]));
                         prescriptionJson.put("price", Double.valueOf(args[0][3]));
                         prescriptionJson.put("user_id", args[0][4]);
+                        prescriptionJson.put("history_id", "1");
                         request.putOpt("prescription", prescriptionJson);
                         boolean case7 = false, case30 = false;
                         int index = Integer.parseInt(args[0][5]);
