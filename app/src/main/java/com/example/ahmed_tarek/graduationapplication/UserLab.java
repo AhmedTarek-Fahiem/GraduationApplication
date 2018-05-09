@@ -42,14 +42,10 @@ public class UserLab {
     public int getSecurity_PIN() {
         return mUser.getSecurity_PIN();
     }
-    public void setSecurity_PIN(int security_PIN) {
-        mUser.setSecurity_PIN(security_PIN);
-    }
-
 
     public void saveUserData(UUID userID, String username, String email, Date dateOfBirth, boolean gender, int security_PIN) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mContext).edit();
-        editor.putBoolean("isLogin", true);
+        editor.putBoolean("isLoggedIn", true);
         editor.putString("userID", userID.toString());
         editor.putString("username", username);
         editor.putString("email", email);
@@ -106,20 +102,8 @@ public class UserLab {
             return mEMail;
         }
 
-        public Date getDateOfBirth() {
-            return mDateOfBirth;
-        }
-
-        public boolean getGender() {
-            return mGender;
-        }
-
         public int getSecurity_PIN() {
             return mSecurity_PIN;
-        }
-
-        public void setSecurity_PIN(int security_PIN) {
-            mSecurity_PIN = security_PIN;
         }
 
     }

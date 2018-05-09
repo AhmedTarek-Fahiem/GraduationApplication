@@ -222,7 +222,7 @@ public class QRActivity extends AppCompatActivity {
             try {
                 Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
-                if(saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), false) != null)
+                if (saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), false) != null)
                     PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(UserLab.get(this).getUsername(), true).apply();
             }
             catch (WriterException e) {
