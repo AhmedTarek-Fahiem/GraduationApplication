@@ -248,7 +248,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         request.put("password", args[0][2]);
                         if (type.equals(TAG_REGISTRATION)) {
                             request.put("email", args[0][3]);
-                            request.put("dob", args[0][4]);
+                            request.put("dob", Long.valueOf(args[0][4]));
                             request.put("gender", args[0][5].equals("Male")?"m":"f");
                         }
                         json = makeHttpRequest(args[0][0], "POST", request);
@@ -272,7 +272,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         prescriptionJson.put("id", args[0][1]);
                         prescriptionJson.put("prescription_date", Long.valueOf(args[0][2]));
                         prescriptionJson.put("price", Double.valueOf(args[0][3]));
-                        prescriptionJson.put("user_id", args[0][4]);
+                        prescriptionJson.put("patient_id", args[0][4]);
                         prescriptionJson.put("history_id", "1");
                         request.putOpt("prescription", prescriptionJson);
                         boolean case7 = false, case30 = false;
@@ -298,19 +298,19 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         if (case7 && case30) {
                             JSONObject regularOrderJson = new JSONObject();
                             regularOrderJson.put("prescription_id", args[0][1]);
-                            regularOrderJson.put("user_id", args[0][4]);
+                            regularOrderJson.put("patient_id", args[0][4]);
                             regularOrderJson.put("fire_time", Long.valueOf(args[1][index * 3]));
                             regularOrdersJsonArray.put(regularOrderJson);
                             JSONObject regularOrderJson1 = new JSONObject();
                             regularOrderJson1.put("prescription_id", args[0][1]);
-                            regularOrderJson1.put("user_id", args[0][4]);
+                            regularOrderJson1.put("patient_id", args[0][4]);
                             regularOrderJson1.put("fire_time", Long.valueOf(args[1][index * 3 + 1]));
                             regularOrdersJsonArray.put(regularOrderJson1);
                             request.putOpt("regularOrders", regularOrdersJsonArray);
                         } else if (case7 || case30) {
                             JSONObject regularOrderJson = new JSONObject();
                             regularOrderJson.put("prescription_id", args[0][1]);
-                            regularOrderJson.put("user_id", args[0][4]);
+                            regularOrderJson.put("patient_id", args[0][4]);
                             regularOrderJson.put("fire_time", Long.valueOf(args[1][index * 3]));
                             regularOrdersJsonArray.put(regularOrderJson);
                             request.putOpt("regularOrders", regularOrdersJsonArray);

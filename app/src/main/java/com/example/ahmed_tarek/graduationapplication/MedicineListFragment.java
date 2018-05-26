@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,22 +138,26 @@ public class MedicineListFragment extends Fragment {
             mMedicineHold = medicine;
 
             mMedicineNameTextView.setText(mMedicineHold.getName());
-            mSelectedCheckBox.setChecked(mPrescriptionHandler.isExist(mMedicineHold.getID()));
-            submitButtonVisibility();
+            if (mMedicineHold.getIsRestricted() == 0) {
+                mSelectedCheckBox.setVisibility(View.VISIBLE);
+                mSelectedCheckBox.setChecked(mPrescriptionHandler.isExist(mMedicineHold.getID()));
+                mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-            mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                    if (compoundButton.isChecked()) {
-                        mPrescriptionHandler.addCart(new CartMedicine(mMedicineHold.getID()));
-                        submitButtonVisibility();
-                    } else {
-                        mPrescriptionHandler.removeCart(mMedicineHold);
-                        submitButtonVisibility();
+                        if (compoundButton.isChecked()) {
+                            mPrescriptionHandler.addCart(new CartMedicine(mMedicineHold.getID()));
+                            submitButtonVisibility();
+                        } else {
+                            mPrescriptionHandler.removeCart(mMedicineHold);
+                            submitButtonVisibility();
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                mSelectedCheckBox.setVisibility(View.INVISIBLE);
+            }
+            submitButtonVisibility();
 
             mDetailsButton.setOnClickListener(new View.OnClickListener() {
                 @Override

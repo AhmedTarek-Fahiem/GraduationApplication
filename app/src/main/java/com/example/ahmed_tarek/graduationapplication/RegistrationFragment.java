@@ -85,7 +85,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful())
-                                                                new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_REGISTRATION).execute(new String[] { MainActivity.LINK + "register", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(mUserDateOfBirth), mGender.getSelectedItem().toString() });
+                                                                new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_REGISTRATION).execute(new String[] { MainActivity.LINK + "register", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), String.valueOf(mUserDateOfBirth.getTime()), mGender.getSelectedItem().toString() });
                                                         }
                                                     });
                                         } else

@@ -15,13 +15,13 @@ public class Medicine {
     private String mActiveIngredients;
     private double mPrice;
     private int mQuantity;
-    private int repeat;
+    private int isRestricted;
 
-    public Medicine(String name, String category, String form, String activeIngredients, double price, int quantity) {   ///delete_T  generate medicine id only when we want to generate an imagine data
-        this(UUID.randomUUID(), name, category, form, activeIngredients, price, quantity);
+    public Medicine(String name, String category, String form, String activeIngredients, double price, int quantity, int isRestricted) {   ///delete_T  generate medicine id only when we want to generate an imagine data
+        this(UUID.randomUUID(), name, category, form, activeIngredients, price, quantity, isRestricted);
     }
 
-    public Medicine(UUID id, String name, String category, String form, String activeIngredients, double price, int quantity) {
+    public Medicine(UUID id, String name, String category, String form, String activeIngredients, double price, int quantity, int isRestricted) {
         mID = id;
         mName = name;
         mCategory = category;
@@ -29,6 +29,7 @@ public class Medicine {
         mActiveIngredients = activeIngredients;
         mPrice = price;
         mQuantity = quantity;
+        this.isRestricted = isRestricted;
     }
 
     public UUID getID() {
@@ -57,5 +58,9 @@ public class Medicine {
 
     public int getQuantity() {
         return mQuantity;
+    }
+
+    public int getIsRestricted() {
+        return isRestricted;
     }
 }

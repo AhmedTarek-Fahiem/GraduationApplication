@@ -101,6 +101,25 @@ public class PrescriptionLab {
 
         return prescriptions;
     }
+    public List<Prescription> getPrescriptions(UUID userID, long lastUpdate, long lastPrescription) {
+        List<Prescription> prescriptions = new ArrayList<>();
+
+        PrescriptionCartCursorWrapper cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.USER_UUID + " = ? and " + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " > ? and " + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " < ?", new String[]{ userID.toString(), String.valueOf(lastUpdate) , String.valueOf(lastPrescription) });
+        try {
+            if (cursorWrapper.getCount() == 0)
+                return null;
+
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                prescriptions.add(cursorWrapper.getPrescription());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+
+        return prescriptions;
+    }
     public List<CartMedicine> getCarts(UUID prescriptionID) {
         List<CartMedicine> cartMedicines = new ArrayList<>();
 

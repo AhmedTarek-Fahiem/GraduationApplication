@@ -39,7 +39,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 MedicineTable.MedicineColumns.MEDICINE_FORM + " text NOT NULL, " +
                 MedicineTable.MedicineColumns.MEDICINE_ACTIVE_INGREDIENTS + " text NOT NULL, " +
                 MedicineTable.MedicineColumns.MEDICINE_PRICE + " real NOT NULL, " +
-                MedicineTable.MedicineColumns.MEDICINE_QUANTITY + " integer NOT NULL" +
+                MedicineTable.MedicineColumns.MEDICINE_QUANTITY + " integer NOT NULL," +
+                MedicineTable.MedicineColumns.MEDICINE_IS_RESTRICTED + " integer NOT NULL" +
                 ")" );
 
         sqLiteDatabase.execSQL("create table " + PrescriptionTable.NAME + "(" +

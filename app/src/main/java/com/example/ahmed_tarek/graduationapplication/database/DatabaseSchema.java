@@ -54,6 +54,7 @@ public class DatabaseSchema {
                 public static final String MEDICINE_ACTIVE_INGREDIENTS = "medicine_active_ingredients";
                 public static final String MEDICINE_PRICE = "medicine_price";
                 public static final String MEDICINE_QUANTITY = "medicine_quantity";
+                public static final String MEDICINE_IS_RESTRICTED = "medicine_is_restricted";
             }
         }
     }

@@ -41,7 +41,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
     private EditText mPassword;
     private TextView mErrorMessage;
 
-    static final String TAG_PATIENT = "patient";
+    static final String TAG_PATIENT = "patients";
     private static final String TAG_EMAIL = "email";
     private static final String TAG_DoB = "dob";
     private static final String TAG_GENDER = "gender";
@@ -62,7 +62,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                         MainActivity.showToast(R.string.wrong_credentials, getContext());
                     else if (key == 1) {
                         JSONObject o = output.getJSONArray(TAG_PATIENT).getJSONObject(0);
-                        UserLab.get(getContext()).saveUserData(UUID.fromString(o.getString(RegistrationFragment.TAG_ID)), mUsername.getText().toString(), o.getString(TAG_EMAIL), Date.valueOf(o.getString(TAG_DoB)), o.getString(TAG_GENDER).equals("m"), Integer.valueOf(o.getString(MainActivity.TAG_PIN)));
+                        UserLab.get(getContext()).saveUserData(UUID.fromString(o.getString(RegistrationFragment.TAG_ID)), mUsername.getText().toString(), o.getString(TAG_EMAIL), new Date(o.getLong(TAG_DoB)), o.getString(TAG_GENDER).equals("m"), Integer.valueOf(o.getString(MainActivity.TAG_PIN)));
                         FirebaseAuth.getInstance().signInWithEmailAndPassword(UserLab.get(getContext()).getEMail(), mPassword.getText().toString())
                                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                                     @Override

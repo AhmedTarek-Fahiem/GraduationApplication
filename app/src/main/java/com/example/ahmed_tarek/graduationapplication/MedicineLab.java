@@ -35,6 +35,7 @@ public class MedicineLab {
     private static final String TAG_INGREDIENTS = "active_ingredients";
     private static final String TAG_PRICE = "price";
     private static final String TAG_QUANTITY = "quantity";
+    private static final String TAG_IS_RESTRICTED = "isRestricted";
 
     private static ContentValues getContentValues(Medicine medicine) {
         ContentValues contentValues = new ContentValues();
@@ -46,6 +47,7 @@ public class MedicineLab {
         contentValues.put(MedicineTable.MedicineColumns.MEDICINE_ACTIVE_INGREDIENTS, medicine.getActiveIngredients());
         contentValues.put(MedicineTable.MedicineColumns.MEDICINE_PRICE, medicine.getPrice());
         contentValues.put(MedicineTable.MedicineColumns.MEDICINE_QUANTITY, medicine.getQuantity());
+        contentValues.put(MedicineTable.MedicineColumns.MEDICINE_IS_RESTRICTED, medicine.getIsRestricted());
         return contentValues;
     }
 
@@ -53,7 +55,7 @@ public class MedicineLab {
         formatTable();
         for (int i = 0; i < medicinesList.length(); i++) {
             JSONObject o = medicinesList.getJSONObject(i);
-            addXXX(new Medicine(UUID.fromString(o.getString(TAG_ID)), o.getString(TAG_NAME), o.getString(TAG_CATEGORY), o.getString(TAG_FORM), o.getString(TAG_INGREDIENTS), Double.parseDouble(o.getString(TAG_PRICE)), Integer.parseInt(o.getString(TAG_QUANTITY))));
+            addXXX(new Medicine(UUID.fromString(o.getString(TAG_ID)), o.getString(TAG_NAME), o.getString(TAG_CATEGORY), o.getString(TAG_FORM), o.getString(TAG_INGREDIENTS), Double.parseDouble(o.getString(TAG_PRICE)), Integer.parseInt(o.getString(TAG_QUANTITY)), Integer.parseInt(o.getString(TAG_IS_RESTRICTED))));
         }
         MainActivity.showToast(R.string.update_complete, context);
         get(context).getMedicines();
@@ -88,7 +90,8 @@ public class MedicineLab {
                     getString(3),
                     getString(4),
                     getDouble(5),
-                    getInt(6));
+                    getInt(6),
+                    getInt(7));
         }
     }
     private MedicineCursorWrapper queryMedicines(String whereClause, String[] whereArgs) {
