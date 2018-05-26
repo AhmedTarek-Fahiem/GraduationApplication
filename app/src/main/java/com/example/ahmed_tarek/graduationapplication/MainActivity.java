@@ -239,7 +239,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
         @Override
         protected JSONObject doInBackground(String[]... args) {
-            JSONObject request = new JSONObject(), json = new JSONObject();
+            JSONObject request = new JSONObject(), json;
             try {
                 switch (type) {
                     case TAG_LOGIN:
@@ -334,7 +334,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     return json;
                 else if (type.equals(TAG_VERSION) && json.getInt(TAG_SUCCESS) == 1)
                     return json;
-                else if (type.equals(TAG_CHECK) || type.equals(TAG_REGISTRATION) )
+                else if (type.equals(TAG_CHECK) || type.equals(TAG_REGISTRATION))
                     return json;
                 else if (type.equals(TAG_LOGIN))
                     return json;
