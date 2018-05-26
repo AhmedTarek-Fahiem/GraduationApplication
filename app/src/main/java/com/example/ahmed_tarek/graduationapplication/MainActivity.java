@@ -62,7 +62,8 @@ interface TimeResponse {
 public class MainActivity extends SingleMedicineFragmentActivity implements AsyncResponse, TimeResponse, NavigationView.OnNavigationItemSelectedListener, DrawerInterface {
 
 
-    public static final String LINK = "http://ahmedgesraha.ddns.net/api/";
+    public static final String LINK = "http://192.168.1.5:8080/api/";
+//    public static final String LINK = "http://ahmedgesraha.ddns.net/api/";
     public static final String TAG_SUCCESS = "success";
     public static final String TAG_PIN = "pin";
     public static final String TAG_VERSION = "version";
@@ -73,6 +74,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     public static final String TAG_LOGIN = "login";
     public static final String TAG_REGISTRATION = "registration";
     public static final String TAG_CHECK = "check";
+    public static final String SELF_HISTORY_ID = "0395e1e0-c60b-4564-8dea-e92fb83bb9ea";
 
 
 
@@ -273,7 +275,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         prescriptionJson.put("prescription_date", Long.valueOf(args[0][2]));
                         prescriptionJson.put("price", Double.valueOf(args[0][3]));
                         prescriptionJson.put("patient_id", args[0][4]);
-                        prescriptionJson.put("history_id", "1");
+                        prescriptionJson.put("history_id", SELF_HISTORY_ID);
                         request.putOpt("prescription", prescriptionJson);
                         boolean case7 = false, case30 = false;
                         int index = Integer.parseInt(args[0][5]);

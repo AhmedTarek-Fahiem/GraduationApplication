@@ -47,12 +47,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + " text NOT NULL primary key, " +
                 PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " text NOT NULL, " +
                 PrescriptionTable.PrescriptionColumns.PRESCRIPTION_PRICE + " real NOT NULL, " +
-                PrescriptionTable.PrescriptionColumns.USER_UUID + " text NOT NULL " +
-//                PrescriptionTable.PrescriptionColumns.HISTORY_UUID + "text NOT NULL " +
+                PrescriptionTable.PrescriptionColumns.USER_UUID + " text NOT NULL, " +
+                PrescriptionTable.PrescriptionColumns.HISTORY_UUID + "text NOT NULL " +
                 ", foreign key (" + PrescriptionTable.PrescriptionColumns.USER_UUID + ") references " +
                 UserTable.NAME + "(" + UserTable.UserColumns.USER_UUID + ")" +
-//                ", foreign key (" + PrescriptionTable.PrescriptionColumns.HISTORY_UUID + ") references " +
-//                HistoryTable.NAME + "(" + HistoryTable.HistoryColumns.HISTORY_UUID + ")" +
                 ")");
 
         sqLiteDatabase.execSQL("create table " + CartMedicineTable.NAME + "(" +

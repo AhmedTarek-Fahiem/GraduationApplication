@@ -33,6 +33,7 @@ public class PrescriptionLab {
     private static final String TAG_ID = "id";
     private static final String TAG_DATE = "prescription_date";
     private static final String TAG_PRICE = "price";
+    private static final String TAG_HISTORY_ID = "history_id";
     private static final String TAG_QUANTITY = "quantity";
     private static final String TAG_REPEAT = "repeat_duration";
     private static final String TAG_STAMP = "fire_time";
@@ -57,7 +58,8 @@ public class PrescriptionLab {
         public Prescription getPrescription() {
             return new Prescription(UUID.fromString(getString(0)),
                     new Date(getLong(1)),
-                    getDouble(2));
+                    getDouble(2),
+                    UUID.fromString(getString(3)));
         }
 
         public CartMedicine getCartMedicine() {
@@ -211,7 +213,7 @@ public class PrescriptionLab {
 
         for (int i = 0; i < prescriptions.length(); i++) {
             JSONObject o = prescriptions.getJSONObject(i);
-            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new Date(o.getLong(TAG_DATE)), o.getDouble(TAG_PRICE))));
+            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new Date(o.getLong(TAG_DATE)), o.getDouble(TAG_PRICE), UUID.fromString(o.getString(TAG_HISTORY_ID)))));
         }
         if (arr.getJSONObject(0).getInt("success_regular") == 1) {
             JSONArray regulars = arr.getJSONObject(0).getJSONArray("regulars");
