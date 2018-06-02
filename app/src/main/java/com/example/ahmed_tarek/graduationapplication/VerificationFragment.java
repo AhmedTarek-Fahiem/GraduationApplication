@@ -16,7 +16,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -26,7 +25,6 @@ import org.json.JSONObject;
 public class VerificationFragment extends Fragment implements AsyncResponse{
 
     private Button mSend;
-    static final String TAG_STALL = "stall";
 
     void authentication() {
         mSend.setEnabled(false);
@@ -69,7 +67,7 @@ public class VerificationFragment extends Fragment implements AsyncResponse{
                                     if (FirebaseAuth.getInstance().getCurrentUser().isEmailVerified()) {
                                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean("isLoggedIn", true).apply();
                                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putInt(UserLab.get(getContext()).getUsername() + "_securityPin", UserLab.get(getContext()).getSecurity_PIN()).apply();
-                                        new MainActivity.DatabaseComm(VerificationFragment.this, getActivity(), TAG_STALL).execute();
+                                        new MainActivity.DatabaseComm(VerificationFragment.this, getActivity(), MainActivity.TAG_STALL).execute();
                                     } else
                                         MainActivity.showToast("Email is still unverified\nCheck your email's inbox\n(" + FirebaseAuth.getInstance().getCurrentUser().getEmail() + ")", getContext());
                                 }

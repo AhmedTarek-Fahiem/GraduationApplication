@@ -53,11 +53,11 @@
     <string name="next_button">Generate QR</string>
     <string name="share_button">Share</string>
     <string name="save_button">Save</string>
-    <string name="save_success">Successfully Saved\nImage path: Pictures/QR</string>
+    <string name="save_success">Successfully saved\nImage path: Pictures/QR</string>
     <string name="permission_fail">Cannot save without permission</string>
     <string name="permission_blocked">Permission blocked\nChange manually from settings to continue</string>
     <string name="permission_granted">Permission granted</string>
-    <string name="wrong_regex">Only "_" English characters and digits are allowed in user names</string>
+    <string name="wrong_regex">Only "_" , English characters, and digits are allowed in username</string>
     <string name="no_permission">Permission to use internet should be granted first to check for updates</string>
     <string name="version_warning">Warning: version could be outdated\nenable wifi/mobile data to check for latest updates</string>
     <string name="update_required">Connection to database is required\nPlease enable wifi/mobile data to connect</string>
@@ -66,10 +66,10 @@
     <string name="username_exists">This username is already taken\nTry another one</string>
     <string name="email_linked">This email is already linked to another account</string>
     <string name="database_error">A database error occurred\nPlease try again later</string>
-    <string name="sync_complete">All synced up!</string>
+    <string name="set_complete">All set!</string>
     <string name="wrong_credentials">Wrong username/password\nMake sure you type them correctly</string>
-    <string name="no_internet">No Internet Connection\nYour order won\'t be saved online unless connected</string>
-    <string name="connected">Connected!\nYour order will be saved for syncing later on other devices</string>
+    <string name="no_internet">No internet connection\nYour order won\'t be saved online until connected later</string>
+    <string name="connected">Connected!\nYour order will be saved for syncing later</string>
     <string name="resend_verification_email">Resend\nVerification Email</string>
     <string name="verification_failure">Failed to send an email</string>
     <string name="recheck">Recheck completion</string>
@@ -80,4 +80,5 @@
     <string name="details_medicine_category">Medicine Category</string>
     <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
     <string name="title_activity_qr_generation">QrGeneration</string>
+    <string name="out_of_stock_warning">The medicines above are currently out of stock\nHowever, medicines are restocked daily and your request has been successfully synced so you can receive your order tomorrow</string>
 </resources>

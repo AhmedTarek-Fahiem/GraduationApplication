@@ -10,7 +10,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,7 @@ import java.util.List;
  * Created by Ahmed_Tarek on 17/11/23.
  */
 
-public class MedicineListFragment extends Fragment {
+public class SearchFragment extends Fragment {
 
     private DrawerInterface mDrawerInterface;
     private RecyclerView mMedicineListRecyclerView;
@@ -93,7 +92,7 @@ public class MedicineListFragment extends Fragment {
             public void onClick(View view) {
                 FragmentManager fragmentManager = getFragmentManager();
                 fragmentManager.beginTransaction()
-                        .replace(R.id.main_fragment_container, new CartListFragment())
+                        .replace(R.id.main_fragment_container, new CartFragment())
                         .addToBackStack(null)
                         .commit();
             }

@@ -62,7 +62,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                         MainActivity.showToast(R.string.wrong_credentials, getContext());
                     else if (key == 1) {
                         JSONObject o = output.getJSONArray(TAG_PATIENT).getJSONObject(0);
-                        UserLab.get(getContext()).saveUserData(UUID.fromString(o.getString(RegistrationFragment.TAG_ID)), mUsername.getText().toString(), o.getString(TAG_EMAIL), new Date(o.getLong(TAG_DoB)), o.getString(TAG_GENDER).equals("m"), Integer.valueOf(o.getString(MainActivity.TAG_PIN)));
+                        UserLab.get(getContext()).saveUserData(UUID.fromString(o.getString(RegistrationFragment.TAG_ID)), mUsername.getText().toString(), o.getString(TAG_EMAIL), new Date(o.getLong(TAG_DoB)), o.getString(TAG_GENDER).equals("m"), Integer.valueOf(o.getString("pin")));
                         FirebaseAuth.getInstance().signInWithEmailAndPassword(UserLab.get(getContext()).getEMail(), mPassword.getText().toString())
                                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                                     @Override
@@ -147,7 +147,11 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), MainActivity.TAG_LOGIN).execute(new String[] { MainActivity.LINK + "login", mUsername.getText().toString(), mPassword.getText().toString() });
+                        try {
+                            new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), MainActivity.TAG_LOGIN).execute(new JSONObject().put("username", mUsername.getText().toString()).put("password", mPassword.getText().toString()));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

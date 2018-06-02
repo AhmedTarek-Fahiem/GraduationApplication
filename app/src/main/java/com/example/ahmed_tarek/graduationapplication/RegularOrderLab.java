@@ -78,8 +78,12 @@ public class RegularOrderLab {
         return prescriptions.toArray(new String[prescriptions.size()]);
     }
 
-    public long[] getTimeStamps() {
-        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") });
+    public long[] getTimeStamps(String prescriptionId) {
+        Cursor cursor;
+        if (prescriptionId == null)
+            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") });
+        else
+            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", ""), prescriptionId });
         long[] timeStamps;
         try {
             if (cursor.getCount() == 0)

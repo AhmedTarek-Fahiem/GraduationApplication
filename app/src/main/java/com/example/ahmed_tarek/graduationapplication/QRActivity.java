@@ -95,13 +95,18 @@ public class QRActivity extends AppCompatActivity {
     public static class MyDialogFragment extends DialogFragment {
 
         private String content;
+        private static String allMedicines;
         private Content[] contents;
+        private static boolean isWarning;
 
-        static MyDialogFragment newInstance(String content) {
+        static MyDialogFragment newInstance(String content, String extraProcessing, boolean warning) {
             MyDialogFragment fragment = new MyDialogFragment();
             Bundle args = new Bundle();
             args.putString("content", content);
+            allMedicines = extraProcessing;
             fragment.setArguments(args);
+
+            isWarning = warning;
             return fragment;
         }
 
@@ -125,7 +130,7 @@ public class QRActivity extends AppCompatActivity {
                     quantity = content.substring(index, content.length());
                 contents[i] = new Content(name, quantity);
             }
-            setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
+            setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_DeviceDefault_Dialog);
         }
 
         @Override
@@ -135,12 +140,16 @@ public class QRActivity extends AppCompatActivity {
             ListView mListView = v.findViewById(R.id.qrContent);
             mListView.setAdapter(new ContentAdapter(v.getContext(), R.layout.qr_content, contents));
             Button button = v.findViewById(R.id.confirm);
+            if (isWarning)
+                v.findViewById(R.id.warning).setVisibility(View.VISIBLE);
+
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     dismiss();
+                    if (isWarning)
+                        startActivity(QRActivity.newIntent(getActivity(), allMedicines));
                 }
             });
-
             return v;
         }
     }
@@ -175,7 +184,7 @@ public class QRActivity extends AppCompatActivity {
             saveExternal();
     }
 
-     private String[] saveQR(Bitmap QR, File path, boolean isExternal) {
+     public static String[] saveQR(Bitmap QR, File path, Context context, boolean isExternal) {
         FileOutputStream stream;
         path.mkdirs();
         File savingDirectory;
@@ -183,14 +192,13 @@ public class QRActivity extends AppCompatActivity {
             if (isExternal)
                 savingDirectory = new File(path, new SimpleDateFormat("yyyyMMdd_HHmmSS", Locale.US).format(new java.util.Date()) + ".png");
             else
-                savingDirectory = new File(path, UserLab.get(this).getUsername() + ".png");
+                savingDirectory = new File(path, UserLab.get(context).getUsername() + ".png");
             stream = new FileOutputStream(savingDirectory);
             QR.compress(Bitmap.CompressFormat.PNG, 100, stream);
             savingDirectory.setReadable(true);
             stream.close();
             return new String[] { savingDirectory.getAbsolutePath() };
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -198,15 +206,14 @@ public class QRActivity extends AppCompatActivity {
 
     private void saveExternal() {
         BitmapDrawable drawable = (BitmapDrawable) mQRImageView.getDrawable();
-        MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), true), new String[] { "image/png" }, null);
+        MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), this, true), new String[] { "image/png" }, null);
         MainActivity.showToast(R.string.save_success, getApplicationContext());
     }
 
     private void loadQR() {
         try {
             mQRImageView.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(new File(new ContextWrapper(this.getApplicationContext()).getDir("QR",Context.MODE_PRIVATE).getAbsolutePath(), UserLab.get(this).getUsername() + ".png"))));
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -222,14 +229,13 @@ public class QRActivity extends AppCompatActivity {
             try {
                 Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
-                if (saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), false) != null)
+                if (saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), this, false) != null)
                     PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(UserLab.get(this).getUsername(), true).apply();
             }
             catch (WriterException e) {
                 e.printStackTrace();
             }
-        }
-        else
+        } else
             loadQR();
         mSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -245,13 +251,11 @@ public class QRActivity extends AppCompatActivity {
                 Bitmap bitmap = drawable.getBitmap();
                 int[] imageArray = new int[bitmap.getHeight() * bitmap.getWidth()];
                 bitmap.getPixels(imageArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-                String content = null;
                 try {
-                    content = new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText();
+                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText(), null, false).show(getSupportFragmentManager().beginTransaction(), "dialog");
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 }
-                MyDialogFragment.newInstance(content).show(getSupportFragmentManager().beginTransaction(), "dialog");
             }
         });
     }

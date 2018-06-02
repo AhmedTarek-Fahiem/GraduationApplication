@@ -69,7 +69,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
         if (output != null) {
             try {
                 int error;
-                if (type.equals(MainActivity.TAG_CHECK)) {
+                if (type.equals(MainActivity.TAG_VERIFY)) {
                     error = output.getJSONArray(TAG_RESULT).getJSONObject(0).getInt(TAG_ERROR);
                     if (error == 0) {
                         FirebaseAuth.getInstance().createUserWithEmailAndPassword(mEmail.getText().toString(), mPassword.getText().toString())
@@ -85,7 +85,11 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {
                                                             if (task.isSuccessful())
-                                                                new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_REGISTRATION).execute(new String[] { MainActivity.LINK + "register", mUsername.getText().toString(), mPassword.getText().toString(), mEmail.getText().toString(), String.valueOf(mUserDateOfBirth.getTime()), mGender.getSelectedItem().toString() });
+                                                                try {
+                                                                    new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_REGISTRATION).execute(new JSONObject().put("username", mUsername.getText().toString()).put("password", mPassword.getText().toString()).put("email", mEmail.getText().toString()).put("dob", mUserDateOfBirth.getTime()).put("gender", mGender.getSelectedItem().toString().equals("Male")?"m":"f"));
+                                                                } catch (JSONException e) {
+                                                                    e.printStackTrace();
+                                                                }
                                                         }
                                                     });
                                         } else
@@ -221,7 +225,11 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
                     if (checkState())
-                        new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_CHECK).execute(new String[] { MainActivity.LINK + "checkUser", mUsername.getText().toString(), mEmail.getText().toString()});
+                        try {
+                            new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_VERIFY).execute(new JSONObject().put("username", mUsername.getText().toString()).put("email", mEmail.getText().toString()));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     else
                         MainActivity.showToast(R.string.update_required, getContext());
                 }

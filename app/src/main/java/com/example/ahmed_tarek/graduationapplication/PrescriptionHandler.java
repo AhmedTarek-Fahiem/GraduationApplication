@@ -89,6 +89,7 @@ public class PrescriptionHandler {
     }
 
     public void prescriptionCommit(Context context) {
+        mPrescription.setHistoryID(UUID.fromString(MainActivity.SELF_HISTORY_ID));
         PrescriptionLab.get(context).addPrescription(UserLab.get(context).getUserUUID(), mPrescription, mCartMedicines);
         reset();
     }

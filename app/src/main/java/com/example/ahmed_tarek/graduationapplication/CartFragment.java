@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,6 +31,7 @@ import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,16 +39,14 @@ import java.util.UUID;
  * Created by Ahmed_Tarek on 17/11/23.
  */
 
-public class CartListFragment extends Fragment implements AsyncResponse {
+public class CartFragment extends Fragment implements AsyncResponse {
 
     private DrawerInterface mDrawerInterface;
     private CartMedicineAdapter mCartMedicineAdapter;
     private TextView mTotalPrice;
     private PrescriptionHandler mPrescriptionHandler;
-
-    private boolean isRegular;
-
     private static String cartMedicines;
+    private static boolean isRegular;
 
     NetworkChangedReceiver receiver;
 
@@ -94,6 +94,19 @@ public class CartListFragment extends Fragment implements AsyncResponse {
         }
     }
 
+    public static String medicinesToString(List<CartMedicine> medicines, Context context) {
+        String cartMedicines = "";
+        int size = medicines.size();
+        for (int i = 0; i < size; i++) {
+            cartMedicines = cartMedicines.concat(MedicineLab.get(context).getMedicine(medicines.get(i).getMedicineID()).getName() + ',' + String.valueOf(medicines.get(i).getQuantity()));
+            if (medicines.get(i).getRepeatDuration() == 7 || medicines.get(i).getRepeatDuration() == 30)
+                isRegular = true;
+            if (i != size - 1)
+                cartMedicines = cartMedicines.concat("&");
+        }
+        return cartMedicines;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -127,38 +140,34 @@ public class CartListFragment extends Fragment implements AsyncResponse {
             public void onClick(View v) {
 
                 List<CartMedicine> qrMedicines = mPrescriptionHandler.getPrescriptionCartMedicines();
-                isRegular = false;
-                int index = 0, size = qrMedicines.size();
+
                 cartMedicines = "";
-                String[] params = new String[qrMedicines.size() * 3 + 2];
                 UUID id = mPrescriptionHandler.getPrescription().getID();
-                for (int i = 0 ; i < qrMedicines.size() ; i++){
-                    cartMedicines = cartMedicines + MedicineLab.get(getActivity()).getMedicine(qrMedicines.get(i).getMedicineID()).getName() + ',' + String.valueOf(qrMedicines.get(i).getQuantity());
-                    params[i * 3] = qrMedicines.get(i).getMedicineID().toString();
-                    params[i * 3 + 1] = String.valueOf(qrMedicines.get(i).getQuantity());
-                    params[i * 3 + 2] = String.valueOf(qrMedicines.get(i).getRepeatDuration());
-                    if (qrMedicines.get(i).getRepeatDuration() != 0)
-                        isRegular = true;
-                    if (i != (qrMedicines.size() - 1))
-                        cartMedicines += '&';
-                    index = i * 3 + 3;
-                }
-                mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
-                mPrescriptionHandler.prescriptionCommit(getActivity());
-                if (isRegular) {
-                    BootUpReceiver.schedule(getContext(), id);
-                    int count = RegularOrderLab.get(getContext()).getRegularOrders().size();
-                    for (int i = 0; i < count; i++) {
-                        if (id.toString().equals(RegularOrderLab.get(getContext()).getRegularOrders().get(i).getPrescriptionUUID().toString())) {
-                            params[index] = String.valueOf(RegularOrderLab.get(getContext()).getRegularOrders().get(i).getTimeStamp());
-                            index++;
+                cartMedicines = medicinesToString(qrMedicines, getContext());
+                try {
+                    if (MainActivity.notSynced) {
+                        long lastUpdated = PreferenceManager.getDefaultSharedPreferences(getContext()).getLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", 0), lastPrescription = PreferenceManager.getDefaultSharedPreferences(getContext()).getLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", 0);
+                        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("database", false)) {
+                            if (lastUpdated == lastPrescription)
+                                new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_SYNC).execute(new JSONObject().put("patient", new JSONObject().put("id", UserLab.get(getContext()).getUserUUID().toString())).put("lastUpdated", lastUpdated));
+                            else
+                                new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_SYNC).execute(MainActivity.toJSON(PrescriptionLab.get(getContext()).getSynchronizable(UserLab.get(getContext()).getUserUUID(), lastUpdated, lastPrescription), getActivity(), lastUpdated, true));
                         }
                     }
+                    List<Prescription> list = new ArrayList<>();
+                    list.add(mPrescriptionHandler.getPrescription());
+                    mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
+                    mPrescriptionHandler.prescriptionCommit(getActivity());
+                    if (isRegular)
+                        BootUpReceiver.schedule(getContext(), id);
+                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_recentDate", list.get(0).getDate().getTime()).apply();
+                    if (checkState())
+                        new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(MainActivity.toJSON(list, getActivity(), 0, false));
+                    else
+                        startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (checkState())
-                    new MainActivity.DatabaseComm(CartListFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(new String[] { MainActivity.LINK + "setPrescription", id.toString(), String.valueOf(mPrescriptionHandler.getPrescription().getDate().getTime()), String.valueOf(mPrescriptionHandler.getPrescription().getPrice()), UserLab.get(getContext()).getUserUUID().toString(), String.valueOf(size)}, params, new String[] { cartMedicines });
-                else
-                    startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
             }
         });
 
@@ -178,11 +187,18 @@ public class CartListFragment extends Fragment implements AsyncResponse {
         switch (type) {
             case MainActivity.TAG_PRESCRIPTION:
                 try {
-                    if (output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_prescription") == 0 || output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_cart") == 0 || ( isRegular && output.getJSONArray(MainActivity.TAG_SUCCESS).getJSONObject(0).getInt(MainActivity.TAG_SUCCESS + "_regular") == 0))
+                    String outOfStock = output.getString("outOfStockMedicines");
+                    if (output.getInt(MainActivity.TAG_SUCCESS) == 0)
                         MainActivity.showToast(R.string.database_error, getContext());
+                    else if (outOfStock != null)
+                        if (outOfStock.length() > 0)
+                            QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines, true).show(getFragmentManager().beginTransaction(), "dialog");
                     else {
+                        MainActivity.showToast(R.string.set_complete, getContext());
+                        long time = System.currentTimeMillis();
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
                         startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
-                        MainActivity.showToast(R.string.sync_complete, getContext());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

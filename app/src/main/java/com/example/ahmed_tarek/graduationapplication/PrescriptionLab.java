@@ -2,24 +2,29 @@ package com.example.ahmed_tarek.graduationapplication;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import android.preference.PreferenceManager;
 
+import java.io.File;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.PrescriptionDbSchema.PrescriptionTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.CartMedicineDbSchema.CartMedicineTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseHelper;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 
 /**
  * Created by Ahmed_Tarek on 17/12/15.
@@ -84,6 +89,26 @@ public class PrescriptionLab {
         return new PrescriptionCartCursorWrapper(cursor);
     }
 
+    public List<Prescription> getSynchronizable(UUID userID, long lastUpdated, long lastPrescription) {
+        List<Prescription> prescriptions = new ArrayList<>();
+
+        PrescriptionCartCursorWrapper cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.USER_UUID + " = ? and " + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " > ? and " + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " <= ?", new String[] { userID.toString(), Long.toString(lastUpdated), Long.toString(lastPrescription) });
+        try {
+            if (cursorWrapper.getCount() == 0)
+                return null;
+
+            cursorWrapper.moveToFirst();
+            while (!cursorWrapper.isAfterLast()) {
+                prescriptions.add(cursorWrapper.getPrescription());
+                cursorWrapper.moveToNext();
+            }
+        } finally {
+            cursorWrapper.close();
+        }
+
+        return prescriptions;
+    }
+
     public List<Prescription> getPrescriptions(UUID userID) {
         List<Prescription> prescriptions = new ArrayList<>();
 
@@ -103,25 +128,7 @@ public class PrescriptionLab {
 
         return prescriptions;
     }
-    public List<Prescription> getPrescriptions(UUID userID, long lastUpdate, long lastPrescription) {
-        List<Prescription> prescriptions = new ArrayList<>();
 
-        PrescriptionCartCursorWrapper cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.USER_UUID + " = ? and " + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " > ? and " + PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " < ?", new String[]{ userID.toString(), String.valueOf(lastUpdate) , String.valueOf(lastPrescription) });
-        try {
-            if (cursorWrapper.getCount() == 0)
-                return null;
-
-            cursorWrapper.moveToFirst();
-            while (!cursorWrapper.isAfterLast()) {
-                prescriptions.add(cursorWrapper.getPrescription());
-                cursorWrapper.moveToNext();
-            }
-        } finally {
-            cursorWrapper.close();
-        }
-
-        return prescriptions;
-    }
     public List<CartMedicine> getCarts(UUID prescriptionID) {
         List<CartMedicine> cartMedicines = new ArrayList<>();
 
@@ -177,6 +184,7 @@ public class PrescriptionLab {
         contentValues.put(PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE, prescription.getDate().getTime());
         contentValues.put(PrescriptionTable.PrescriptionColumns.PRESCRIPTION_PRICE, prescription.getPrice());
         contentValues.put(PrescriptionTable.PrescriptionColumns.USER_UUID, userUUID);
+        contentValues.put(PrescriptionTable.PrescriptionColumns.HISTORY_UUID, prescription.getHistoryID().toString());
 
         return contentValues;
     }
@@ -203,24 +211,53 @@ public class PrescriptionLab {
         }
     }
 
-    void sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException {
-        JSONArray prescriptions = arr.getJSONObject(0).getJSONArray("prescriptions");
-        JSONArray carts = arr.getJSONObject(0).getJSONArray("carts");
-        for (int i = 0; i < carts.length(); i++) {
-            JSONObject o = carts.getJSONObject(i);
-            mSQLiteDatabase.insert(CartMedicineTable.NAME, null, getContentValues(new CartMedicine(UUID.fromString(o.getString("prescription_" + TAG_ID)), UUID.fromString(o.getString("medicine_" + TAG_ID)), o.getInt(TAG_QUANTITY), o.getInt(TAG_REPEAT))));
+    boolean[] sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException, WriterException {
+        boolean result[] = new boolean[2], hasRegular = false;
+        result[0] = true;
+        result[1] = false;
+        PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
+        String recentId = null;
+        long recentDate = PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject prescription = arr.getJSONObject(i);
+            JSONObject prescription_details = prescription.getJSONObject("prescription");
+
+            if (!prescription_details.getString(TAG_HISTORY_ID).equals(MainActivity.SELF_HISTORY_ID))
+                result[1] = true;
+
+            if (prescription_details.getLong(TAG_DATE) > recentDate) {
+                recentId = prescription_details.getString(TAG_ID);
+                recentDate = prescription_details.getLong(TAG_DATE);
+            }
+            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(prescription_details.getString(TAG_ID)), new Date(prescription_details.getLong(TAG_DATE)), prescription_details.getDouble(TAG_PRICE), UUID.fromString(prescription_details.getString(TAG_HISTORY_ID)))));
+            JSONArray carts = prescription.getJSONArray("carts");
+            for (int j = 0; j < carts.length(); j++) {
+                JSONObject medicine = carts.getJSONObject(j);
+                mSQLiteDatabase.insert(CartMedicineTable.NAME, null, getContentValues(new CartMedicine(UUID.fromString(medicine.getString("prescription_" + TAG_ID)), UUID.fromString(medicine.getString("medicine_" + TAG_ID)), medicine.getInt(TAG_QUANTITY), medicine.getInt(TAG_REPEAT))));
+                if (medicine.getInt(TAG_REPEAT) != 0)
+                    hasRegular = true;
+            }
+            JSONArray regulars = prescription.getJSONArray("regulars");
+            if (hasRegular) {
+                if (regulars.length() > 0)
+                    for (int j = 0; j < regulars.length(); j++) {
+                        JSONObject regular = regulars.getJSONObject(j);
+                        RegularOrderLab.get(context).addRegularOrder(UUID.fromString(regular.getString("prescription_" + TAG_ID)), regular.getLong(TAG_STAMP));
+                    }
+                else
+                    result[0] = false;
+            }
+            hasRegular = false;
+
+        }
+        if (recentId != null) {
+            if (QRActivity.saveQR(new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(CartFragment.medicinesToString(getCarts(UUID.fromString(recentId)), context), BarcodeFormat.QR_CODE, 1000, 1000)), new File(new ContextWrapper(context).getDir("QR", Context.MODE_PRIVATE).toString()), context, false) != null) {
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();
+                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();
+            }
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(UserLab.get(context).getUsername() + "_recentDate", recentDate).apply();
         }
 
-        for (int i = 0; i < prescriptions.length(); i++) {
-            JSONObject o = prescriptions.getJSONObject(i);
-            mSQLiteDatabase.insert(PrescriptionTable.NAME, null, getContentValues(id.toString(), new Prescription(UUID.fromString(o.getString(TAG_ID)), new Date(o.getLong(TAG_DATE)), o.getDouble(TAG_PRICE), UUID.fromString(o.getString(TAG_HISTORY_ID)))));
-        }
-        if (arr.getJSONObject(0).getInt("success_regular") == 1) {
-            JSONArray regulars = arr.getJSONObject(0).getJSONArray("regulars");
-            for (int i = 0; i < regulars.length(); i++) {
-                JSONObject o = regulars.getJSONObject(i);
-                RegularOrderLab.get(context).addRegularOrder(UUID.fromString(o.getString("prescription_" + TAG_ID)), o.getLong(TAG_STAMP));
-            }
-        }
+        return result;
     }
 }

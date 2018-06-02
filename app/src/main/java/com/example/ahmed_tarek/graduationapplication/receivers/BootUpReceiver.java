@@ -28,7 +28,7 @@ public final class BootUpReceiver extends BroadcastReceiver {
         return AlarmManager.INTERVAL_DAY - (TimeZone.getDefault().getOffset(System.currentTimeMillis()) + System.currentTimeMillis()) % AlarmManager.INTERVAL_DAY + days * AlarmManager.INTERVAL_DAY + HOUR * AlarmManager.INTERVAL_HOUR + System.currentTimeMillis();
     }
 
-    public static void alarmInit(Context context, long fireAt) {
+    public static void initAlarm(Context context, long fireAt) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.setExact(AlarmManager.RTC_WAKEUP, fireAt, PendingIntent.getService(context, REQUEST_CODE, new Intent(context, CustomNotificationService.class).setAction(ACTION_NOTIFY).putExtra(DATE, fireAt).addCategory("" + fireAt), PendingIntent.FLAG_UPDATE_CURRENT));
     }
@@ -54,17 +54,17 @@ public final class BootUpReceiver extends BroadcastReceiver {
             }
         }
         if (case7) {
-            time = fireAfter(6);
+            time = fireAfter(0);
 //            time = System.currentTimeMillis() + 60000;
             if (!RegularOrderLab.get(context).reminderExists(time))
-                alarmInit(context, time);
+                initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
         }
         if (case30) {
-            time = fireAfter(29);
+            time = fireAfter(1);
 //            time = System.currentTimeMillis() + 120000;
             if (!RegularOrderLab.get(context).reminderExists(time))
-                alarmInit(context, time);
+                initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
         }
     }
@@ -72,8 +72,8 @@ public final class BootUpReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
-            if (RegularOrderLab.get(context).getTimeStamps() != null)
-                for (long timeStamp : RegularOrderLab.get(context).getTimeStamps())
-                    alarmInit(context, timeStamp);
+            if (RegularOrderLab.get(context).getTimeStamps(null) != null)
+                for (long timeStamp : RegularOrderLab.get(context).getTimeStamps(null))
+                    initAlarm(context, timeStamp);
     }
 }
