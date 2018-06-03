@@ -15,7 +15,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -32,7 +31,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.zxing.WriterException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -51,7 +49,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -78,6 +75,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     public static final String TAG_VERIFY = "verifyPatient";
     public static final String TAG_STALL = "stall";
     public static final String SELF_HISTORY_ID = "0395e1e0-c60b-4564-8dea-e92fb83bb9ea";
+    public static final String TAG_SYNC_VISIBLE = "sync_visible";
 
 
 
@@ -105,14 +103,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     if (ni != null && ni.isConnectedOrConnecting()) {
                         try {
                             new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute();
-                            long lastUpdated = PreferenceManager.getDefaultSharedPreferences(activity).getLong(UserLab.get(getApplicationContext()).getUsername() + "_lastUpdated", 0), lastPrescription = PreferenceManager.getDefaultSharedPreferences(activity).getLong(UserLab.get(getApplicationContext()).getUsername() + "_lastPrescription", 0);
-                            if (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
-                                if (lastUpdated == lastPrescription)
-                                    new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(new JSONObject().put("patient", new JSONObject().put("id", UserLab.get(activity).getUserUUID().toString())).put("lastUpdated", lastUpdated));
-                                else
-                                    new DatabaseComm(MainActivity.this, activity, TAG_SYNC).execute(toJSON(PrescriptionLab.get(activity).getSynchronizable(UserLab.get(activity).getUserUUID(), lastUpdated, lastPrescription), activity, lastUpdated, true));
-                                notSynced = false;
-                            }
+                            Linker.getInstance(activity, findViewById(R.id.main_drawer_layout)).syncOperation(false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -242,6 +233,9 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case TAG_PRESCRIPTION:
                     pDialog.setMessage("Uploading data\nPlease wait...");
                     break;
+                case TAG_SYNC_VISIBLE:
+                    pDialog.setMessage("Syncing\nPlease wait...");
+                    break;
                 case TAG_STALL:
                     pDialog.setMessage("Verification successful\nRedirecting back to application\nPlease wait...");
                     break;
@@ -272,6 +266,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         link = LINK + TAG_PIN;
                         break;
                     case TAG_SYNC:
+                    case TAG_SYNC_VISIBLE:
                     case TAG_PRESCRIPTION:
                         link = LINK + TAG_SYNC;
                         if (type.equals(TAG_PRESCRIPTION))
@@ -308,7 +303,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     return json;
                 else if (type.equals(TAG_PIN) || type.equals(TAG_PRESCRIPTION))
                     return json;
-                else if (type.equals(TAG_SYNC) && (json.getInt(TAG_SUCCESS + "_sync_offline") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1))
+                else if ((type.equals(TAG_SYNC) || type.equals(TAG_SYNC_VISIBLE)) && (json.getInt(TAG_SUCCESS + "_sync_offline") == 1 && json.getInt(TAG_SUCCESS + "_prescription") == 1))
                     return json;
             } catch (JSONException | NullPointerException e) {
                 e.printStackTrace();
@@ -404,18 +399,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         return ((ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
     }
 
-    private Snackbar makeSnack(String message) {
-        final Snackbar snackbar = Snackbar
-                .make(findViewById(R.id.main_drawer_layout), message, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction("Ok", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                snackbar.dismiss();
-            }
-        });
-        return snackbar;
-    }
-
     @Override
     public void processFinish(JSONObject output, String type) {
         if (output != null) {
@@ -442,12 +425,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 case TAG_MEDICINES:
                     try {
                         MedicineLab.get(this).update(getApplicationContext(), output.getJSONArray("medicines"));
-                        long lastUpdated = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getLong(UserLab.get(getApplicationContext()).getUsername() + "_lastUpdated", 0), lastPrescription = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getLong(UserLab.get(getApplicationContext()).getUsername() + "_lastPrescription", 0);
-                        if (lastUpdated == lastPrescription)
-                            new DatabaseComm(MainActivity.this, this, TAG_SYNC).execute(new JSONObject().put("patient", new JSONObject().put("id", UserLab.get(getApplicationContext()).getUserUUID().toString()).put("lastUpdated", lastUpdated)));
-                        else
-                            new DatabaseComm(MainActivity.this, this, TAG_SYNC).execute(toJSON(PrescriptionLab.get(getApplicationContext()).getSynchronizable(UserLab.get(getApplicationContext()).getUserUUID(), lastUpdated, lastPrescription), this, lastUpdated, true));
-                        notSynced = false;
+                        Linker.getInstance(this, findViewById(R.id.main_drawer_layout)).syncOperation(false);
                     } catch (ExecutionException | InterruptedException | JSONException e) {
                         e.printStackTrace();
                     }
@@ -459,30 +437,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                         else
                             showToast(R.string.update_complete, getApplicationContext());
                     } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case TAG_SYNC:
-                    try {
-                        if (output.getInt(TAG_SUCCESS + "_sync_offline") == 1 && output.getInt(TAG_SUCCESS + "_prescription") == 1) {
-                            if (output.getJSONArray(RegistrationFragment.TAG_RESULT).length() > 0) {
-                                boolean result[] = PrescriptionLab.get(this).sync(this, output.getJSONArray(RegistrationFragment.TAG_RESULT), UserLab.get(this).getUserUUID());
-                                if (result[0]) {
-                                    Snackbar snackbar;
-                                    if (result[1])
-                                        snackbar = makeSnack("Doctor prescription(s) received!");
-                                    else
-                                        snackbar = makeSnack("Previously saved prescription(s) received!");
-                                    snackbar.show();
-                                    invalidateOptionsMenu();
-                                }
-                            }
-
-                            long time = System.currentTimeMillis();
-                            PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(UserLab.get(getApplicationContext()).getUsername() + "_lastUpdated", time).apply();
-                            PreferenceManager.getDefaultSharedPreferences(this).edit().putLong(UserLab.get(getApplicationContext()).getUsername() + "_lastPrescription", time).apply();
-                        }
-                    } catch (JSONException | ParseException | WriterException e) {
                         e.printStackTrace();
                     }
                     break;

@@ -217,15 +217,14 @@ public class PrescriptionLab {
         result[1] = false;
         PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
         String recentId = null;
+        String recentPrescription = null;
         long recentDate = PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
         for (int i = 0; i < arr.length(); i++) {
             JSONObject prescription = arr.getJSONObject(i);
             JSONObject prescription_details = prescription.getJSONObject("prescription");
 
-            if (!prescription_details.getString(TAG_HISTORY_ID).equals(MainActivity.SELF_HISTORY_ID))
-                result[1] = true;
-
             if (prescription_details.getLong(TAG_DATE) > recentDate) {
+                recentPrescription = prescription_details.getString(TAG_HISTORY_ID);
                 recentId = prescription_details.getString(TAG_ID);
                 recentDate = prescription_details.getLong(TAG_DATE);
             }
@@ -251,6 +250,8 @@ public class PrescriptionLab {
 
         }
         if (recentId != null) {
+            if (!recentPrescription.equals(MainActivity.SELF_HISTORY_ID))
+                result[1] = true;
             if (QRActivity.saveQR(new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(CartFragment.medicinesToString(getCarts(UUID.fromString(recentId)), context), BarcodeFormat.QR_CODE, 1000, 1000)), new File(new ContextWrapper(context).getDir("QR", Context.MODE_PRIVATE).toString()), context, false) != null) {
                 PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();
                 PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();

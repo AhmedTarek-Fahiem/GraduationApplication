@@ -58,6 +58,13 @@ public class CartFragment extends Fragment implements AsyncResponse {
 
                 TextView mWarning = getView().findViewById(R.id.internet_warning);
                 if (ni != null && ni.isConnectedOrConnecting()) {
+                    if (MainActivity.notSynced) {
+                        try {
+                            Linker.getInstance(getActivity(), getView()).syncOperation(true);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     mWarning.setBackgroundColor(getResources().getColor(R.color.backgroundTintGreen));
                     mWarning.setText(R.string.connected);
                 } else if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, Boolean.FALSE)) {
@@ -145,15 +152,6 @@ public class CartFragment extends Fragment implements AsyncResponse {
                 UUID id = mPrescriptionHandler.getPrescription().getID();
                 cartMedicines = medicinesToString(qrMedicines, getContext());
                 try {
-                    if (MainActivity.notSynced) {
-                        long lastUpdated = PreferenceManager.getDefaultSharedPreferences(getContext()).getLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", 0), lastPrescription = PreferenceManager.getDefaultSharedPreferences(getContext()).getLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", 0);
-                        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("database", false)) {
-                            if (lastUpdated == lastPrescription)
-                                new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_SYNC).execute(new JSONObject().put("patient", new JSONObject().put("id", UserLab.get(getContext()).getUserUUID().toString())).put("lastUpdated", lastUpdated));
-                            else
-                                new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_SYNC).execute(MainActivity.toJSON(PrescriptionLab.get(getContext()).getSynchronizable(UserLab.get(getContext()).getUserUUID(), lastUpdated, lastPrescription), getActivity(), lastUpdated, true));
-                        }
-                    }
                     List<Prescription> list = new ArrayList<>();
                     list.add(mPrescriptionHandler.getPrescription());
                     mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
@@ -164,7 +162,7 @@ public class CartFragment extends Fragment implements AsyncResponse {
                     if (checkState())
                         new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(MainActivity.toJSON(list, getActivity(), 0, false));
                     else
-                        startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
+                        Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -198,8 +196,8 @@ public class CartFragment extends Fragment implements AsyncResponse {
                         long time = System.currentTimeMillis();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
-                        startActivity(QRActivity.newIntent(getActivity(), cartMedicines));
                     }
+                    Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
