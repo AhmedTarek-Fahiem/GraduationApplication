@@ -10,8 +10,22 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/qrContent">
+        android:id="@+id/qr_content"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/warning">
     </ListView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/out_of_stock_warning"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_red_dark"
+        android:textAlignment="center"
+        android:id="@+id/warning"
+        android:layout_toStartOf="@+id/confirm"
+        android:layout_alignParentBottom="true"/>
 
     <Button
         android:layout_width="wrap_content"

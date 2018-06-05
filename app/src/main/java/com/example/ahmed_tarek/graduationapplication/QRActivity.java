@@ -137,7 +137,7 @@ public class QRActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.qr_dialog, container, false);
 
-            ListView mListView = v.findViewById(R.id.qrContent);
+            ListView mListView = v.findViewById(R.id.qr_content);
             mListView.setAdapter(new ContentAdapter(v.getContext(), R.layout.qr_content, contents));
             Button button = v.findViewById(R.id.confirm);
             if (isWarning)

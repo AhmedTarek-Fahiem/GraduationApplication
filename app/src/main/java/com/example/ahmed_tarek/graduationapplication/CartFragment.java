@@ -196,8 +196,8 @@ public class CartFragment extends Fragment implements AsyncResponse {
                         long time = System.currentTimeMillis();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
+                        Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
                     }
-                    Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

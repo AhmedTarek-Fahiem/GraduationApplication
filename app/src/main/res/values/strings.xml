@@ -80,7 +80,7 @@
     <string name="details_medicine_category">Medicine Category</string>
     <string name="details_medicine_active_ingredients">Medicine Active Ingredients</string>
     <string name="title_activity_qr_generation">QrGeneration</string>
-    <string name="out_of_stock_warning">The medicines above are currently out of stock\nHowever, medicines are restocked daily and your request has been successfully synced so you can receive your order tomorrow</string>
+    <string name="out_of_stock_warning">The medicines above are currently out of stock\nYou may receive them tomorrow as medicines are restocked daily</string>
     <string name="disclaimer">This is a self-prescribed prescription\nOnly you will be responsible for its results</string>
     <string name="doctor_prescriptions_received">Doctor prescription(s) received!</string>
     <string name="sync_complete">Previously saved prescription(s) received!</string>
