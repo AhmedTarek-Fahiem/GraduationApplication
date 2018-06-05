@@ -55,14 +55,12 @@ public final class BootUpReceiver extends BroadcastReceiver {
         }
         if (case7) {
             time = fireAfter(0);
-//            time = System.currentTimeMillis() + 60000;
             if (!RegularOrderLab.get(context).reminderExists(time))
                 initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
         }
         if (case30) {
             time = fireAfter(1);
-//            time = System.currentTimeMillis() + 120000;
             if (!RegularOrderLab.get(context).reminderExists(time))
                 initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);

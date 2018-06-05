@@ -75,10 +75,6 @@ public class CartFragment extends Fragment implements AsyncResponse {
         }
     }
 
-    private boolean checkState() {
-        return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +116,7 @@ public class CartFragment extends Fragment implements AsyncResponse {
         View view = inflater.inflate(R.layout.cart_fragment, container, false);
 
         TextView mWarning = view.findViewById(R.id.internet_warning);
-        if (checkState()) {
+        if (MainActivity.checkState(getContext())) {
             mWarning.setBackgroundColor(Color.GREEN);
             mWarning.setText(R.string.connected);
         }
@@ -159,7 +155,7 @@ public class CartFragment extends Fragment implements AsyncResponse {
                     if (isRegular)
                         BootUpReceiver.schedule(getContext(), id);
                     PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_recentDate", list.get(0).getDate().getTime()).apply();
-                    if (checkState())
+                    if (MainActivity.checkState(getContext()))
                         new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(MainActivity.toJSON(list, getActivity(), 0, false));
                     else
                         Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
@@ -192,7 +188,6 @@ public class CartFragment extends Fragment implements AsyncResponse {
                         if (outOfStock.length() > 0)
                             QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines, true).show(getFragmentManager().beginTransaction(), "dialog");
                     else {
-                        MainActivity.showToast(R.string.set_complete, getContext());
                         long time = System.currentTimeMillis();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();

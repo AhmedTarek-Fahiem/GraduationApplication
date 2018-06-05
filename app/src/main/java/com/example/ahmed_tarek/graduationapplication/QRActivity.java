@@ -222,6 +222,8 @@ public class QRActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_activity);
+        if (MainActivity.checkState(getApplicationContext()))
+            MainActivity.showToast(R.string.set_complete, getApplicationContext());
         mQRImageView = findViewById(R.id.qrImage);
         Button mSave = findViewById(R.id.save_qr_button);
         FloatingActionButton mInquiry = findViewById(R.id.qrInquiry);

@@ -395,8 +395,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         return new SearchFragment();
     }
 
-    private boolean checkState() {
-        return ((ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
+    static boolean checkState(Context context) {
+        return ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
     }
 
     @Override
@@ -409,7 +409,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if (checkState()) {
+                    if (checkState(getApplicationContext())) {
                         if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
                             MedicineLab.get(this);
                             new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute();
@@ -449,7 +449,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null && !checkState())
+        if (savedInstanceState == null && !checkState(getApplicationContext()))
             showToast(R.string.version_warning, getApplicationContext());
 
         receiver = new NetworkChangedReceiver(this);
@@ -594,7 +594,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.user_pin:
-                if (checkState())
+                if (checkState(getApplicationContext()))
                     new OnlineTime(this, this).execute();
                 else
                     showToast(R.string.update_required, getApplicationContext());

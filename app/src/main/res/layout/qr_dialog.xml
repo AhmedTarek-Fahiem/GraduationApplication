@@ -22,6 +22,7 @@
         android:textSize="15sp"
         android:textStyle="bold"
         android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone"
         android:textAlignment="center"
         android:id="@+id/warning"
         android:layout_toStartOf="@+id/confirm"
