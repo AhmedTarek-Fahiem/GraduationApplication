@@ -1,6 +1,8 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -451,6 +454,20 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
         if (savedInstanceState == null && !checkState(getApplicationContext()))
             showToast(R.string.version_warning, getApplicationContext());
+
+        final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (manager.areNotificationsEnabled())
+                Log.e("ACCESS", "ALL GREEN!");
+            if (manager.isNotificationPolicyAccessGranted())
+                Log.e("ACCESS", "POLICY OK");
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(new NotificationChannel(CustomNotificationService.CHANNEL_ID, CustomNotificationService.VISIBLE_ID, NotificationManager.IMPORTANCE_HIGH));
+            Log.e("CHNL", "creating a new channel");
+        }
 
         receiver = new NetworkChangedReceiver(this);
         IntentFilter intentFilter = new IntentFilter();

@@ -97,16 +97,14 @@ public class QRActivity extends AppCompatActivity {
         private String content;
         private static String allMedicines;
         private Content[] contents;
-        private static boolean isWarning;
 
-        static MyDialogFragment newInstance(String content, String extraProcessing, boolean warning) {
+        static MyDialogFragment newInstance(String content, String extraProcessing) {
             MyDialogFragment fragment = new MyDialogFragment();
             Bundle args = new Bundle();
             args.putString("content", content);
             allMedicines = extraProcessing;
             fragment.setArguments(args);
 
-            isWarning = warning;
             return fragment;
         }
 
@@ -130,7 +128,7 @@ public class QRActivity extends AppCompatActivity {
                     quantity = content.substring(index, content.length());
                 contents[i] = new Content(name, quantity);
             }
-            setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_DeviceDefault_Dialog);
+            setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
         }
 
         @Override
@@ -140,14 +138,12 @@ public class QRActivity extends AppCompatActivity {
             ListView mListView = v.findViewById(R.id.qr_content);
             mListView.setAdapter(new ContentAdapter(v.getContext(), R.layout.qr_content, contents));
             Button button = v.findViewById(R.id.confirm);
-            if (isWarning)
+            if (allMedicines != null)
                 v.findViewById(R.id.warning).setVisibility(View.VISIBLE);
 
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     dismiss();
-                    if (isWarning)
-                        startActivity(QRActivity.newIntent(getActivity(), allMedicines));
                 }
             });
             return v;
@@ -254,7 +250,7 @@ public class QRActivity extends AppCompatActivity {
                 int[] imageArray = new int[bitmap.getHeight() * bitmap.getWidth()];
                 bitmap.getPixels(imageArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
                 try {
-                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText(), null, false).show(getSupportFragmentManager().beginTransaction(), "dialog");
+                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText(), null).show(getSupportFragmentManager().beginTransaction(), "dialog");
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 }

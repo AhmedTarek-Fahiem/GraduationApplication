@@ -6,6 +6,7 @@ import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import java.io.File;
 import java.text.ParseException;
@@ -16,6 +17,7 @@ import java.util.UUID;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.PrescriptionDbSchema.PrescriptionTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.CartMedicineDbSchema.CartMedicineTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseHelper;
+import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -211,10 +213,9 @@ public class PrescriptionLab {
         }
     }
 
-    boolean[] sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException, WriterException {
-        boolean result[] = new boolean[2], hasRegular = false;
-        result[0] = true;
-        result[1] = false;
+    boolean sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException, WriterException {
+        boolean result = false;
+
         PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
         String recentId = null;
         String recentPrescription = null;
@@ -233,25 +234,18 @@ public class PrescriptionLab {
             for (int j = 0; j < carts.length(); j++) {
                 JSONObject medicine = carts.getJSONObject(j);
                 mSQLiteDatabase.insert(CartMedicineTable.NAME, null, getContentValues(new CartMedicine(UUID.fromString(medicine.getString("prescription_" + TAG_ID)), UUID.fromString(medicine.getString("medicine_" + TAG_ID)), medicine.getInt(TAG_QUANTITY), medicine.getInt(TAG_REPEAT))));
-                if (medicine.getInt(TAG_REPEAT) != 0)
-                    hasRegular = true;
             }
             JSONArray regulars = prescription.getJSONArray("regulars");
-            if (hasRegular) {
-                if (regulars.length() > 0)
-                    for (int j = 0; j < regulars.length(); j++) {
-                        JSONObject regular = regulars.getJSONObject(j);
-                        RegularOrderLab.get(context).addRegularOrder(UUID.fromString(regular.getString("prescription_" + TAG_ID)), regular.getLong(TAG_STAMP));
-                    }
-                else
-                    result[0] = false;
+            for (int j = 0; j < regulars.length(); j++) {
+                JSONObject regular = regulars.getJSONObject(j);
+                RegularOrderLab.get(context).addRegularOrder(UUID.fromString(regular.getString("prescription_" + TAG_ID)), regular.getLong(TAG_STAMP));
+                if (regular.getLong(TAG_STAMP) > System.currentTimeMillis())
+                    BootUpReceiver.initAlarm(context, regular.getLong(TAG_STAMP));
             }
-            hasRegular = false;
-
         }
         if (recentId != null) {
             if (!recentPrescription.equals(MainActivity.SELF_HISTORY_ID))
-                result[1] = true;
+                result = true;
             if (QRActivity.saveQR(new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(CartFragment.medicinesToString(getCarts(UUID.fromString(recentId)), context), BarcodeFormat.QR_CODE, 1000, 1000)), new File(new ContextWrapper(context).getDir("QR", Context.MODE_PRIVATE).toString()), context, false) != null) {
                 PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();
                 PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();

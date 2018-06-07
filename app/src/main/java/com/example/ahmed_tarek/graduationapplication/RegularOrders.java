@@ -97,14 +97,14 @@ public class RegularOrders extends Fragment {
                     cartMedicines = PrescriptionLab.get(getActivity()).getCarts(mRegularOrder.getPrescriptionUUID(), mRegularOrder.getTimeStamp());
 
                     for (int i = 0; i < cartMedicines.size(); i++) {
-                        content += MedicineLab.get(getActivity()).getMedicine(cartMedicines.get(i).getMedicineID()).getName();
+                        content = content.concat(MedicineLab.get(getActivity()).getMedicine(cartMedicines.get(i).getMedicineID()).getName());
                         content += ',';
                         content += String.valueOf(cartMedicines.get(i).getQuantity());
                         if (i != (cartMedicines.size() - 1))
                             content += '&';
                     }
 
-                    QRActivity.MyDialogFragment.newInstance(content, null, false).show(getFragmentManager(), "prescription_dialog");
+                    QRActivity.MyDialogFragment.newInstance(content, null).show(getFragmentManager(), "prescription_dialog");
                 }
             });
         }

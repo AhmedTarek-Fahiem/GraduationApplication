@@ -72,13 +72,11 @@ class Linker implements AsyncResponse{
                 try {
                     if (output.getInt(MainActivity.TAG_SUCCESS + "_sync_offline") == 1 && output.getInt(MainActivity.TAG_SUCCESS + "_prescription") == 1) {
                         if (output.getJSONArray(RegistrationFragment.TAG_RESULT).length() > 0) {
-                            boolean result[] = PrescriptionLab.get(activity).sync(activity, output.getJSONArray(RegistrationFragment.TAG_RESULT), UserLab.get(activity).getUserUUID());
-                            if (result[0]) {
-                                if (result[1])
-                                    makeSnack(R.string.doctor_prescriptions_received, null).show();
-                                else
-                                    makeSnack(R.string.sync_complete, null).show();
-                            }
+                            boolean result = PrescriptionLab.get(activity).sync(activity, output.getJSONArray(RegistrationFragment.TAG_RESULT), UserLab.get(activity).getUserUUID());
+                            if (result)
+                                makeSnack(R.string.doctor_prescriptions_received, null).show();
+                            else
+                                makeSnack(R.string.sync_complete, null).show();
                         }
                         if (type.equals(MainActivity.TAG_SYNC))
                             activity.invalidateOptionsMenu();

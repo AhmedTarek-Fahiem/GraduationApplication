@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.example.ahmed_tarek.graduationapplication.CartMedicine;
 import com.example.ahmed_tarek.graduationapplication.CustomNotificationService;
@@ -24,12 +25,13 @@ public final class BootUpReceiver extends BroadcastReceiver {
     private static final int REQUEST_CODE = 1;
     private static final int HOUR = 8;
 
-    public static long fireAfter(int days) {
+    private static long fireAfter(int days) {
         return AlarmManager.INTERVAL_DAY - (TimeZone.getDefault().getOffset(System.currentTimeMillis()) + System.currentTimeMillis()) % AlarmManager.INTERVAL_DAY + days * AlarmManager.INTERVAL_DAY + HOUR * AlarmManager.INTERVAL_HOUR + System.currentTimeMillis();
     }
 
     public static void initAlarm(Context context, long fireAt) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Log.e("ALARM", "firing alarm: " + fireAt);
         am.setExact(AlarmManager.RTC_WAKEUP, fireAt, PendingIntent.getService(context, REQUEST_CODE, new Intent(context, CustomNotificationService.class).setAction(ACTION_NOTIFY).putExtra(DATE, fireAt).addCategory("" + fireAt), PendingIntent.FLAG_UPDATE_CURRENT));
     }
 
@@ -54,13 +56,15 @@ public final class BootUpReceiver extends BroadcastReceiver {
             }
         }
         if (case7) {
-            time = fireAfter(0);
+            //time = fireAfter(0);
+            time = System.currentTimeMillis() + 300000;
             if (!RegularOrderLab.get(context).reminderExists(time))
                 initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
         }
         if (case30) {
-            time = fireAfter(1);
+            //time = fireAfter(1);
+            time = System.currentTimeMillis() + 600000;
             if (!RegularOrderLab.get(context).reminderExists(time))
                 initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
@@ -69,9 +73,11 @@ public final class BootUpReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED))
-            if (RegularOrderLab.get(context).getTimeStamps(null) != null)
-                for (long timeStamp : RegularOrderLab.get(context).getTimeStamps(null))
+        if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+            long[] timestamps = RegularOrderLab.get(context).getTimeStamps(null);
+            if (timestamps != null)
+               for (long timeStamp : timestamps)
                     initAlarm(context, timeStamp);
+        }
     }
 }
