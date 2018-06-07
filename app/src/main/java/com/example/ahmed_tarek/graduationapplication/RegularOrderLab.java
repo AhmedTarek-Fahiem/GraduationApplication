@@ -38,7 +38,7 @@ public class RegularOrderLab {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
     }
 
-    private Cursor queryRegularOrder(String whereClause, String[] whereArgs){
+    private Cursor queryRegularOrder(String whereClause, String[] whereArgs, String orderBy){
 
         Cursor cursor = mSQLiteDatabase.query(
                 RegularOrderTable.NAME,
@@ -47,20 +47,20 @@ public class RegularOrderLab {
                 whereArgs,
                 null,
                 null
-                ,null
+                ,orderBy
         );
         return cursor;
     }
 
     public boolean reminderExists(long timeStamp) {
-        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ?", new String[]{ sharedPreferences.getString("userID", ""), String.valueOf(timeStamp) });
+        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ?", new String[]{ sharedPreferences.getString("userID", ""), String.valueOf(timeStamp) }, null);
         return cursor.getCount() > 0;
     }
 
     public String[] getPrescriptionUUIDs(long timeStamp) {
         List<String> prescriptions = new ArrayList<>();
 
-        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ? ", new String[]{sharedPreferences.getString("userID", ""), String.valueOf(timeStamp)});
+        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ? ", new String[]{sharedPreferences.getString("userID", ""), String.valueOf(timeStamp)}, null);
         try {
             if (cursor.getCount() == 0)
                 return null;
@@ -81,9 +81,9 @@ public class RegularOrderLab {
     public long[] getTimeStamps(String prescriptionId) {
         Cursor cursor;
         if (prescriptionId == null)
-            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") });
+            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") }, null);
         else
-            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", ""), prescriptionId });
+            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.PRESCRIPTION_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", ""), prescriptionId }, null);
         long[] timeStamps;
         try {
             if (cursor.getCount() == 0)
@@ -108,7 +108,7 @@ public class RegularOrderLab {
     public List<Regular> getRegularOrders(){
         List<Regular> regularOrdersList = new ArrayList<>();
 
-        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") });
+        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") }, RegularOrderTable.RegularOrderColumns.FIRE_TIME + " ASC");
 
         try {
             if (cursor.getCount() == 0)
