@@ -218,11 +218,11 @@ public class QRActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_activity);
-        if (MainActivity.checkState(getApplicationContext()))
+        if (Linker.getInstance(null, null).checkState(getApplicationContext()))
             MainActivity.showToast(R.string.set_complete, getApplicationContext());
         mQRImageView = findViewById(R.id.qrImage);
         Button mSave = findViewById(R.id.save_qr_button);
-        FloatingActionButton mInquiry = findViewById(R.id.qrInquiry);
+        FloatingActionButton mInquiry = findViewById(R.id.qr_details);
         if (!this.getIntent().getBooleanExtra(EXTRA_QR_FLAG, false)) {
             try {
                 Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));

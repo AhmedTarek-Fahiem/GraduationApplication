@@ -2,8 +2,6 @@ package com.example.ahmed_tarek.graduationapplication;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -47,10 +45,6 @@ public class LoginFragment extends Fragment implements AsyncResponse {
     private static final String TAG_GENDER = "gender";
 
     private FirebaseUser user;
-
-    private boolean checkState() {
-        return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
-    }
 
     @Override
     public void processFinish(JSONObject output, String type) {
@@ -146,7 +140,7 @@ public class LoginFragment extends Fragment implements AsyncResponse {
                     mErrorMessage.setText(R.string.empty_password);
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
-                    if (checkState())
+                    if (Linker.getInstance(getActivity(), getView()).checkState(getContext()))
                         try {
                             new MainActivity.DatabaseComm(LoginFragment.this, getActivity(), MainActivity.TAG_LOGIN).execute(new JSONObject().put("username", mUsername.getText().toString()).put("password", mPassword.getText().toString()));
                         } catch (JSONException e) {

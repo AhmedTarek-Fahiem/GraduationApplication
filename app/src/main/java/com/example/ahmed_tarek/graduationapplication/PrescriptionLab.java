@@ -1,12 +1,12 @@
 package com.example.ahmed_tarek.graduationapplication;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.File;
 import java.text.ParseException;
@@ -17,7 +17,6 @@ import java.util.UUID;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.PrescriptionDbSchema.PrescriptionTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseSchema.CartMedicineDbSchema.CartMedicineTable;
 import com.example.ahmed_tarek.graduationapplication.database.DatabaseHelper;
-import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -213,13 +212,13 @@ public class PrescriptionLab {
         }
     }
 
-    boolean sync(Context context, JSONArray arr, UUID id) throws JSONException, ParseException, WriterException {
+    boolean sync(Activity activity, JSONArray arr, UUID id) throws JSONException, ParseException, WriterException {
         boolean result = false;
 
-        PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
+        PreferenceManager.getDefaultSharedPreferences(activity).getLong(UserLab.get(activity).getUsername() + "_recentDate", 0);
         String recentId = null;
         String recentPrescription = null;
-        long recentDate = PreferenceManager.getDefaultSharedPreferences(context).getLong(UserLab.get(context).getUsername() + "_recentDate", 0);
+        long recentDate = PreferenceManager.getDefaultSharedPreferences(activity).getLong(UserLab.get(activity).getUsername() + "_recentDate", 0);
         for (int i = 0; i < arr.length(); i++) {
             JSONObject prescription = arr.getJSONObject(i);
             JSONObject prescription_details = prescription.getJSONObject("prescription");
@@ -238,19 +237,19 @@ public class PrescriptionLab {
             JSONArray regulars = prescription.getJSONArray("regulars");
             for (int j = 0; j < regulars.length(); j++) {
                 JSONObject regular = regulars.getJSONObject(j);
-                RegularOrderLab.get(context).addRegularOrder(UUID.fromString(regular.getString("prescription_" + TAG_ID)), regular.getLong(TAG_STAMP));
+                RegularOrderLab.get(activity).addRegularOrder(UUID.fromString(regular.getString("prescription_" + TAG_ID)), regular.getLong(TAG_STAMP));
                 if (regular.getLong(TAG_STAMP) > System.currentTimeMillis())
-                    BootUpReceiver.initAlarm(context, regular.getLong(TAG_STAMP));
+                    Linker.getInstance(activity, null).initAlarm(activity, regular.getLong(TAG_STAMP));
             }
         }
         if (recentId != null) {
             if (!recentPrescription.equals(MainActivity.SELF_HISTORY_ID))
                 result = true;
-            if (QRActivity.saveQR(new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(CartFragment.medicinesToString(getCarts(UUID.fromString(recentId)), context), BarcodeFormat.QR_CODE, 1000, 1000)), new File(new ContextWrapper(context).getDir("QR", Context.MODE_PRIVATE).toString()), context, false) != null) {
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(UserLab.get(context).getUsername(), true).apply();
+            if (QRActivity.saveQR(new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(CartFragment.medicinesToString(getCarts(UUID.fromString(recentId)), activity), BarcodeFormat.QR_CODE, 1000, 1000)), new File(new ContextWrapper(activity).getDir("QR", Context.MODE_PRIVATE).toString()), activity, false) != null) {
+                PreferenceManager.getDefaultSharedPreferences(activity).edit().putBoolean(UserLab.get(activity).getUsername(), true).apply();
+                PreferenceManager.getDefaultSharedPreferences(activity).edit().putBoolean(UserLab.get(activity).getUsername(), true).apply();
             }
-            PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(UserLab.get(context).getUsername() + "_recentDate", recentDate).apply();
+            PreferenceManager.getDefaultSharedPreferences(activity).edit().putLong(UserLab.get(activity).getUsername() + "_recentDate", recentDate).apply();
         }
 
         return result;

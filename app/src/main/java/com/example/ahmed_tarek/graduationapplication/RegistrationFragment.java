@@ -3,8 +3,6 @@ package com.example.ahmed_tarek.graduationapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -59,10 +57,6 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
     private Spinner mGender;
     private TextView mErrorMessage;
     private Button mRegistrationButton;
-
-    private boolean checkState() {
-        return ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
-    }
 
     @Override
     public void processFinish(JSONObject output, String type) {
@@ -224,7 +218,7 @@ public class RegistrationFragment extends Fragment implements AsyncResponse{
                     }
                     mErrorMessage.setVisibility(View.VISIBLE);
                 } else {
-                    if (checkState())
+                    if (Linker.getInstance(null, null).checkState(getContext()))
                         try {
                             new MainActivity.DatabaseComm(RegistrationFragment.this, getActivity(), MainActivity.TAG_VERIFY).execute(new JSONObject().put("username", mUsername.getText().toString()).put("email", mEmail.getText().toString()));
                         } catch (JSONException e) {
