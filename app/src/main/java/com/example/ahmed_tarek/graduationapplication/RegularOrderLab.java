@@ -57,27 +57,6 @@ public class RegularOrderLab {
         return cursor.getCount() > 0;
     }
 
-    public String[] getPrescriptionUUIDs(long timeStamp) {
-        List<String> prescriptions = new ArrayList<>();
-
-        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ? ", new String[]{sharedPreferences.getString("userID", ""), String.valueOf(timeStamp)}, null);
-        try {
-            if (cursor.getCount() == 0)
-                return null;
-
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                prescriptions.add(cursor.getString(1));
-                cursor.moveToNext();
-            }
-        }
-        finally {
-            cursor.close();
-        }
-
-        return prescriptions.toArray(new String[prescriptions.size()]);
-    }
-
     public long[] getTimeStamps(String prescriptionId) {
         Cursor cursor;
         if (prescriptionId == null)
@@ -105,10 +84,14 @@ public class RegularOrderLab {
         return timeStamps;
     }
 
-    public List<Regular> getRegularOrders(){
+    public List<Regular> getRegularOrders(long fire_time){
         List<Regular> regularOrdersList = new ArrayList<>();
 
-        Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") }, RegularOrderTable.RegularOrderColumns.FIRE_TIME + " ASC");
+        Cursor cursor;
+        if (fire_time == 0)
+            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ?", new String[]{ sharedPreferences.getString("userID", "") }, RegularOrderTable.RegularOrderColumns.FIRE_TIME + " ASC");
+        else
+            cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ? ", new String[]{ sharedPreferences.getString("userID", ""), String.valueOf(fire_time)}, RegularOrderTable.RegularOrderColumns.FIRE_TIME + " ASC");
 
         try {
             if (cursor.getCount() == 0)

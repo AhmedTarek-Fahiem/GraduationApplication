@@ -151,18 +151,16 @@ public class PrescriptionLab {
         return cartMedicines;
     }
 
-    public List<CartMedicine> getCarts(UUID prescriptionID, long currentTime) {
+    public List<CartMedicine> getCarts(UUID prescriptionID, long fire_time) {
         List<CartMedicine> cartMedicines = new ArrayList<>();
         PrescriptionCartCursorWrapper cursorWrapper;
 
-        cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + " = ?", new String[]{ prescriptionID.toString() }, PrescriptionTable.PrescriptionColumns.PRESCRIPTION_DATE + " DESC");
+        cursorWrapper = queryPrescriptionCart(PrescriptionTable.NAME, PrescriptionTable.PrescriptionColumns.PRESCRIPTION_UUID + " = ?", new String[]{ prescriptionID.toString() }, null);
         cursorWrapper.moveToFirst();
         long prescriptionTime = cursorWrapper.getPrescription().getDate().getTime();
-        int temp = (int)((currentTime - prescriptionTime) / (1000*60*60*24));
-        String repeatDuration = (temp > 7)? ((temp > 30)? "60" : "30"): "7";
-//        String repeatDuration = "7";
+        int repeatDuration = (int)((fire_time - prescriptionTime) / (1000*60*60*24));
 
-        cursorWrapper = queryPrescriptionCart(CartMedicineTable.NAME, CartMedicineTable.CartMedicineColumns.PRESCRIPTION_UUID + " = ? and " + CartMedicineTable.CartMedicineColumns.REPEAT_DURATION + " = ?", new String[]{ prescriptionID.toString(), repeatDuration }, null);
+        cursorWrapper = queryPrescriptionCart(CartMedicineTable.NAME, CartMedicineTable.CartMedicineColumns.PRESCRIPTION_UUID + " = ? and " + CartMedicineTable.CartMedicineColumns.REPEAT_DURATION + " = ?", new String[]{ prescriptionID.toString(), String.valueOf(repeatDuration) }, null);
         try {
             if (cursorWrapper.getCount() == 0)
                 return null;

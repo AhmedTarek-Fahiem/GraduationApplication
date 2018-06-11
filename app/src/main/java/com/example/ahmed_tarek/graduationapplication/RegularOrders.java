@@ -50,7 +50,7 @@ public class RegularOrders extends Fragment {
         regularOrderRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (regularOrderRecyclerView.getAdapter() == null) {
-            mRegularOrderAdapter = new RegularOrderAdapter(RegularOrderLab.get(getActivity()).getRegularOrders());
+            mRegularOrderAdapter = new RegularOrderAdapter(RegularOrderLab.get(getActivity()).getRegularOrders(0));
             regularOrderRecyclerView.setAdapter(mRegularOrderAdapter);
         }
 
@@ -85,7 +85,7 @@ public class RegularOrders extends Fragment {
                     if (!RegularOrderLab.get(getActivity()).removeEntry(mRegularOrder.getPrescriptionUUID(), mRegularOrder.getTimeStamp())) {
                         BootUpReceiver.cancelAlarm(getActivity(), mRegularOrder.getTimeStamp());
                     }
-                    mRegularOrderAdapter.updateList(RegularOrderLab.get(getActivity()).getRegularOrders());
+                    mRegularOrderAdapter.updateList(RegularOrderLab.get(getActivity()).getRegularOrders(0));
                 }
             });
 

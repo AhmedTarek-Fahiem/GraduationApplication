@@ -482,6 +482,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 List<CartMedicine> cartMedicines;
 
                 for (String string : prescriptionsIDs) {
+                    //TODO: change System.currentTimeMillis()
                     cartMedicines = PrescriptionLab.get(this).getCarts(UUID.fromString(string), System.currentTimeMillis());
                     for (CartMedicine cartMedicine : cartMedicines)
                         prescriptionHandler.addCart(cartMedicine);
