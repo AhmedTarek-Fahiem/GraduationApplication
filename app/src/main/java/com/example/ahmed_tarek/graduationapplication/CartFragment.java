@@ -26,8 +26,6 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -116,7 +114,7 @@ public class CartFragment extends Fragment implements AsyncResponse {
         View view = inflater.inflate(R.layout.cart_fragment, container, false);
 
         TextView mWarning = view.findViewById(R.id.internet_warning);
-        if (MainActivity.checkState(getContext())) {
+        if (Linker.getInstance(getActivity(), getView()).checkState(getContext())) {
             mWarning.setBackgroundColor(Color.GREEN);
             mWarning.setText(R.string.connected);
         }
@@ -153,12 +151,12 @@ public class CartFragment extends Fragment implements AsyncResponse {
                     mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
                     mPrescriptionHandler.prescriptionCommit(getActivity());
                     if (isRegular)
-                        BootUpReceiver.schedule(getContext(), id);
+                        Linker.getInstance(getActivity(), getView()).schedule(getContext(), id);
                     PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_recentDate", list.get(0).getDate().getTime()).apply();
-                    if (MainActivity.checkState(getContext()))
+                    if (Linker.getInstance(getActivity(), getView()).checkState(getContext()))
                         new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(MainActivity.toJSON(list, getActivity(), 0, false));
                     else
-                        Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
+                        startActivity(QRActivity.newIntent(getContext(), cartMedicines));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -191,8 +189,8 @@ public class CartFragment extends Fragment implements AsyncResponse {
                         long time = System.currentTimeMillis();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
+                        startActivity(QRActivity.newIntent(getContext(), cartMedicines));
                     }
-                    Linker.getInstance(getActivity(), getView()).makeSnack(R.string.disclaimer, cartMedicines).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

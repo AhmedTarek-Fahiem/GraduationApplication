@@ -1,8 +1,6 @@
 package com.example.ahmed_tarek.graduationapplication;
 
 import android.app.Activity;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +10,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -92,12 +89,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
     public class NetworkChangedReceiver extends BroadcastReceiver {
 
-        private Activity activity;
-
-        NetworkChangedReceiver(Activity activity) {
-            this.activity = activity;
-        }
-
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getExtras() != null) {
@@ -105,8 +96,8 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
                     if (ni != null && ni.isConnectedOrConnecting()) {
                         try {
-                            new DatabaseComm(MainActivity.this, activity, TAG_VERSION).execute();
-                            Linker.getInstance(activity, findViewById(R.id.main_drawer_layout)).syncOperation(false);
+                            new DatabaseComm(MainActivity.this, MainActivity.this, TAG_VERSION).execute();
+                            Linker.getInstance(MainActivity.this, findViewById(R.id.main_drawer_layout)).syncOperation(false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -398,10 +389,6 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         return new SearchFragment();
     }
 
-    static boolean checkState(Context context) {
-        return ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
-    }
-
     @Override
     public void processFinish(JSONObject output, String type) {
         if (output != null) {
@@ -412,7 +399,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    if (checkState(getApplicationContext())) {
+                    if (Linker.getInstance(this, findViewById(R.id.main_drawer_layout)).checkState(getApplicationContext())) {
                         if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("database", false)) {
                             MedicineLab.get(this);
                             new DatabaseComm(this, MainActivity.this, TAG_MEDICINES).execute();
@@ -452,24 +439,10 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null && !checkState(getApplicationContext()))
+        if (savedInstanceState == null && !Linker.getInstance(this, findViewById(R.id.main_drawer_layout)).checkState(getApplicationContext()))
             showToast(R.string.version_warning, getApplicationContext());
 
-        final NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (manager.areNotificationsEnabled())
-                Log.e("ACCESS", "ALL GREEN!");
-            if (manager.isNotificationPolicyAccessGranted())
-                Log.e("ACCESS", "POLICY OK");
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            manager.createNotificationChannel(new NotificationChannel(CustomNotificationService.CHANNEL_ID, CustomNotificationService.VISIBLE_ID, NotificationManager.IMPORTANCE_HIGH));
-            Log.e("CHNL", "creating a new channel");
-        }
-
-        receiver = new NetworkChangedReceiver(this);
+        receiver = new NetworkChangedReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         getApplicationContext().registerReceiver(receiver, intentFilter);
@@ -612,7 +585,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 break;
             case R.id.user_pin:
-                if (checkState(getApplicationContext()))
+                if (Linker.getInstance(this, findViewById(R.id.main_drawer_layout)).checkState(getApplicationContext()))
                     new OnlineTime(this, this).execute();
                 else
                     showToast(R.string.update_required, getApplicationContext());

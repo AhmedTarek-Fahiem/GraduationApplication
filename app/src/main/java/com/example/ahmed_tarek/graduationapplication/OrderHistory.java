@@ -104,7 +104,7 @@ public class OrderHistory extends Fragment {
                     cartMedicines = PrescriptionLab.get(getActivity()).getCarts(prescription.getID());
 
                     for(int i = 0 ; i < cartMedicines.size() ; i++){
-                        content += MedicineLab.get(getActivity()).getMedicine(cartMedicines.get(i).getMedicineID()).getName();
+                        content = content.concat(MedicineLab.get(getActivity()).getMedicine(cartMedicines.get(i).getMedicineID()).getName());
                         content += ',';
                         content += String.valueOf(cartMedicines.get(i).getQuantity());
                         if(i != (cartMedicines.size() - 1))

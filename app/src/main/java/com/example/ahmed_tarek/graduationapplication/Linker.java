@@ -2,30 +2,45 @@ package com.example.ahmed_tarek.graduationapplication;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
+import com.example.ahmed_tarek.graduationapplication.receivers.NotificationReceiver;
 import com.google.zxing.WriterException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
+import java.util.TimeZone;
 
 /**
  * Created by Rebel Ekko on 18/06/03.
  */
 
-class Linker implements AsyncResponse{
+public class Linker implements AsyncResponse{
+
     @SuppressLint("StaticFieldLeak")
     private static Linker sInstance;
     private Activity activity;
     private View view;
 
-    static Linker getInstance(Activity activity, View view) {
+    public static Linker getInstance(Activity activity, View view) {
         if (sInstance == null)
             sInstance = new Linker(activity, view);
+        else {
+            if (activity != null)
+                sInstance.activity = activity;
+            if (view != null)
+                sInstance.view = view;
+        }
         return sInstance;
     }
 
@@ -50,14 +65,12 @@ class Linker implements AsyncResponse{
         }
     }
 
-    Snackbar makeSnack(int messageResource, final String cartMedicines) {
+    private Snackbar makeSnack(int messageResource) {
         final Snackbar snackbar = Snackbar
                 .make(view, messageResource, Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction("Ok", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (cartMedicines != null)
-                    activity.startActivity(QRActivity.newIntent(activity, cartMedicines));
                 snackbar.dismiss();
             }
         });
@@ -74,9 +87,9 @@ class Linker implements AsyncResponse{
                         if (output.getJSONArray(RegistrationFragment.TAG_RESULT).length() > 0) {
                             boolean result = PrescriptionLab.get(activity).sync(activity, output.getJSONArray(RegistrationFragment.TAG_RESULT), UserLab.get(activity).getUserUUID());
                             if (result)
-                                makeSnack(R.string.doctor_prescriptions_received, null).show();
+                                makeSnack(R.string.doctor_prescriptions_received).show();
                             else
-                                makeSnack(R.string.sync_complete, null).show();
+                                makeSnack(R.string.sync_complete).show();
                         }
                         if (type.equals(MainActivity.TAG_SYNC))
                             activity.invalidateOptionsMenu();
@@ -89,5 +102,52 @@ class Linker implements AsyncResponse{
                 }
                 break;
         }
+    }
+
+    private long fireAfter(int days) {
+        return AlarmManager.INTERVAL_DAY - (TimeZone.getDefault().getOffset(System.currentTimeMillis()) + System.currentTimeMillis()) % AlarmManager.INTERVAL_DAY + days * AlarmManager.INTERVAL_DAY + NotificationReceiver.HOUR * AlarmManager.INTERVAL_HOUR + System.currentTimeMillis();
+    }
+
+    public void initAlarm(Context context, long fireAt) {
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.setExact(AlarmManager.RTC_WAKEUP, fireAt, PendingIntent.getBroadcast(context, NotificationReceiver.REQUEST_CODE, new Intent(context, NotificationReceiver.class).setAction(NotificationReceiver.ACTION_NOTIFY).putExtra(NotificationReceiver.DATE, fireAt).addCategory("" + fireAt), PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+
+    public void cancelAlarm(Context context, long timeStamp) {
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, NotificationReceiver.REQUEST_CODE, new Intent(context, NotificationReceiver.class).setAction(NotificationReceiver.ACTION_NOTIFY).addCategory("" + timeStamp), PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pendingIntent);
+        pendingIntent.cancel();
+    }
+
+    void schedule(Context context, java.util.UUID id) {
+        boolean case7 = false, case30 = false;
+        long time;
+        for (CartMedicine cartMedicine : PrescriptionLab.get(context).getCarts(id)) {
+            switch (cartMedicine.getRepeatDuration()) {
+                case 7:
+                    case7 = true;
+                    break;
+                case 30:
+                    case30 = true;
+                    break;
+            }
+        }
+        if (case7) {
+            time = fireAfter(0);
+            if (!RegularOrderLab.get(context).reminderExists(time))
+                initAlarm(context, time);
+            RegularOrderLab.get(context).addRegularOrder(id, time);
+        }
+        if (case30) {
+            time = fireAfter(1);
+            if (!RegularOrderLab.get(context).reminderExists(time))
+                initAlarm(context, time);
+            RegularOrderLab.get(context).addRegularOrder(id, time);
+        }
+    }
+
+    boolean checkState(Context context) {
+        return ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED || ((ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED;
     }
 }

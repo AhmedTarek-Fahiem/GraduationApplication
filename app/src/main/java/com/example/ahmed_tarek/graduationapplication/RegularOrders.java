@@ -12,8 +12,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.ahmed_tarek.graduationapplication.receivers.BootUpReceiver;
-
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -82,10 +80,13 @@ public class RegularOrders extends Fragment {
             mRemoveAlarmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (!RegularOrderLab.get(getActivity()).removeEntry(mRegularOrder.getPrescriptionUUID(), mRegularOrder.getTimeStamp())) {
-                        BootUpReceiver.cancelAlarm(getActivity(), mRegularOrder.getTimeStamp());
+                    if (!RegularOrderLab.get(getActivity()).removeEntry(mRegularOrder.getPrescriptionUUID(), mRegularOrder.getTimeStamp()))
+                        Linker.getInstance(null, null).cancelAlarm(getActivity(), mRegularOrder.getTimeStamp());
+                    mRegularOrderAdapter.updateList(RegularOrderLab.get(getActivity()).getRegularOrders());
+                    if (mRegularOrderAdapter.getItemCount() == 0) {
+                        LinearLayout linearLayout = getView().findViewById(R.id.regular_empty_window);
+                        linearLayout.setVisibility(View.VISIBLE);
                     }
-                    mRegularOrderAdapter.updateList(RegularOrderLab.get(getActivity()).getRegularOrders(0));
                 }
             });
 
