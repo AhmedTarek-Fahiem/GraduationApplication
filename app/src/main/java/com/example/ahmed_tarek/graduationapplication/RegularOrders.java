@@ -82,7 +82,7 @@ public class RegularOrders extends Fragment {
                 public void onClick(View view) {
                     if (!RegularOrderLab.get(getActivity()).removeEntry(mRegularOrder.getPrescriptionUUID(), mRegularOrder.getTimeStamp()))
                         Linker.getInstance(null, null).cancelAlarm(getActivity(), mRegularOrder.getTimeStamp());
-                    mRegularOrderAdapter.updateList(RegularOrderLab.get(getActivity()).getRegularOrders());
+                    mRegularOrderAdapter.updateList(RegularOrderLab.get(getActivity()).getRegularOrders(0));
                     if (mRegularOrderAdapter.getItemCount() == 0) {
                         LinearLayout linearLayout = getView().findViewById(R.id.regular_empty_window);
                         linearLayout.setVisibility(View.VISIBLE);
