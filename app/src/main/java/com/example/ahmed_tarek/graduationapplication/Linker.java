@@ -110,7 +110,7 @@ public class Linker implements AsyncResponse{
 
     public void initAlarm(Context context, long fireAt) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        am.setExact(AlarmManager.RTC_WAKEUP, fireAt, PendingIntent.getBroadcast(context, NotificationReceiver.REQUEST_CODE, new Intent(context, NotificationReceiver.class).setAction(NotificationReceiver.ACTION_NOTIFY).putExtra(NotificationReceiver.DATE, fireAt).addCategory("" + fireAt), PendingIntent.FLAG_UPDATE_CURRENT));
+        am.setExact(AlarmManager.RTC_WAKEUP, fireAt, PendingIntent.getBroadcast(context, NotificationReceiver.REQUEST_CODE, new Intent(context, NotificationReceiver.class).setAction(NotificationReceiver.ACTION_NOTIFY).putExtra(NotificationReceiver.FIRE_DATE, fireAt).addCategory("" + fireAt), PendingIntent.FLAG_UPDATE_CURRENT));
     }
 
     public void cancelAlarm(Context context, long timeStamp) {

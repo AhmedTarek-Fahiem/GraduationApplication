@@ -30,6 +30,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ahmed_tarek.graduationapplication.receivers.NotificationReceiver;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.http.HttpEntity;
@@ -448,15 +449,16 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
         getApplicationContext().registerReceiver(receiver, intentFilter);
         if (getIntent().getAction() != null) {
             if (getIntent().getAction().equals(CustomNotificationService.ACTION_SHOW)) {
-                String[] prescriptionsIDs = getIntent().getStringArrayExtra(CustomNotificationService.PRESCRIPTION_IDS);
+                long fireTime = getIntent().getLongExtra(NotificationReceiver.FIRE_DATE, 0);
+                List<Regular> regulars = RegularOrderLab.get(getApplicationContext()).getRegularOrders(fireTime);
 
                 PrescriptionHandler.get().reset();
                 PrescriptionHandler prescriptionHandler = PrescriptionHandler.get();
                 List<CartMedicine> cartMedicines;
 
-                for (String string : prescriptionsIDs) {
-                    //TODO: change System.currentTimeMillis()
-                    cartMedicines = PrescriptionLab.get(this).getCarts(UUID.fromString(string), System.currentTimeMillis());
+                for (Regular regular : regulars) {
+
+                    cartMedicines = PrescriptionLab.get(this).getCarts(regular.getPrescriptionUUID(), fireTime);
                     for (CartMedicine cartMedicine : cartMedicines)
                         prescriptionHandler.addCart(cartMedicine);
                 }

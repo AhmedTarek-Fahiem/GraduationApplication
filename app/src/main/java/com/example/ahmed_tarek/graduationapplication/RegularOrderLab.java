@@ -52,7 +52,7 @@ public class RegularOrderLab {
         return cursor;
     }
 
-    public boolean reminderExists(long timeStamp) {
+    boolean reminderExists(long timeStamp) {
         Cursor cursor = queryRegularOrder(RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " + RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ?", new String[]{ sharedPreferences.getString("userID", ""), String.valueOf(timeStamp) }, null);
         return cursor.getCount() > 0;
     }
@@ -84,7 +84,7 @@ public class RegularOrderLab {
         return timeStamps;
     }
 
-    public List<Regular> getRegularOrders(long fire_time){
+    List<Regular> getRegularOrders(long fire_time){
         List<Regular> regularOrdersList = new ArrayList<>();
 
         Cursor cursor;
@@ -110,7 +110,7 @@ public class RegularOrderLab {
         return regularOrdersList;
     }
 
-    public void addRegularOrder(UUID prescriptionUUID, long timeStamp) {
+    void addRegularOrder(UUID prescriptionUUID, long timeStamp) {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put(RegularOrderTable.RegularOrderColumns.USER_UUID, sharedPreferences.getString("userID", ""));
@@ -120,7 +120,7 @@ public class RegularOrderLab {
         mSQLiteDatabase.insert(RegularOrderTable.NAME, null, contentValues);
     }
 
-    public boolean removeEntry(UUID prescriptionUUID, long timeStamp) {
+    boolean removeEntry(UUID prescriptionUUID, long timeStamp) {
 
         mSQLiteDatabase.delete(RegularOrderTable.NAME,
                 RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " +
@@ -129,5 +129,13 @@ public class RegularOrderLab {
                 new String[]{ sharedPreferences.getString("userID", ""), prescriptionUUID.toString(), String.valueOf(timeStamp) });
 
         return reminderExists(timeStamp);
+    }
+
+    void removeEntries(long timeStamp) {
+
+        mSQLiteDatabase.delete(RegularOrderTable.NAME,
+                RegularOrderTable.RegularOrderColumns.USER_UUID + " = ? and " +
+                        RegularOrderTable.RegularOrderColumns.FIRE_TIME + " = ? ",
+                new String[]{ sharedPreferences.getString("userID", ""), String.valueOf(timeStamp) });
     }
 }
