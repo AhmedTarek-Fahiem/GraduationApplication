@@ -144,6 +144,8 @@ public class QRActivity extends AppCompatActivity {
             button.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     dismiss();
+                    if (allMedicines != null)
+                        startActivity(newIntent(getContext(), allMedicines));
                 }
             });
             return v;
