@@ -114,16 +114,16 @@ public class QRActivity extends AppCompatActivity {
             content = getArguments().getString("content");
             int size = 0, index = 0;
             for (int i = 0; i < content.length(); i++)
-                if (content.charAt(i) == ',')
+                if (content.charAt(i) == '#')
                     size++;
             contents = new Content[size];
             String name, quantity;
             for (int i = 0; i < size; i++) {
-                name = content.substring(index, content.indexOf(',', index));
-                index = content.indexOf(',', index) + 1;
+                name = content.substring(index, content.indexOf('#', index));
+                index = content.indexOf('#', index) + 1;
                 if (index < content.length() - 5) {
-                    quantity = content.substring(index, content.indexOf('&', index));
-                    index = content.indexOf('&', index) + 1;
+                    quantity = content.substring(index, content.indexOf('|', index));
+                    index = content.indexOf('|', index) + 1;
                 } else
                     quantity = content.substring(index, content.length());
                 contents[i] = new Content(name, quantity);

@@ -99,11 +99,11 @@ public class CartFragment extends Fragment implements AsyncResponse {
         String cartMedicines = "";
         int size = medicines.size();
         for (int i = 0; i < size; i++) {
-            cartMedicines = cartMedicines.concat(MedicineLab.get(context).getMedicine(medicines.get(i).getMedicineID()).getName() + ',' + String.valueOf(medicines.get(i).getQuantity()));
+            cartMedicines = cartMedicines.concat(MedicineLab.get(context).getMedicine(medicines.get(i).getMedicineID()).getName() + '#' + String.valueOf(medicines.get(i).getQuantity()));
             if (medicines.get(i).getRepeatDuration() == 7 || medicines.get(i).getRepeatDuration() == 30)
                 isRegular = true;
             if (i != size - 1)
-                cartMedicines = cartMedicines.concat("&");
+                cartMedicines = cartMedicines.concat("|");
         }
         return cartMedicines;
     }
