@@ -105,10 +105,10 @@ public class OrderHistory extends Fragment {
 
                     for(int i = 0 ; i < cartMedicines.size() ; i++){
                         content = content.concat(MedicineLab.get(getActivity()).getMedicine(cartMedicines.get(i).getMedicineID()).getName());
-                        content += ',';
+                        content += '#';
                         content += String.valueOf(cartMedicines.get(i).getQuantity());
                         if(i != (cartMedicines.size() - 1))
-                            content += '&';
+                            content += '|';
                     }
 
                     QRActivity.MyDialogFragment.newInstance(content, null).show(getFragmentManager(), "prescription_dialog");
