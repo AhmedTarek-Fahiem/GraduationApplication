@@ -27,11 +27,26 @@
 
         </android.support.design.widget.AppBarLayout>
 
-        <FrameLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/main_fragment_container">
-        </FrameLayout>
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:layout_centerInParent="true"
+                android:alpha="0.6"
+                android:src="@drawable/ic_elixir_logo_multiply"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/main_fragment_container">
+            </FrameLayout>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

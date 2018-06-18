@@ -1,70 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="10dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:layout_marginTop="10dp"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:layout_gravity="center"
+    android:animateLayoutChanges="true"
+    android:background="@drawable/app_wallpaper_blue">
 
-    <EditText
-        android:id="@+id/register_username_label"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/username_label_hint"
-        android:inputType="text"/>
+        android:layout_gravity="center">
 
-    <EditText
-        android:id="@+id/register_password_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/password_label_hint"
-        android:inputType="textPassword"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="20dp">
 
-    <EditText
-        android:id="@+id/register_confirm_password_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/confirm_password_label_hint"
-        android:inputType="textPassword"/>
+            <ImageView
+                android:id="@+id/elixir_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_elixir_logo_small"/>
 
-    <EditText
-        android:id="@+id/register_email_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/email_label_hint"
-        android:inputType="textEmailAddress"/>
+            <RelativeLayout
+                android:id="@+id/registration_labels"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/elixir_logo">
 
-    <Button
-        android:id="@+id/register_date_of_birth_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/date_of_birth_label_hint"/>
+                <TextView
+                    android:id="@+id/registration_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Registration"
+                    android:textColor="@color/white"
+                    android:textSize="30sp" />
 
-    <Spinner
-        android:id="@+id/register_gender_spinner_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/gender_label">
-    </Spinner>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/registration_title"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    android:gravity="center">
 
-    <Button
-        android:id="@+id/registration_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/registration_register" />
+                    <EditText
+                        android:id="@+id/register_username_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:hint="@string/username_label_hint"
+                        android:inputType="text"
+                        android:background="@drawable/et_bg"
+                        android:drawableStart="@drawable/ic_account"
+                        android:drawablePadding="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@color/white"/>
 
-    <TextView
-        android:id="@+id/registration_error"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:textColor="@color/errorMessage"
-        android:textAlignment="center"
-        android:textAllCaps="true"/>
+                    <EditText
+                        android:id="@+id/register_password_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:hint="@string/password_label_hint"
+                        android:inputType="textPassword"
+                        android:background="@drawable/et_bg"
+                        android:drawableStart="@drawable/ic_password_key"
+                        android:drawablePadding="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@color/white"/>
 
-</LinearLayout>
+                    <EditText
+                        android:id="@+id/register_confirm_password_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:hint="@string/confirm_password_label_hint"
+                        android:inputType="textPassword"
+                        android:background="@drawable/et_bg"
+                        android:drawableStart="@drawable/ic_password_key"
+                        android:drawablePadding="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@color/white"/>
+
+                    <EditText
+                        android:id="@+id/register_email_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:hint="@string/email_label_hint"
+                        android:inputType="textEmailAddress"
+                        android:background="@drawable/et_bg"
+                        android:drawableStart="@drawable/ic_email"
+                        android:drawablePadding="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="@color/white"/>
+
+                    <Button
+                        android:id="@+id/register_date_of_birth_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:hint="@string/date_of_birth_label_hint"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/btn_bg"
+                        android:drawableStart="@drawable/ic_calender"
+                        android:drawablePadding="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"/>
+
+                    <Spinner
+                        android:id="@+id/register_gender_spinner_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        android:entries="@array/gender_label"
+                        android:textColor="@color/white">
+                    </Spinner>
+
+                    <Button
+                        android:id="@+id/registration_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/registration_register"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/btn_bg"
+                        android:fontFamily="sans-serif-medium"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/registration_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/errorMessage"
+                        android:textAlignment="center"
+                        android:textAllCaps="true"/>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</ScrollView>

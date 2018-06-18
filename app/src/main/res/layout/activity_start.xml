@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:animateLayoutChanges="true"
+    android:background="@drawable/app_wallpaper_blue"
+    tools:context="com.example.ahmed_tarek.graduationapplication.StartActivity">
+
+        <ImageView
+            android:id="@+id/elixir_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_elixir_logo"/>
+
+</RelativeLayout>

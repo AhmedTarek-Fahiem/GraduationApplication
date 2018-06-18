@@ -6,4 +6,6 @@
     <color name="errorMessage">#e50000</color>
     <color name="backgroundTintBlue">#FF0099CC</color>
     <color name="backgroundTintGreen">#138407</color>
+    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
 </resources>
