@@ -86,10 +86,13 @@ public class Linker implements AsyncResponse{
                     if (output.getInt(MainActivity.TAG_SUCCESS + "_sync_offline") == 1 && output.getInt(MainActivity.TAG_SUCCESS + "_prescription") == 1) {
                         if (output.getJSONArray(RegistrationFragment.TAG_RESULT).length() > 0) {
                             boolean result = PrescriptionLab.get(activity).sync(activity, output.getJSONArray(RegistrationFragment.TAG_RESULT), UserLab.get(activity).getUserUUID());
-                            if (result)
+                            if (result) {
                                 makeSnack(R.string.doctor_prescriptions_received).show();
-                            else
+                                PreferenceManager.getDefaultSharedPreferences(activity).edit().putBoolean(UserLab.get(activity).getUsername() + "_isDoctorPrescription", true).apply();
+                            } else {
                                 makeSnack(R.string.sync_complete).show();
+                                PreferenceManager.getDefaultSharedPreferences(activity).edit().putBoolean(UserLab.get(activity).getUsername() + "_isDoctorPrescription", false).apply();
+                            }
                         }
                         if (type.equals(MainActivity.TAG_SYNC))
                             activity.invalidateOptionsMenu();
@@ -134,13 +137,13 @@ public class Linker implements AsyncResponse{
             }
         }
         if (case7) {
-            time = fireAfter(0);
+            time = fireAfter(6);
             if (!RegularOrderLab.get(context).reminderExists(time))
                 initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);
         }
         if (case30) {
-            time = fireAfter(1);
+            time = fireAfter(29);
             if (!RegularOrderLab.get(context).reminderExists(time))
                 initAlarm(context, time);
             RegularOrderLab.get(context).addRegularOrder(id, time);

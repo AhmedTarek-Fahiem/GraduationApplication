@@ -541,8 +541,7 @@ public class MainActivity extends SingleMedicineFragmentActivity implements Asyn
 
         switch (item.getItemId()) {
             case R.id.bar_recent_qr :
-                Intent intent = QRActivity.newIntent(this);
-                startActivity(intent);
+                startActivity(QRActivity.newIntent(this, PreferenceManager.getDefaultSharedPreferences(this).getBoolean(UserLab.get(this).getUsername() + "_isDoctorPrescription", false)));
                 return true;
             default :
                 return super.onOptionsItemSelected(item);

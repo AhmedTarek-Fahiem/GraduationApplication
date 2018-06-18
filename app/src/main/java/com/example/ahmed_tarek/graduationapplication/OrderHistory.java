@@ -91,9 +91,7 @@ public class OrderHistory extends Fragment {
                         prescriptionHandler.addCart(cartMedicine);
                     }
 
-                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+                    startActivity(new Intent(getActivity(), MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 }
             });
             View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -111,7 +109,7 @@ public class OrderHistory extends Fragment {
                             content += '|';
                     }
 
-                    QRActivity.MyDialogFragment.newInstance(content, null).show(getFragmentManager(), "prescription_dialog");
+                    QRActivity.MyDialogFragment.newInstance(content, null, false).show(getFragmentManager(), "prescription_dialog");
                 }
             };
             mPrescriptionDateTextView.setOnClickListener(onClickListener);

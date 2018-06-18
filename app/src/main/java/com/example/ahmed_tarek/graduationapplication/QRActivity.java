@@ -50,6 +50,7 @@ public class QRActivity extends AppCompatActivity {
 
     private static final String EXTRA_QR_TEXT = "qr_text";
     private static final String EXTRA_QR_FLAG = "qr_flag";
+    private static final String EXTRA_IS_DOCTOR_PRESCRIPTION = "is_doctor_prescription";
 
     private ImageView mQRImageView;
 
@@ -96,13 +97,15 @@ public class QRActivity extends AppCompatActivity {
 
         private String content;
         private static String allMedicines;
+        private static boolean isDoctor;
         private Content[] contents;
 
-        static MyDialogFragment newInstance(String content, String extraProcessing) {
+        static MyDialogFragment newInstance(String content, String extraProcessing, boolean isDoctorPrescription) {
             MyDialogFragment fragment = new MyDialogFragment();
             Bundle args = new Bundle();
             args.putString("content", content);
             allMedicines = extraProcessing;
+            isDoctor = isDoctorPrescription;
             fragment.setArguments(args);
 
             return fragment;
@@ -145,23 +148,22 @@ public class QRActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     dismiss();
                     if (allMedicines != null)
-                        startActivity(newIntent(getContext(), allMedicines));
+                        startActivity(newIntent(getContext(), allMedicines, isDoctor));
                 }
             });
             return v;
         }
     }
 
-    public static Intent newIntent(Context packageContext) {
+    public static Intent newIntent(Context packageContext, boolean isDoctorPrescription) {
         Intent intent = new Intent(packageContext, QRActivity.class);
-        intent.putExtra(EXTRA_QR_FLAG, true);
+        intent.putExtra(EXTRA_QR_FLAG, true).putExtra(EXTRA_IS_DOCTOR_PRESCRIPTION, isDoctorPrescription);
         return intent;
     }
 
-    public static Intent newIntent(Context packageContext, String qrText) {
+    public static Intent newIntent(Context packageContext, String qrText, boolean isDoctorPrescription) {
         Intent intent = new Intent(packageContext, QRActivity.class);
-        intent.putExtra(EXTRA_QR_FLAG, false);
-        intent.putExtra(EXTRA_QR_TEXT, qrText);
+        intent.putExtra(EXTRA_QR_FLAG, false).putExtra(EXTRA_QR_TEXT, qrText).putExtra(EXTRA_IS_DOCTOR_PRESCRIPTION, isDoctorPrescription);
         return intent;
     }
 
@@ -225,6 +227,8 @@ public class QRActivity extends AppCompatActivity {
         mQRImageView = findViewById(R.id.qrImage);
         Button mSave = findViewById(R.id.save_qr_button);
         FloatingActionButton mInquiry = findViewById(R.id.qr_details);
+        if (this.getIntent().getBooleanExtra(EXTRA_IS_DOCTOR_PRESCRIPTION, false))
+            findViewById(R.id.disclaimer).setVisibility(View.GONE);
         if (!this.getIntent().getBooleanExtra(EXTRA_QR_FLAG, false)) {
             try {
                 Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
@@ -252,7 +256,7 @@ public class QRActivity extends AppCompatActivity {
                 int[] imageArray = new int[bitmap.getHeight() * bitmap.getWidth()];
                 bitmap.getPixels(imageArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
                 try {
-                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText(), null).show(getSupportFragmentManager().beginTransaction(), "dialog");
+                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText(), null, false).show(getSupportFragmentManager().beginTransaction(), "dialog");
                 } catch (NotFoundException e) {
                     e.printStackTrace();
                 }

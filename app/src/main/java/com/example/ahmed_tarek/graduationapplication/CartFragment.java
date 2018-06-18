@@ -149,14 +149,15 @@ public class CartFragment extends Fragment implements AsyncResponse {
                     List<Prescription> list = new ArrayList<>();
                     list.add(mPrescriptionHandler.getPrescription());
                     mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
+                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_recentDate", list.get(0).getDate().getTime()).apply();
+                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean(UserLab.get(getContext()).getUsername() + "_isDoctorPrescription", false).apply();
                     mPrescriptionHandler.prescriptionCommit(getActivity());
                     if (isRegular)
                         Linker.getInstance(getActivity(), getView()).schedule(getContext(), id);
-                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_recentDate", list.get(0).getDate().getTime()).apply();
                     if (Linker.getInstance(getActivity(), getView()).checkState(getContext()))
                         new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(MainActivity.toJSON(list, getActivity(), 0, false));
                     else
-                        startActivity(QRActivity.newIntent(getContext(), cartMedicines));
+                        startActivity(QRActivity.newIntent(getContext(), cartMedicines, false));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -184,12 +185,12 @@ public class CartFragment extends Fragment implements AsyncResponse {
                         MainActivity.showToast(R.string.database_error, getContext());
                     else if (outOfStock != null)
                         if (outOfStock.length() > 0)
-                            QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines).show(getFragmentManager().beginTransaction(), "dialog");
+                            QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines, false).show(getFragmentManager().beginTransaction(), "dialog");
                     else {
                         long time = System.currentTimeMillis();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
-                        startActivity(QRActivity.newIntent(getContext(), cartMedicines));
+                        startActivity(QRActivity.newIntent(getContext(), cartMedicines, false));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

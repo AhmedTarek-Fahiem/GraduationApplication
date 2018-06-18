@@ -37,7 +37,7 @@ public class PrescriptionHandler {
     }
 
     public void addCart(CartMedicine cartMedicine) {
-        if (!isExist(cartMedicine.getMedicineID()))
+        if (!exists(cartMedicine.getMedicineID()))
             mCartMedicines.add(cartMedicine);
     }
 
@@ -58,7 +58,7 @@ public class PrescriptionHandler {
         mCartMedicines.remove(cartMedicine);
     }
 
-    public boolean isExist(UUID uuid) {
+    public boolean exists(UUID uuid) {
         for (CartMedicine cartMedicine : mCartMedicines) {
             if (cartMedicine.getMedicineID().equals(uuid))
                 return true;

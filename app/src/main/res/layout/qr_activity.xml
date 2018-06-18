@@ -48,7 +48,8 @@
             android:text="@string/disclaimer"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:textAlignment="center"/>
+            android:textAlignment="center"
+            android:id="@+id/disclaimer"/>
     </LinearLayout>
 
 </RelativeLayout>

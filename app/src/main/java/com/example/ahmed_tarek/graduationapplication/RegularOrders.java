@@ -105,7 +105,7 @@ public class RegularOrders extends Fragment {
                             content += '|';
                     }
 
-                    QRActivity.MyDialogFragment.newInstance(content, null).show(getFragmentManager(), "prescription_dialog");
+                    QRActivity.MyDialogFragment.newInstance(content, null, false).show(getFragmentManager(), "prescription_dialog");
                 }
             });
         }

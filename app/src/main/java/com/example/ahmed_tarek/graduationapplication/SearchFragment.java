@@ -139,7 +139,7 @@ public class SearchFragment extends Fragment {
             mMedicineNameTextView.setText(mMedicineHold.getName());
             if (mMedicineHold.getIsRestricted() == 0) {
                 mSelectedCheckBox.setVisibility(View.VISIBLE);
-                mSelectedCheckBox.setChecked(mPrescriptionHandler.isExist(mMedicineHold.getID()));
+                mSelectedCheckBox.setChecked(mPrescriptionHandler.exists(mMedicineHold.getID()));
                 mSelectedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
