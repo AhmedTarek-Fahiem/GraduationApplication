@@ -18,6 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,8 +41,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Locale;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by Ahmed_Tarek on 17/11/22.
@@ -206,7 +220,7 @@ public class QRActivity extends AppCompatActivity {
 
     private void saveExternal() {
         BitmapDrawable drawable = (BitmapDrawable) mQRImageView.getDrawable();
-        MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), this, true), new String[] { "image/png" }, null);
+        MediaScannerConnection.scanFile(QRActivity.super.getApplicationContext(), saveQR(drawable.getBitmap(), new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() + "/QR"), this, true), new String[] { "image/jpg" }, null);
         MainActivity.showToast(R.string.save_success, getApplicationContext());
     }
 
@@ -216,6 +230,44 @@ public class QRActivity extends AppCompatActivity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private String encrypt(byte[] message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] key = "ElixirLtd".getBytes("UTF-8");
+        md.update(key);
+        key = md.digest(key);
+        SecretKeySpec newKey = new SecretKeySpec(key, "AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+
+        cipher.init(Cipher.ENCRYPT_MODE, newKey);
+        int length = message.length + (128 - message.length % 128);
+        byte[] destination = new byte[length];
+        System.arraycopy(message, 0, destination, 0, message.length);
+        for (int i = message.length; i < length; i++)
+            destination[i] = 0;
+        /*byte[] res = cipher.doFinal(destination);
+        String result = "";
+        for (byte re : res)
+            result = result.concat(Integer.toString(re));
+        Log.e("BYTES", result);*/
+        return Base64.encodeToString(cipher.doFinal(destination), Base64.DEFAULT);
+
+    }
+
+    public String decrypt(byte[] bytes) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException, ClassNotFoundException {
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] key = "ElixirLtd".getBytes("UTF-8");
+        md.update(key);
+        key = md.digest(key);
+
+        byte[] codB = Arrays.copyOfRange(bytes, 0, bytes.length);
+
+        SecretKeySpec newKey = new SecretKeySpec(key, "AES");
+        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+        cipher.init(Cipher.DECRYPT_MODE, newKey);
+        return new String(cipher.doFinal(codB));
     }
 
     @Override
@@ -231,12 +283,13 @@ public class QRActivity extends AppCompatActivity {
             findViewById(R.id.disclaimer).setVisibility(View.GONE);
         if (!this.getIntent().getBooleanExtra(EXTRA_QR_FLAG, false)) {
             try {
-                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(this.getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
+                Log.e("ENCRYPT", this.getIntent().getStringExtra(EXTRA_QR_TEXT) + " _|_ " + encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8")));
+                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8")), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
                 if (saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), this, false) != null)
                     PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(UserLab.get(this).getUsername(), true).apply();
             }
-            catch (WriterException e) {
+            catch (WriterException | IOException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
                 e.printStackTrace();
             }
         } else
@@ -256,8 +309,9 @@ public class QRActivity extends AppCompatActivity {
                 int[] imageArray = new int[bitmap.getHeight() * bitmap.getWidth()];
                 bitmap.getPixels(imageArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
                 try {
-                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText(), null, false).show(getSupportFragmentManager().beginTransaction(), "dialog");
-                } catch (NotFoundException e) {
+                    Log.e("A7A", decrypt(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText().getBytes()));
+                    MyDialogFragment.newInstance(decrypt(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText().getBytes()), null, false).show(getSupportFragmentManager().beginTransaction(), "dialog");
+                } catch (NotFoundException | ClassNotFoundException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | IOException | IllegalBlockSizeException e) {
                     e.printStackTrace();
                 }
             }
