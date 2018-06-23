@@ -185,7 +185,7 @@ public class CartFragment extends Fragment implements AsyncResponse {
                         MainActivity.showToast(R.string.database_error, getContext());
                     else if (outOfStock != null)
                         if (outOfStock.length() > 0)
-                            QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines, false).show(getFragmentManager().beginTransaction(), "dialog");
+                            QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines).show(getFragmentManager().beginTransaction(), "dialog");
                     else {
                         long time = System.currentTimeMillis();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();

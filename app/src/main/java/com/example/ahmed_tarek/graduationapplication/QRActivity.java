@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.NotFoundException;
@@ -48,7 +49,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -65,7 +69,7 @@ public class QRActivity extends AppCompatActivity {
     private static final String EXTRA_QR_TEXT = "qr_text";
     private static final String EXTRA_QR_FLAG = "qr_flag";
     private static final String EXTRA_IS_DOCTOR_PRESCRIPTION = "is_doctor_prescription";
-
+    private String enc;
     private ImageView mQRImageView;
 
     private static class Content {
@@ -111,15 +115,13 @@ public class QRActivity extends AppCompatActivity {
 
         private String content;
         private static String allMedicines;
-        private static boolean isDoctor;
         private Content[] contents;
 
-        static MyDialogFragment newInstance(String content, String extraProcessing, boolean isDoctorPrescription) {
+        static MyDialogFragment newInstance(String content, String extraProcessing) {
             MyDialogFragment fragment = new MyDialogFragment();
             Bundle args = new Bundle();
             args.putString("content", content);
             allMedicines = extraProcessing;
-            isDoctor = isDoctorPrescription;
             fragment.setArguments(args);
 
             return fragment;
@@ -162,7 +164,7 @@ public class QRActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     dismiss();
                     if (allMedicines != null)
-                        startActivity(newIntent(getContext(), allMedicines, isDoctor));
+                        startActivity(newIntent(getContext(), allMedicines, false));
                 }
             });
             return v;
@@ -233,7 +235,7 @@ public class QRActivity extends AppCompatActivity {
     }
 
     private String encrypt(byte[] message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] key = "ElixirLtd".getBytes("UTF-8");
         md.update(key);
         key = md.digest(key);
@@ -257,16 +259,19 @@ public class QRActivity extends AppCompatActivity {
 
     public String decrypt(byte[] bytes) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException, ClassNotFoundException {
 
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] key = "ElixirLtd".getBytes("UTF-8");
         md.update(key);
         key = md.digest(key);
 
-        byte[] codB = Arrays.copyOfRange(bytes, 0, bytes.length);
-
+        int length = bytes.length + (128 - bytes.length % 128);
+        byte[] codB = new byte[length];
+        System.arraycopy(bytes, 0, codB, 0, bytes.length);
         SecretKeySpec newKey = new SecretKeySpec(key, "AES");
         Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
         cipher.init(Cipher.DECRYPT_MODE, newKey);
+        for (int i = bytes.length; i < length; i++)
+            codB[i] = 0;
         return new String(cipher.doFinal(codB));
     }
 
@@ -283,8 +288,9 @@ public class QRActivity extends AppCompatActivity {
             findViewById(R.id.disclaimer).setVisibility(View.GONE);
         if (!this.getIntent().getBooleanExtra(EXTRA_QR_FLAG, false)) {
             try {
-                Log.e("ENCRYPT", this.getIntent().getStringExtra(EXTRA_QR_TEXT) + " _|_ " + encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8")));
-                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8")), BarcodeFormat.QR_CODE,1000,1000));
+                enc = encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8"));
+                Log.e("ENCRYPT", this.getIntent().getStringExtra(EXTRA_QR_TEXT) + " _|_ " + enc);
+                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(/*encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8"))*/ getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
                 if (saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), this, false) != null)
                     PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(UserLab.get(this).getUsername(), true).apply();
@@ -309,8 +315,14 @@ public class QRActivity extends AppCompatActivity {
                 int[] imageArray = new int[bitmap.getHeight() * bitmap.getWidth()];
                 bitmap.getPixels(imageArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
                 try {
-                    Log.e("A7A", decrypt(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText().getBytes()));
-                    MyDialogFragment.newInstance(decrypt(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText().getBytes()), null, false).show(getSupportFragmentManager().beginTransaction(), "dialog");
+                    Log.e("A7A", decrypt(enc.getBytes()) + " _!_ " /*new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText()*/);
+                    Map<DecodeHintType, Object> tmpHintsMap = new EnumMap<>(
+                            DecodeHintType.class);
+                    tmpHintsMap.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+                    tmpHintsMap.put(DecodeHintType.POSSIBLE_FORMATS,
+                            EnumSet.allOf(BarcodeFormat.class));
+                    tmpHintsMap.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
+                    MyDialogFragment.newInstance(/*decrypt(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText().getBytes())*/new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray))), tmpHintsMap).getText(), null).show(getSupportFragmentManager().beginTransaction(), "dialog");
                 } catch (NotFoundException | ClassNotFoundException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | IOException | IllegalBlockSizeException e) {
                     e.printStackTrace();
                 }
