@@ -151,13 +151,16 @@ public class CartFragment extends Fragment implements AsyncResponse {
                     mPrescriptionHandler.setPrescriptionPrice(Double.parseDouble(mTotalPrice.getText().toString()));
                     PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_recentDate", list.get(0).getDate().getTime()).apply();
                     PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putBoolean(UserLab.get(getContext()).getUsername() + "_isDoctorPrescription", false).apply();
-                    mPrescriptionHandler.prescriptionCommit(getActivity());
+
                     if (isRegular)
                         Linker.getInstance(getActivity(), getView()).schedule(getContext(), id);
                     if (Linker.getInstance(getActivity(), getView()).checkState(getContext()))
                         new MainActivity.DatabaseComm(CartFragment.this, getActivity(), MainActivity.TAG_PRESCRIPTION).execute(MainActivity.toJSON(list, getActivity(), 0, false));
-                    else
+                    else {
+                        PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", mPrescriptionHandler.getPrescription().getDate().getTime() + 100).apply();
                         startActivity(QRActivity.newIntent(getContext(), cartMedicines, false));
+                    }
+                    mPrescriptionHandler.prescriptionCommit(getActivity());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -180,14 +183,17 @@ public class CartFragment extends Fragment implements AsyncResponse {
         switch (type) {
             case MainActivity.TAG_PRESCRIPTION:
                 try {
+                    long time = System.currentTimeMillis();
                     String outOfStock = output.getString("outOfStockMedicines");
                     if (output.getInt(MainActivity.TAG_SUCCESS) == 0)
                         MainActivity.showToast(R.string.database_error, getContext());
-                    else if (outOfStock != null)
-                        if (outOfStock.length() > 0)
+                    else if (outOfStock != null) {
+                        if (outOfStock.length() > 0) {
+                            PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
+                            PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
                             QRActivity.MyDialogFragment.newInstance(outOfStock, cartMedicines).show(getFragmentManager().beginTransaction(), "dialog");
-                    else {
-                        long time = System.currentTimeMillis();
+                        }
+                    } else {
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastPrescription", time).apply();
                         PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putLong(UserLab.get(getContext()).getUsername() + "_lastUpdated", time).apply();
                         startActivity(QRActivity.newIntent(getContext(), cartMedicines, false));

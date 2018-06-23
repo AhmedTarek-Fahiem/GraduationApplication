@@ -18,8 +18,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,23 +40,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by Ahmed_Tarek on 17/11/22.
@@ -69,7 +55,6 @@ public class QRActivity extends AppCompatActivity {
     private static final String EXTRA_QR_TEXT = "qr_text";
     private static final String EXTRA_QR_FLAG = "qr_flag";
     private static final String EXTRA_IS_DOCTOR_PRESCRIPTION = "is_doctor_prescription";
-    private String enc;
     private ImageView mQRImageView;
 
     private static class Content {
@@ -110,6 +95,106 @@ public class QRActivity extends AppCompatActivity {
             return convertView;
         }
     }
+
+    /*public static class Crypt {
+
+        private static final String tag = Crypt.class.getSimpleName();
+
+        private static final String characterEncoding = "UTF-8";
+        private static final String cipherTransformation = "AES/CBC/PKCS5Padding";
+        private static final String aesEncryptionAlgorithm = "AES";
+        private static final String key = "ElixirLtd";
+        private static byte[] ivBytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        private static byte[] keyBytes;
+
+        private static Crypt instance = null;
+
+
+        Crypt() {
+            SecureRandom random = new SecureRandom();
+            Crypt.ivBytes = new byte[16];
+            random.nextBytes(Crypt.ivBytes);
+        }
+
+        public static Crypt getInstance() {
+            if (instance == null) {
+                instance = new Crypt();
+            }
+
+            return instance;
+        }
+
+        public String encrypt_string(final String plain) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+            return Base64.encodeToString(encrypt(plain.getBytes()), Base64.DEFAULT);
+        }
+
+        public String decrypt_string(final String plain) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException, IOException {
+            byte[] encryptedBytes = decrypt(Base64.decode(plain, 0));
+            return new String(encryptedBytes);
+        }
+
+        public byte[] encrypt(byte[] mes)
+                throws NoSuchAlgorithmException,
+                NoSuchPaddingException,
+                InvalidKeyException,
+                InvalidAlgorithmParameterException,
+                IllegalBlockSizeException,
+                BadPaddingException, IOException {
+
+            keyBytes = key.getBytes(characterEncoding);
+            Log.d(tag,"Long KEY: "+keyBytes.length);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(keyBytes);
+            keyBytes = md.digest();
+
+            Log.d(tag,"Long KEY: "+keyBytes.length);
+
+            AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+            SecretKeySpec newKey = new SecretKeySpec(keyBytes, aesEncryptionAlgorithm);
+            Log.e("KEY", (keyBytes));
+            Cipher cipher = null;
+            cipher = Cipher.getInstance(cipherTransformation);
+
+            SecureRandom random = new SecureRandom();
+            Crypt.ivBytes = new byte[16];
+            random.nextBytes(Crypt.ivBytes);
+
+            cipher.init(Cipher.ENCRYPT_MODE, newKey, random);
+            cipher.init(Cipher.ENCRYPT_MODE, newKey, ivSpec);
+            byte[] destination = new byte[ivBytes.length + mes.length];
+            System.arraycopy(ivBytes, 0, destination, 0, ivBytes.length);
+            System.arraycopy(mes, 0, destination, ivBytes.length, mes.length);
+            return  cipher.doFinal(destination);
+        }
+
+        public byte[] decrypt(   byte[] bytes)
+                throws NoSuchAlgorithmException,
+                NoSuchPaddingException,
+                InvalidKeyException,
+                InvalidAlgorithmParameterException,
+                IllegalBlockSizeException,
+                BadPaddingException, IOException, ClassNotFoundException {
+
+            keyBytes = key.getBytes(characterEncoding);
+            Log.d(tag,"Long KEY: "+keyBytes.length);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(keyBytes);
+            keyBytes = md.digest();
+            Log.d(tag,"Long KEY: "+keyBytes.length);
+
+            byte[] ivB = Arrays.copyOfRange(bytes,0,16);
+            Log.d(tag, "IV: "+new String(ivB));
+            byte[] codB = Arrays.copyOfRange(bytes,16,bytes.length);
+
+
+            AlgorithmParameterSpec ivSpec = new IvParameterSpec(ivB);
+            SecretKeySpec newKey = new SecretKeySpec(keyBytes, aesEncryptionAlgorithm);
+            Cipher cipher = Cipher.getInstance(cipherTransformation);
+            cipher.init(Cipher.DECRYPT_MODE, newKey, ivSpec);
+            byte[] res = cipher.doFinal(codB);
+            return  res;
+        }
+    }*/
 
     public static class MyDialogFragment extends DialogFragment {
 
@@ -234,47 +319,6 @@ public class QRActivity extends AppCompatActivity {
         }
     }
 
-    private String encrypt(byte[] message) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] key = "ElixirLtd".getBytes("UTF-8");
-        md.update(key);
-        key = md.digest(key);
-        SecretKeySpec newKey = new SecretKeySpec(key, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-
-        cipher.init(Cipher.ENCRYPT_MODE, newKey);
-        int length = message.length + (128 - message.length % 128);
-        byte[] destination = new byte[length];
-        System.arraycopy(message, 0, destination, 0, message.length);
-        for (int i = message.length; i < length; i++)
-            destination[i] = 0;
-        /*byte[] res = cipher.doFinal(destination);
-        String result = "";
-        for (byte re : res)
-            result = result.concat(Integer.toString(re));
-        Log.e("BYTES", result);*/
-        return Base64.encodeToString(cipher.doFinal(destination), Base64.DEFAULT);
-
-    }
-
-    public String decrypt(byte[] bytes) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException, ClassNotFoundException {
-
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] key = "ElixirLtd".getBytes("UTF-8");
-        md.update(key);
-        key = md.digest(key);
-
-        int length = bytes.length + (128 - bytes.length % 128);
-        byte[] codB = new byte[length];
-        System.arraycopy(bytes, 0, codB, 0, bytes.length);
-        SecretKeySpec newKey = new SecretKeySpec(key, "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, newKey);
-        for (int i = bytes.length; i < length; i++)
-            codB[i] = 0;
-        return new String(cipher.doFinal(codB));
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -288,14 +332,15 @@ public class QRActivity extends AppCompatActivity {
             findViewById(R.id.disclaimer).setVisibility(View.GONE);
         if (!this.getIntent().getBooleanExtra(EXTRA_QR_FLAG, false)) {
             try {
-                enc = encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8"));
-                Log.e("ENCRYPT", this.getIntent().getStringExtra(EXTRA_QR_TEXT) + " _|_ " + enc);
-                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(/*encrypt(this.getIntent().getStringExtra(EXTRA_QR_TEXT).getBytes("UTF-8"))*/ getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
+                //enc = Crypt.getInstance().encrypt_string(getIntent().getStringExtra(EXTRA_QR_TEXT));
+                //Log.e("ENCRYPT", enc);
+                //Log.e("DECA7A", Crypt.getInstance().decrypt_string(enc));
+                Bitmap QR = new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(getIntent().getStringExtra(EXTRA_QR_TEXT), BarcodeFormat.QR_CODE,1000,1000));
                 mQRImageView.setImageBitmap(QR);
                 if (saveQR(QR, new File(new ContextWrapper(this.getApplicationContext()).getDir("QR", Context.MODE_PRIVATE).toString()), this, false) != null)
                     PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(UserLab.get(this).getUsername(), true).apply();
             }
-            catch (WriterException | IOException | NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
+            catch (WriterException e) {
                 e.printStackTrace();
             }
         } else
@@ -315,15 +360,14 @@ public class QRActivity extends AppCompatActivity {
                 int[] imageArray = new int[bitmap.getHeight() * bitmap.getWidth()];
                 bitmap.getPixels(imageArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
                 try {
-                    Log.e("A7A", decrypt(enc.getBytes()) + " _!_ " /*new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText()*/);
                     Map<DecodeHintType, Object> tmpHintsMap = new EnumMap<>(
                             DecodeHintType.class);
                     tmpHintsMap.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
                     tmpHintsMap.put(DecodeHintType.POSSIBLE_FORMATS,
                             EnumSet.allOf(BarcodeFormat.class));
                     tmpHintsMap.put(DecodeHintType.PURE_BARCODE, Boolean.FALSE);
-                    MyDialogFragment.newInstance(/*decrypt(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray)))).getText().getBytes())*/new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray))), tmpHintsMap).getText(), null).show(getSupportFragmentManager().beginTransaction(), "dialog");
-                } catch (NotFoundException | ClassNotFoundException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | NoSuchPaddingException | InvalidAlgorithmParameterException | IOException | IllegalBlockSizeException e) {
+                    MyDialogFragment.newInstance(new MultiFormatReader().decode(new BinaryBitmap(new HybridBinarizer(new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), imageArray))), tmpHintsMap).getText(), null).show(getSupportFragmentManager().beginTransaction(), "dialog");
+                } catch (NotFoundException e) {
                     e.printStackTrace();
                 }
             }

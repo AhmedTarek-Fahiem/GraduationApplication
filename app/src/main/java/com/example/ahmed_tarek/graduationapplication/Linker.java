@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 
 import com.example.ahmed_tarek.graduationapplication.receivers.NotificationReceiver;
@@ -52,6 +53,7 @@ public class Linker implements AsyncResponse{
     void syncOperation(boolean isVisible) throws JSONException {
         long lastUpdated = PreferenceManager.getDefaultSharedPreferences(activity).getLong(UserLab.get(activity).getUsername() + "_lastUpdated", 0), lastPrescription = PreferenceManager.getDefaultSharedPreferences(activity).getLong(UserLab.get(activity).getUsername() + "_lastPrescription", 0);
         String tag;
+        Log.e("TIME", lastPrescription + " " + lastUpdated);
         if (isVisible)
             tag = MainActivity.TAG_SYNC_VISIBLE;
         else
